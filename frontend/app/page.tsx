@@ -1,5 +1,7 @@
 import { fetchHealth } from '@/lib/fetchHealth';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const apiUrl = process.env.API_URL ?? 'http://localhost:8000';
   let status = 'unknown';
