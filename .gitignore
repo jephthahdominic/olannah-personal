@@ -22,3 +22,8 @@ infra/environments/dev/terraform.tfvars
 
 # OS
 .DS_Store
+
+.superpowers
+
+frontend/AGENTS.md
+frontend/CLAUDE.md
