@@ -1,0 +1,24 @@
+# Design docs and plans stay local, not committed
+docs/
+
+# Node
+node_modules/
+.next/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Env files
+.env
+infra/environments/dev/terraform.tfvars
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+
+# OS
+.DS_Store
