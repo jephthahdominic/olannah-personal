@@ -93,22 +93,26 @@ jobs:
           docker push $IMAGE:latest
 
   deploy:
-    needs: [build-and-push-backend, build-and-push-frontend]
+    needs: [test-backend, test-frontend, build-and-push-backend, build-and-push-frontend]
     if: |
-      always() &&
-      (needs.build-and-push-backend.result == 'success' || needs.build-and-push-backend.result == 'skipped') &&
-      (needs.build-and-push-frontend.result == 'success' || needs.build-and-push-frontend.result == 'skipped') &&
+      always() && github.event_name == 'push' &&
+      needs.test-backend.result != 'failure' &&
+      needs.test-frontend.result != 'failure' &&
       (needs.build-and-push-backend.result == 'success' || needs.build-and-push-frontend.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - uses: tailscale/github-action@v3
         with:
           authkey: ${{ secrets.TS_AUTHKEY }}
+      - uses: actions/checkout@v4
       - run: |
           for i in 1 2 3 4 5; do
-            ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@dev-app \
-              "cd /home/ec2-user/app && docker compose pull && docker compose up -d" && exit 0
-            echo "SSH attempt $i failed, retrying in 10s (Tailscale DNS may still be propagating)..."
+            scp -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
+              infra/environments/dev/docker-compose.deploy.yml ec2-user@dev-app:/home/ec2-user/app/docker-compose.yml && exit 0
+            echo "SCP attempt $i failed, retrying in 10s..."
             sleep 10
           done
           exit 1
+      - run: |
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@dev-app \
+            "cd /home/ec2-user/app && docker compose pull && docker compose up -d && docker compose images"

@@ -7,13 +7,20 @@ services:
       POSTGRES_DB: appdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     image: ${BACKEND_IMAGE}
     environment:
       DATABASE_URL: postgresql://appuser:${POSTGRES_PASSWORD}@postgres:5432/appdb
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "8000:8000"
     restart: unless-stopped
