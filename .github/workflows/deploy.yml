@@ -9,6 +9,9 @@ on:
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       backend: ${{ steps.filter.outputs.backend }}
@@ -46,3 +49,61 @@ jobs:
           node-version: '20'
       - run: cd frontend && npm ci
       - run: cd frontend && npm test
+
+  build-and-push-backend:
+    needs: [detect-changes, test-backend]
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr-login
+      - run: |
+          IMAGE=${{ steps.ecr-login.outputs.registry }}/app-backend
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest backend/
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
+
+  build-and-push-frontend:
+    needs: [detect-changes, test-frontend]
+    if: needs.detect-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr-login
+      - run: |
+          IMAGE=${{ steps.ecr-login.outputs.registry }}/app-frontend
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest frontend/
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
+
+  deploy:
+    needs: [build-and-push-backend, build-and-push-frontend]
+    if: |
+      always() &&
+      (needs.build-and-push-backend.result == 'success' || needs.build-and-push-backend.result == 'skipped') &&
+      (needs.build-and-push-frontend.result == 'success' || needs.build-and-push-frontend.result == 'skipped') &&
+      (needs.build-and-push-backend.result == 'success' || needs.build-and-push-frontend.result == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+      - run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@dev-app \
+            "cd /home/ec2-user/app && docker compose pull && docker compose up -d"

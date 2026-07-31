@@ -16,10 +16,9 @@ provider "aws" {
 module "dev_ec2" {
   source = "../../modules/dev-ec2"
 
-  instance_type    = var.instance_type
-  allowed_ssh_cidr = var.allowed_ssh_cidr
-  github_repo      = var.github_repo
-  ssh_public_key   = var.ssh_public_key
+  instance_type      = var.instance_type
+  github_repo        = var.github_repo
+  tailscale_auth_key = var.tailscale_auth_key
 }
 
 output "instance_public_ip" {

@@ -17,31 +17,7 @@ data "aws_ami" "al2023" {
 
 resource "aws_security_group" "dev" {
   name_prefix = "dev-app-"
-  description = "Dev box: SSH, frontend, backend"
-
-  ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.allowed_ssh_cidr]
-  }
-
-  ingress {
-    description = "Frontend"
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Backend"
-    from_port   = 8000
-    to_port     = 8000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  description = "Dev box: outbound only, all access via Tailscale"
 
   egress {
     from_port   = 0
@@ -49,11 +25,6 @@ resource "aws_security_group" "dev" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-resource "aws_key_pair" "dev" {
-  key_name_prefix = "dev-app-"
-  public_key      = var.ssh_public_key
 }
 
 data "aws_iam_policy_document" "ec2_assume" {
@@ -85,12 +56,11 @@ resource "aws_iam_instance_profile" "ec2_ecr_pull" {
 resource "aws_instance" "dev" {
   ami                    = data.aws_ami.al2023.id
   instance_type          = var.instance_type
-  key_name               = aws_key_pair.dev.key_name
   vpc_security_group_ids = [aws_security_group.dev.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_ecr_pull.name
 
   root_block_device {
-    volume_size = 20
+    volume_size = 30
     volume_type = "gp3"
   }
 
@@ -115,6 +85,11 @@ resource "aws_instance" "dev" {
 
     mkdir -p /home/ec2-user/app
     chown ec2-user:ec2-user /home/ec2-user/app
+
+    curl -fsSL https://pkgs.tailscale.com/stable/amazon-linux/2023/tailscale.repo -o /etc/yum.repos.d/tailscale.repo
+    dnf install -y tailscale
+    systemctl enable --now tailscaled
+    tailscale up --authkey="${var.tailscale_auth_key}" --ssh --hostname=dev-app --accept-dns=false
   EOF
 
   tags = {

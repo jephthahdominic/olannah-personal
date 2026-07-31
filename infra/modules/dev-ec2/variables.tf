@@ -4,17 +4,13 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
-variable "allowed_ssh_cidr" {
-  description = "CIDR block allowed to SSH into the dev box"
-  type        = string
-}
-
 variable "github_repo" {
   description = "GitHub repo allowed to assume the deploy role, in 'org/repo' format"
   type        = string
 }
 
-variable "ssh_public_key" {
-  description = "Public key material for SSH access to the dev box"
+variable "tailscale_auth_key" {
+  description = "Tailscale auth key (tagged tag:dev-server) the dev box uses to join the tailnet at boot"
   type        = string
+  sensitive   = true
 }
