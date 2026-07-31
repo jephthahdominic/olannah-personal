@@ -108,11 +108,11 @@ jobs:
       - run: |
           for i in 1 2 3 4 5; do
             scp -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
-              infra/environments/dev/docker-compose.deploy.yml ec2-user@dev-app:/home/ec2-user/app/docker-compose.yml && exit 0
+              infra/environments/dev/docker-compose.deploy.yml ec2-user@olannah-dev:/home/ec2-user/app/docker-compose.yml && exit 0
             echo "SCP attempt $i failed, retrying in 10s..."
             sleep 10
           done
           exit 1
       - run: |
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@dev-app \
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@olannah-dev \
             "cd /home/ec2-user/app && docker compose pull && docker compose up -d && docker compose images"
