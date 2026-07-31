@@ -14,7 +14,7 @@ export default async function Home() {
 
   return (
     <main>
-      <h1>Dev Infra Bootstrap</h1>
+      <h1>Dev Infra Bootstrap — Tailscale live</h1>
       <p>Backend status: {status}</p>
     </main>
   );
