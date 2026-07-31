@@ -1,3 +1,2 @@
-allowed_ssh_cidr = "203.0.113.4/32"
-github_repo      = "your-github-username/your-repo-name"
-ssh_public_key   = "ssh-ed25519 AAAA... github-actions-deploy"
+github_repo         = "olannah/olannah"
+tailscale_auth_key  = "tskey-auth-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
