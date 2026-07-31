@@ -14,7 +14,7 @@ export default async function Home() {
 
   return (
     <main>
-      <h1>Dev Infra Bootstrap — hardened pipeline</h1>
+      <h1>Olannah Dev</h1>
       <p>Backend status: {status}</p>
     </main>
   );
