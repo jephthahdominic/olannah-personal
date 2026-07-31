@@ -26,17 +26,19 @@ The dev EC2 box has no public access at all — no open inbound ports, no SSH ke
    ```
 3. Ask a team admin to approve your device in the tailnet (new devices require admin approval before they can reach other machines).
 
-**Once connected**, the box is reachable at the hostname `dev-app`:
+**Once connected**, the box is reachable at the hostname `olannah-dev`:
 
 ```bash
-ssh ec2-user@dev-app
-curl http://dev-app:3000
+ssh ec2-user@olannah-dev
+curl http://olannah-dev:3000
 ```
+
+**App link (once connected to the tailnet):** [http://olannah-dev:3000](http://olannah-dev:3000)
 
 **Auth keys:** two Tailscale auth keys exist, and both expire (~90 days):
 
 - `tag:dev-server` — used once, at EC2 boot time, so the instance can join the tailnet.
-- `tag:ci` — stored as the `TS_AUTHKEY` GitHub secret, used by every deploy so the runner can reach `dev-app` over SSH/SCP.
+- `tag:ci` — stored as the `TS_AUTHKEY` GitHub secret, used by every deploy so the runner can reach `olannah-dev` over SSH/SCP.
 
 If deploys start failing with an "invalid key" error, the `tag:ci` key has expired. Regenerate it from the Tailscale admin console (Settings → Keys), then update the `TS_AUTHKEY` GitHub secret with the new value.
 

@@ -97,11 +97,11 @@ resource "aws_instance" "dev" {
     curl -fsSL https://pkgs.tailscale.com/stable/amazon-linux/2023/tailscale.repo -o /etc/yum.repos.d/tailscale.repo
     dnf install -y tailscale
     systemctl enable --now tailscaled
-    tailscale up --authkey="${var.tailscale_auth_key}" --ssh --hostname=dev-app --accept-dns=false
+    tailscale up --authkey="${var.tailscale_auth_key}" --ssh --hostname=olannah-dev --accept-dns=false
   EOF
 
   tags = {
-    Name = "dev-app"
+    Name = "olannah-dev"
   }
 }
 
