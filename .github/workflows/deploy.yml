@@ -105,5 +105,10 @@ jobs:
         with:
           authkey: ${{ secrets.TS_AUTHKEY }}
       - run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@dev-app \
-            "cd /home/ec2-user/app && docker compose pull && docker compose up -d"
+          for i in 1 2 3 4 5; do
+            ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@dev-app \
+              "cd /home/ec2-user/app && docker compose pull && docker compose up -d" && exit 0
+            echo "SSH attempt $i failed, retrying in 10s (Tailscale DNS may still be propagating)..."
+            sleep 10
+          done
+          exit 1
