@@ -8,6 +8,7 @@ export const mockControls = {
   /** Delay before a context re-delivery (refresh) answers. Set above 30,000 to exercise the staleness warning. */
   refreshDelayMs: 0,
   refreshFails: false,
+  feedbackFails: false,
 };
 
 export function resetMockControls(): void {
@@ -15,4 +16,5 @@ export function resetMockControls(): void {
   mockControls.historyDelayMs = 1200;
   mockControls.refreshDelayMs = 0;
   mockControls.refreshFails = false;
+  mockControls.feedbackFails = false;
 }

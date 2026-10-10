@@ -25,6 +25,11 @@ export const RuntimeConfigSchema = z.object({
     failAfterAttempts: z.number().int().positive(),
     failAfterMs: z.number().int().positive(),
   }),
+  persistence: z.object({
+    // The shell, never a component, decides which persistence-capable instances survive a layout change (BRD 1.0 SR17).
+    // Only these canonical names may be elected. WorkflowStepper joins when it exists.
+    elected: z.array(z.string()),
+  }),
   toast: z.object({
     // BRD 1.2 5.8 Feature 8: transient confirmations auto-dismiss after 7 seconds by default.
     durationMs: z.number().int().positive(),
@@ -46,6 +51,7 @@ export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
   session: { slowMessageAfterMs: 3000, expiredRedirectMs: 2000 },
   refresh: { autoIntervalMs: 300000, stalenessWarnMs: 30000 },
   bus: { heartbeatMs: 15000, backoffMs: [1000, 2000, 4000, 8000], maxBackoffMs: 30000, failAfterAttempts: 3, failAfterMs: 30000 },
+  persistence: { elected: ['AssistantPanel'] },
   toast: { durationMs: 7000 },
   support: { contactHref: 'mailto:support@olannah.invalid' },
   context: { deliveryBudgetMs: 800, hardTimeoutMs: 10000 },

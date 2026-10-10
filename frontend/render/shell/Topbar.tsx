@@ -1,4 +1,4 @@
-import { Avatar, SyncDot } from '@/components';
+import { Avatar, Link, SyncDot } from '@/components';
 import type { WorkerIdentity } from '@/contracts';
 import type { ConnectionStatus } from '@/runtime/canvas/canvasRuntime';
 import type { Freshness } from '@/runtime/zones/useZoneFreshness';
@@ -9,7 +9,7 @@ import styles from './Topbar.module.css';
 // The topbar is defined from the approved designs (brand mark, workspace label, sync state, worker) because the BRDs
 // reference a topbar without defining one (SDD R20, Q30). On Evergreen, Warm Cream text (BRD 1.3 section 3.2).
 // Feedback link, AI trigger and More are added with the surfaces they open (Stage 4).
-export function Topbar({ layoutId, worker, viewport, freshness, connection }: { layoutId: string; worker: WorkerIdentity; viewport: Viewport; freshness: Freshness; connection: ConnectionStatus }) {
+export function Topbar({ layoutId, worker, viewport, freshness, connection, onFeedback }: { layoutId: string; worker: WorkerIdentity; viewport: Viewport; freshness: Freshness; connection: ConnectionStatus; onFeedback: () => void }) {
   const workspace =
     messages.shell.workspaceLabel[layoutId as keyof typeof messages.shell.workspaceLabel] ?? messages.shell.workspaceLabel.default;
   return (
@@ -23,6 +23,9 @@ export function Topbar({ layoutId, worker, viewport, freshness, connection }: { 
         <span className={`${styles.workspace} type-body-sm`}>{workspace}</span>
       </div>
       <div className={styles.status}>
+        {/* Feedback is a small text link in the topbar on tablet and desktop, always about the current screen. On mobile it is
+            reached through the More menu (BRD 1.3 section 6.7). */}
+        {viewport !== 'mobile' && <Link label={messages.feedback.link} tone="on-chrome" onActivate={onFeedback} />}
         <span className={styles.sync}>
           {/* Freshness and connectivity are separate dimensions and are never collapsed into one condition. */}
           <SyncDot

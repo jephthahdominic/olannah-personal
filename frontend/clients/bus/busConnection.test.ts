@@ -234,6 +234,48 @@ describe('BusConnection: manual retry and shutdown', () => {
   });
 });
 
+describe('BusConnection: sending on a bidirectional transport', () => {
+  it('sends only while connected, and never queues a frame for later', () => {
+    const sent: string[] = [];
+    const sources: (FakeSource & { send?: (d: string) => void })[] = [];
+    const conn = new BusConnection(
+      () => {
+        const s = new FakeSource() as FakeSource & { send?: (d: string) => void };
+        s.send = (d) => void sent.push(d);
+        sources.push(s);
+        return s;
+      },
+      OPTS,
+      { onEvent: () => {}, onState: () => {} },
+    );
+    conn.start();
+    expect(conn.send('too early')).toBe(false); // still connecting
+    sources[0].open();
+    expect(conn.send('hello')).toBe(true);
+    sources[0].fail();
+    expect(conn.send('while down')).toBe(false); // reconnecting
+    expect(sent).toEqual(['hello']);
+  });
+
+  it('returns false on a receive-only transport (the bus has no send)', () => {
+    const src = { onopen: null as (() => void) | null, onmessage: null, onerror: null, close() {} };
+    const conn = new BusConnection(() => src as never, OPTS, { onEvent: () => {}, onState: () => {} });
+    conn.start();
+    src.onopen!();
+    expect(conn.state).toBe('connected');
+    expect(conn.send('x')).toBe(false);
+  });
+
+  it('returns false instead of throwing when the transport throws while sending', () => {
+    const src = { onopen: null as (() => void) | null, onmessage: null, onerror: null, close() {}, send() { throw new Error('socket closed'); } };
+    const conn = new BusConnection(() => src as never, OPTS, { onEvent: () => {}, onState: () => {} });
+    conn.start();
+    src.onopen!();
+    expect(() => conn.send('x')).not.toThrow();
+    expect(conn.send('x')).toBe(false);
+  });
+});
+
 describe('BusConnection: resume', () => {
   it('offers the last event id to the next connection', () => {
     const t = setup();

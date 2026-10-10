@@ -26,3 +26,7 @@ export { StatTile, type StatTileProps } from './StatTile/StatTile';
 export { RecordList, type RecordListProps, type RecordRow } from './RecordList/RecordList';
 export { HistoryList, type HistoryListProps, type HistoryItem, type HistoryListStatus } from './HistoryList/HistoryList';
 export { formatSiteLocalTime, formatSiteLocalDate } from './utils/formatSiteLocal';
+export { TextArea, type TextAreaProps } from './TextArea/TextArea';
+export { AssistantPanel, type AssistantPanelProps, type AssistantTurnView, type AssistantLabels } from './AssistantPanel/AssistantPanel';
+export { FeedbackForm, type FeedbackFormProps, type FeedbackLabels } from './FeedbackForm/FeedbackForm';
+export { WidgetContainer, type WidgetContainerProps, type WidgetDiagnostic } from './WidgetContainer/WidgetContainer';

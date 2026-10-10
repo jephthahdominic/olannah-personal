@@ -2,6 +2,11 @@ import type { AuthProvider } from './auth/authProvider';
 import type { ContextChannel } from './context/contextChannel';
 import type { HistoryChannel } from './history/historyChannel';
 import type { SourceFactory } from './bus/busConnection';
+import type { FeedbackChannel } from './feedback/feedbackChannel';
+import { createRealAssistantSource } from './assistant/realAssistantSource';
+import { createMockAssistantSource } from './mock/mockAssistant';
+import { MockFeedbackChannel } from './mock/mockFeedbackChannel';
+import { RealFeedbackChannel } from './real/realFeedbackChannel';
 import { createRealBusSource } from './bus/realBusSource';
 import { createMockBusSource } from './mock/mockBus';
 import { MockHistoryChannel } from './mock/mockHistoryChannel';
@@ -22,6 +27,9 @@ export interface Upstream {
   context: ContextChannel;
   history: HistoryChannel;
   createBusSource: SourceFactory;
+  /** The assistant is bidirectional and proactive, so it is a WebSocket alongside SSE (BRD 1.0 OQ9). */
+  createAssistantSource: SourceFactory;
+  feedback: FeedbackChannel;
 }
 
 let instance: Upstream | null = null;
@@ -29,7 +37,7 @@ let instance: Upstream | null = null;
 export function getUpstream(): Upstream {
   instance ??=
     upstreamMode === 'mock'
-      ? { auth: new MockAuthProvider(), context: new MockContextChannel(), history: new MockHistoryChannel(), createBusSource: createMockBusSource }
-      : { auth: new RealAuthProvider(), context: new RealContextChannel(), history: new RealHistoryChannel(), createBusSource: createRealBusSource };
+      ? { auth: new MockAuthProvider(), context: new MockContextChannel(), history: new MockHistoryChannel(), createBusSource: createMockBusSource, createAssistantSource: createMockAssistantSource, feedback: new MockFeedbackChannel() }
+      : { auth: new RealAuthProvider(), context: new RealContextChannel(), history: new RealHistoryChannel(), createBusSource: createRealBusSource, createAssistantSource: createRealAssistantSource, feedback: new RealFeedbackChannel() };
   return instance;
 }

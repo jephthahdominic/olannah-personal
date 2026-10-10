@@ -20,6 +20,8 @@ export interface EventSourceLike {
   onopen: (() => void) | null;
   onmessage: ((message: BusMessage) => void) | null;
   onerror: (() => void) | null;
+  /** Present on bidirectional transports (a WebSocket). The bus itself is receive-only and does not implement it. */
+  send?(data: string): void;
   close(): void;
 }
 
@@ -67,6 +69,20 @@ export class BusConnection {
 
   start(): void {
     this.#connect();
+  }
+
+  /**
+   * Sends a frame on a bidirectional transport. Returns false, sending nothing, unless the connection is live: a frame is
+   * never queued for later, so the worker is never told something was sent when it was not.
+   */
+  send(data: string): boolean {
+    if (this.#state !== 'connected' || !this.#source?.send) return false;
+    try {
+      this.#source.send(data);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /** Manual retry from the failed state: start over immediately. */

@@ -36,6 +36,8 @@ function setup(over: { refresh?: () => Promise<unknown>; history?: () => Promise
         sources.push(s);
         return s;
       },
+      createAssistantSource: () => new FakeSource(),
+      feedback: { submit: async () => true },
     },
     schedule: (f) => f(),
     random: () => 0.5,

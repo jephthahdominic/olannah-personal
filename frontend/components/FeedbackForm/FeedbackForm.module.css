@@ -1,0 +1,12 @@
+.root { pointer-events: none; }
+.root > * { pointer-events: auto; }
+.sheetRoot { position: fixed; inset: 0; }
+.overlay { position: absolute; inset: 0; background: var(--color-surface-overlay); }
+.panel { display: flex; flex-direction: column; background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-strong); overflow: hidden; }
+.popover { position: fixed; inset-inline-end: var(--space-6); inset-block-start: calc(var(--height-topbar) + var(--space-2)); inline-size: min(24rem, calc(100vw - var(--space-8))); border-radius: var(--radius-md); }
+.sheet { position: absolute; inset-inline: 0; inset-block-end: 0; max-block-size: 85vh; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); background: var(--color-brand-primary); color: var(--color-text-on-chrome); }
+.close { display: inline-flex; align-items: center; justify-content: center; min-inline-size: var(--width-touch-target); min-block-size: var(--width-touch-target); background: transparent; color: inherit; border: 0; border-radius: var(--radius-md); cursor: pointer; }
+.body { padding: var(--space-4); overflow-y: auto; }
+.form, .done { display: flex; flex-direction: column; gap: var(--space-4); }
+.about { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; color: var(--color-text-secondary); }

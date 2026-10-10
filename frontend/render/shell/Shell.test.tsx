@@ -92,14 +92,6 @@ describe('Shell: technician on a phone (375px)', () => {
     expect(push).toHaveBeenCalledWith('/settings');
     expect(screen.queryByRole('menu')).toBeNull();
   });
-
-  it('says plainly that Ask Olannah and Feedback are not available yet, rather than doing nothing', async () => {
-    mount();
-    fireEvent.click(screen.getByRole('button', { name: 'More' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: /Ask Olannah/ }));
-    expect(await screen.findByText(messages.nav.notYetAvailable)).toBeInTheDocument();
-    expect(push).not.toHaveBeenCalled();
-  });
 });
 
 describe('Shell: technician on desktop (1280px)', () => {

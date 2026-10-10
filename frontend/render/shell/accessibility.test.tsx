@@ -138,3 +138,91 @@ describe('axe: live states (indicators, banners, history)', () => {
     expect(await violations(container)).toEqual([]);
   });
 });
+
+describe('axe: assistant, feedback and insight widgets', () => {
+  beforeEach(() => {
+    nav.pathname = '/';
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    nav.pathname = '/work-orders';
+    vi.useRealTimers();
+  });
+
+  const mountShell = (width: number) => {
+    setWidth(width);
+    const h = makeRuntime(technicianContext);
+    const utils = render(<Shell context={technicianContext} layout={{ layoutId: 'technician', unmappedRole: false }} runtime={h.runtime} signOut={() => {}} supportHref="mailto:help@example.test" />);
+    return { h, ...utils };
+  };
+
+  it('the dashboard with its insight widget, desktop and mobile', async () => {
+    for (const width of [1280, 375]) {
+      const { container, unmount } = mountShell(width);
+      expect(container.textContent).toContain('Bring a defrost control kit');
+      expect(await violations(container)).toEqual([]);
+      unmount();
+    }
+  });
+
+  it('with the assistant trigger (closed) on desktop', async () => {
+    const { container } = mountShell(1280);
+    expect(container.querySelector('button[aria-haspopup="dialog"]')).not.toBeNull();
+    expect(await violations(container)).toEqual([]);
+  });
+
+  it('with the assistant open, desktop floating panel and mobile bottom sheet', async () => {
+    for (const width of [1280, 375]) {
+      const { unmount } = mountShell(width);
+      await act(async () => {
+        if (width === 1280) document.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]')!.click();
+        else {
+          document.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]')!.click();
+        }
+      });
+      if (width === 375) await act(async () => void [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((e) => e.textContent?.includes('Ask Olannah'))!.click());
+      expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+      expect(await violations(document.body)).toEqual([]);
+      unmount();
+    }
+  });
+
+  it('with the feedback form open, idle, with a validation error, and on success', async () => {
+    const { h } = mountShell(1280);
+    await act(async () => void [...document.querySelectorAll<HTMLElement>('button')].find((b) => b.textContent === 'Feedback')!.click());
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(await violations(document.body)).toEqual([]);
+    await act(async () => void document.querySelector<HTMLFormElement>('[role="dialog"] form')!.requestSubmit());
+    expect(document.body.textContent).toContain('Write a few words');
+    expect(await violations(document.body)).toEqual([]);
+    expect(h.feedbackSubmit).not.toHaveBeenCalled();
+  });
+
+  it('with every fallback and degraded insight state', async () => {
+    const h = makeRuntime(technicianContext, { autoSchedule: true });
+    setWidth(1280);
+    const { container } = render(<Shell context={technicianContext} layout={{ layoutId: 'technician', unmappedRole: false }} runtime={h.runtime} signOut={() => {}} supportHref="mailto:help@example.test" />);
+    await act(async () => {
+      h.runtime.start();
+      h.latest().open();
+      h.latest().send({
+        type: 'zone.update',
+        zoneId: 'primary:dashboard',
+        payload: {
+          status: 'ready',
+          data: {
+            ...technicianDashboardWithNote,
+            widgets: [
+              { type: 'insight', schemaVersion: '9.9', payload: {} },
+              { type: 'insight', schemaVersion: '1.0', payload: { title: 1 } },
+              { type: 'insight', schemaVersion: '1.0', condition: 'degraded', degradedMessage: 'Built from partial history.', payload: { title: 'Likely fault', body: 'Pattern matches door events.' } },
+            ],
+          },
+        },
+      });
+    });
+    expect(container.textContent).toContain('Insight unavailable');
+    expect(container.textContent).toContain('Built from partial history.');
+    expect(await violations(container)).toEqual([]);
+  });
+});

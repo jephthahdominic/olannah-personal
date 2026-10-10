@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { mockAssistantControl } from '@/clients/mock/mockAssistant';
 import { mockBusControl } from '@/clients/mock/mockBus';
 import { mockControls, resetMockControls, type HistoryMode } from '@/clients/mock/mockControls';
 import { getIdpPersona } from '@/clients/mock/mockIdp';
@@ -11,11 +12,16 @@ import styles from './DevOverlay.module.css';
 // DEVELOPMENT ONLY: shown only in mock mode. Fault injection for every failure the BRDs describe (SDD 12.5), so each
 // acceptance criterion can be seen and tested by hand without a backend. Worker-facing text is NOT used here.
 const send = (zoneId: string, payload: unknown) => mockBusControl.emit({ type: 'zone.update', zoneId, payload });
+const pushWidget = (widget: unknown) => {
+  const base = getIdpPersona() === 'estimator' ? estimatorDashboard : technicianDashboard;
+  send('primary:dashboard', { status: 'ready', data: { ...base, widgets: [widget] } });
+};
 
 export function DevOverlay({ runtime }: { runtime: CanvasRuntime }) {
   const [historyMode, setHistoryMode] = useState<HistoryMode>(mockControls.historyMode);
   const [slowRefresh, setSlowRefresh] = useState(mockControls.refreshDelayMs > 0);
   const [failRefresh, setFailRefresh] = useState(mockControls.refreshFails);
+  const [feedbackFails, setFeedbackFails] = useState(mockControls.feedbackFails);
 
   const dashboardWithNote = () => {
     const persona = getIdpPersona();
@@ -36,6 +42,24 @@ export function DevOverlay({ runtime }: { runtime: CanvasRuntime }) {
         <button onClick={() => send('primary:dashboard', { status: 'ready', data: { kind: 'brand-new-widget' } })}>Push unknown data shape</button>
         <button onClick={() => mockBusControl.emit({ type: 'zone.update', zoneId: '../../x', payload: {} })}>Push unknown zone id</button>
         <button onClick={() => mockBusControl.emit('not json {')}>Push garbage</button>
+
+        <p className={styles.group}>Insight widgets</p>
+        <button onClick={() => pushWidget({ type: 'insight', schemaVersion: '1.0', payload: { title: 'Check the door gasket', body: 'Two earlier visits replaced the gasket within 90 days.', label: 'Evidence-backed' } })}>Push valid insight</button>
+        <button onClick={() => pushWidget({ type: 'insight', schemaVersion: '9.9', payload: { title: 'x', body: 'y' } })}>Push newer version (unsupported)</button>
+        <button onClick={() => pushWidget({ type: 'hologram', schemaVersion: '1.0', payload: {} })}>Push unknown type</button>
+        <button onClick={() => pushWidget({ type: 'insight', schemaVersion: '1.0', payload: { title: 42 } })}>Push invalid payload</button>
+        <button onClick={() => pushWidget({ type: 'insight', schemaVersion: '1.0', condition: 'degraded', degradedMessage: 'Built from partial service history.', payload: { title: 'Likely intermittent defrost fault', body: 'The pattern matches repeated door-open events.' } })}>Push supplied-degraded insight</button>
+
+        <p className={styles.group}>Assistant</p>
+        <button onClick={() => mockAssistantControl.speak('A new note from the store manager changes your arrival instructions.')}>Assistant speaks first (proactive)</button>
+        <button onClick={() => mockAssistantControl.drop()}>Drop assistant connection</button>
+        <button onClick={() => (mockAssistantControl.failConnects = 20)}>Fail assistant reconnects</button>
+
+        <p className={styles.group}>Feedback</p>
+        <label>
+          <input type="checkbox" checked={feedbackFails} onChange={(e) => { setFeedbackFails(e.target.checked); mockControls.feedbackFails = e.target.checked; }} />
+          Feedback submission fails
+        </label>
 
         <p className={styles.group}>Connection</p>
         <button onClick={() => mockBusControl.drop()}>Drop connection (recovers)</button>
@@ -95,6 +119,8 @@ export function DevOverlay({ runtime }: { runtime: CanvasRuntime }) {
           onClick={() => {
             resetMockControls();
             mockBusControl.reset();
+            mockAssistantControl.reset();
+            setFeedbackFails(false);
             setHistoryMode('ok');
             setSlowRefresh(false);
             setFailRefresh(false);

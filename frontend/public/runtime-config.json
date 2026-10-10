@@ -28,5 +28,10 @@
     "maxBackoffMs": 30000,
     "failAfterAttempts": 3,
     "failAfterMs": 30000
+  },
+  "persistence": {
+    "elected": [
+      "AssistantPanel"
+    ]
   }
 }

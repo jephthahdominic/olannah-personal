@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button, DegradedBanner, Label, MoreMenu, SectionHeader, Surface } from '@/components';
-import type { ContextEnvelope } from '@/contracts';
+import type { ContextEnvelope, ScreenContext } from '@/contracts';
 import type { CanvasRuntime } from '@/runtime/canvas/canvasRuntime';
 import { useConnection } from '@/runtime/canvas/useCanvasRuntime';
 import type { DeepReadonly } from '@/runtime/freeze';
@@ -22,6 +22,8 @@ import { messages } from '../messages';
 import { NavigationZone } from '../navigation/NavigationZone';
 import { destinationIdForPath, routeForDestination } from '../navigation/routing';
 import { useNavigation } from '../navigation/useNavigation';
+import { AssistantHost } from '../assistant/AssistantHost';
+import { FeedbackHost } from '../feedback/FeedbackHost';
 import { LiveRegions } from './LiveRegions';
 import { PortalHosts } from './PortalHosts';
 import { SettingsScreen } from './SettingsScreen';
@@ -56,6 +58,12 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
   const [contextOpen, setContextOpen] = useState(false);
   const [moreTarget, setMoreTarget] = useState<HTMLDivElement | null>(null);
   const [toastTarget, setToastTarget] = useState<HTMLDivElement | null>(null);
+  const [drawerTarget, setDrawerTarget] = useState<HTMLDivElement | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  // Where the assistant was opened. The SHELL decides whether it persists across a layout change (BRD 1.0 SR17): an elected
+  // instance keeps one scope and stays open as the worker navigates; an ephemeral one is scoped to the destination it was opened
+  // on, so navigating away releases it.
+  const [assistantOpenAt, setAssistantOpenAt] = useState<string | null>(null);
 
   useEffect(
     () =>
@@ -68,6 +76,8 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
   );
 
   const activeId = destinationIdForPath(pathname);
+  const assistantScope = runtime.persistence.isElected('AssistantPanel', true) ? 'persistent' : (activeId ?? 'none');
+  const assistantOpen = assistantOpenAt === assistantScope;
   const { model } = useNavigation(context, viewport, activeId);
   const allItems = useMemo(() => [...model.items, ...model.overflow], [model]);
   const activeLabel = allItems.find((i) => i.id === activeId)?.label ?? null;
@@ -100,10 +110,10 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
     (id: string) => {
       setMenuOpen(false);
       if (id === 'settings') return go('settings');
-      // Ask Olannah and Feedback open surfaces that arrive with Stage 4. Say so plainly rather than doing nothing.
-      toastStore.push(messages.nav.notYetAvailable);
+      if (id === 'ask') return setAssistantOpenAt(assistantScope);
+      if (id === 'feedback') return setFeedbackOpen(true);
     },
-    [go],
+    [go, assistantScope],
   );
 
   // A zone's "try again" asks the context channel to re-deliver. The result flows through the normal update pipeline.
@@ -116,6 +126,13 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
 
   const primaryKey = primaryZoneKey(activeId);
   const watchedKeys = useMemo(() => [primaryKey, CONTEXT_ZONE], [primaryKey]);
+  // The screen context for feedback is captured automatically, as structured data. No screenshot, no values (SDD 15.3).
+  const screenContext: ScreenContext = {
+    destinationId: activeId,
+    layoutId: layout.layoutId,
+    viewport,
+    zones: watchedKeys.map((zone) => ({ zone, condition: runtime.zones.get(zone).condition })),
+  };
   const freshness = useZoneFreshness(runtime.zones, watchedKeys, connection);
 
   const workspaceLabel =
@@ -143,7 +160,7 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
           {messages.nav.skipToContent}
         </a>
 
-        <Topbar layoutId={layout.layoutId} worker={context.worker} viewport={viewport} freshness={freshness} connection={connection} />
+        <Topbar layoutId={layout.layoutId} worker={context.worker} viewport={viewport} freshness={freshness} connection={connection} onFeedback={() => setFeedbackOpen(true)} />
 
         <div className={styles.body}>
           {/* Focus order follows document order: navigation, then primary content, then context (BRD 1.3 section 11.2). */}
@@ -211,7 +228,27 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
           />
         )}
 
-        <PortalHosts setMoreMenu={setMoreTarget} setToast={setToastTarget} />
+        <PortalHosts setMoreMenu={setMoreTarget} setToast={setToastTarget} setDrawer={setDrawerTarget} />
+        {/* Secondary surfaces on the drawer layer. Neither occupies primary zone space or displaces context. */}
+        <AssistantHost
+          key={assistantScope}
+          runtime={runtime}
+          open={assistantOpen}
+          onOpen={() => setAssistantOpenAt(assistantScope)}
+          onClose={() => setAssistantOpenAt(null)}
+          presentation={viewport === 'mobile' ? 'sheet' : 'floating'}
+          showTrigger={viewport !== 'mobile'}
+          portalTarget={drawerTarget}
+        />
+        <FeedbackHost
+          runtime={runtime}
+          open={feedbackOpen}
+          onDismiss={() => setFeedbackOpen(false)}
+          presentation={viewport === 'mobile' ? 'sheet' : 'popover'}
+          screen={screenContext}
+          screenSummary={messages.feedback.summary(activeLabel ?? messages.feedback.thisScreen, viewport)}
+          portalTarget={drawerTarget}
+        />
         <ToastHost target={toastTarget} durationMs={toastDurationMs} />
         <LiveRegions />
         {devTools}

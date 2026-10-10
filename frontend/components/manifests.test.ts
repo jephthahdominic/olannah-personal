@@ -39,7 +39,8 @@ describe('component manifests', () => {
     }
   });
 
-  it('no manifest introduces a lifecycle other than ephemeral (only WorkflowStepper and AssistantPanel may persist, and neither exists yet)', () => {
-    for (const m of Object.values(manifests)) expect(m.lifecycle).toBe('ephemeral');
+  it('only WorkflowStepper and AssistantPanel may be persistence-capable (BRD 1.2 5.4), and the shell, not the component, elects them', () => {
+    const capable = Object.values(manifests).filter((m) => m.lifecycle === 'persistence-capable').map((m) => m.name);
+    expect(capable.sort()).toEqual(['AssistantPanel']);
   });
 });

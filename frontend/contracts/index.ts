@@ -7,3 +7,6 @@ export * from './zone';
 export * from './auth';
 export * from './dashboard';
 export * from './history';
+export * from './assistant';
+export * from './widget';
+export * from './feedback';

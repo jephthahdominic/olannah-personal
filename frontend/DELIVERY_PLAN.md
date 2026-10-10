@@ -22,8 +22,9 @@ The full checklist is a 12-week build (technician Week 9, estimator Week 12). **
 | 2 Shell, components, navigation | Done, with the deferrals marked below |
 | Auth hardening (sign in, sign up, security headers) | Done, see [SECURITY.md](SECURITY.md) |
 | 3 Dashboard, live updates | Done. The dev deploy is **not done**: it needs a merge to `main`, which needs your go-ahead |
+| 4 Remaining P0 components | **Partly done:** assistant panel + WebSocket, feedback, widget container, persistence manager. **Not started:** work-order screens and WorkflowStepper (need workflow-step event contracts), LookupField, PhotoCapture, Select, onboarding (needs a spec) |
 
-`npm run verify` passes (token build, contrast gate, style check, lint, typecheck, 501 tests) and `next build` succeeds. **Nothing is committed yet, and nothing has been checked in a real browser.** `[x]` = done and verified, `[~]` = partly done with a note.
+`npm run verify` passes (token build, contrast gate, style check, lint, typecheck, 618 tests) and `next build` succeeds. **Committed and pushed to `frontend-dev` (not merged to `main`). Nothing has been checked in a real browser.** `[x]` = done and verified, `[~]` = partly done with a note.
 
 ## Stage 0: Unblock and lay foundations (Wed)
 

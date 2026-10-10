@@ -1,10 +1,14 @@
 import type { ContextEnvelope, RuntimeConfig } from '@/contracts';
 import type { ContextChannel } from '@/clients/context/contextChannel';
 import type { HistoryChannel } from '@/clients/history/historyChannel';
+import type { FeedbackChannel } from '@/clients/feedback/feedbackChannel';
 import { BusConnection, type SourceFactory } from '@/clients/bus/busConnection';
 import type { SessionIdentity } from '@/clients/session/sessionClient';
 import type { DeepReadonly } from '../freeze';
+import { AssistantSession } from '../assistant/assistantSession';
+import { FeedbackSubmitter } from '../feedback/feedbackSubmitter';
 import { HistoryHydrator } from '../history/historyStore';
+import { PersistenceManager } from '../persistence/persistenceManager';
 import { registerPurgeHandler } from '../purgeSession';
 import { logEvent } from '../telemetry';
 import { RefreshManager } from '../updates/refreshManager';
@@ -22,7 +26,7 @@ export interface CanvasRuntimeDeps {
   context: DeepReadonly<ContextEnvelope>;
   session: SessionIdentity;
   config: RuntimeConfig;
-  upstream: { context: ContextChannel; history: HistoryChannel; createBusSource: SourceFactory };
+  upstream: { context: ContextChannel; history: HistoryChannel; createBusSource: SourceFactory; createAssistantSource: SourceFactory; feedback: FeedbackChannel };
   /** Wraps store writes so React treats them as low priority (a transition). */
   applyBatch?: (apply: () => void) => void;
   /** True while a checkpoint is active. Updates queue and timers pause. */
@@ -35,6 +39,11 @@ export interface CanvasRuntimeDeps {
 export class CanvasRuntime {
   readonly zones = new ZoneStore();
   readonly history: HistoryHydrator;
+  /** The assistant is a secondary surface with its own WebSocket. Its turn cache is render-only. */
+  readonly assistant: AssistantSession;
+  readonly feedback: FeedbackSubmitter;
+  /** The shell decides which persistence-capable instances survive a layout change. Components never decide. */
+  readonly persistence: PersistenceManager;
 
   #status: ConnectionStatus = 'connecting';
   #statusListeners = new Set<() => void>();
@@ -48,6 +57,9 @@ export class CanvasRuntime {
     // Zones are initialised synchronously from the context object, so the first render already has its data.
     this.zones.initialize([primaryZoneKey('dashboard'), CONTEXT_ZONE], deps.context.zones);
     this.history = new HistoryHydrator(deps.upstream.history);
+    this.assistant = new AssistantSession(deps.upstream.createAssistantSource, deps.config.bus, deps.random);
+    this.feedback = new FeedbackSubmitter(deps.upstream.feedback);
+    this.persistence = new PersistenceManager(deps.config.persistence.elected);
   }
 
   subscribeConnection = (listener: () => void): (() => void) => {
@@ -90,6 +102,7 @@ export class CanvasRuntime {
 
     // The second pass: history is requested only after the main workspace has rendered.
     this.history.start(this.deps.context.historyRef);
+    this.assistant.start();
 
     this.#unregisterPurge?.();
     this.#unregisterPurge = registerPurgeHandler(() => this.dispose());
@@ -120,6 +133,9 @@ export class CanvasRuntime {
     this.#pipeline?.dispose();
     this.#pipeline = null;
     this.history.dispose();
+    this.assistant.dispose();
+    this.feedback.reset();
+    this.persistence.clear();
     this.#unregisterPurge?.();
     this.#unregisterPurge = null;
   }

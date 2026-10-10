@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { WidgetEnvelopeSchema } from './widget';
 
 // DRAFT. Zone DATA shapes carried inside a zone payload (BRD 1.0 SR21A). Every displayed value is SUPPLIED: counts,
 // captions, headlines, status labels. The canvas never computes a greeting, a count or a status (BRD 1.2 5.2 Feature 7).
@@ -33,6 +34,9 @@ export const DashboardDataSchema = z.object({
   queueTitle: z.string().min(1),
   queueCaption: z.string().optional(),
   queue: z.array(z.object({ id: z.string().min(1), timeLocal: siteLocalTime.optional(), title: z.string().min(1), subtitle: z.string().optional(), trailing: z.string().optional(), status: status.optional() })),
+  // Insight-layer widgets, rendered ONLY by the WidgetContainer. Each is validated there; an unsupported or invalid one falls
+  // back to a safe message without disturbing the rest of the dashboard.
+  widgets: z.array(WidgetEnvelopeSchema).optional(),
   // A pushed update the worker should notice (for example a store-manager note). Supplied text.
   notice: z.object({ title: z.string().min(1), body: z.string().min(1), tone: z.enum(['info', 'success']) }).optional(),
 });

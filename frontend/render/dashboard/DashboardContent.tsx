@@ -1,7 +1,8 @@
 'use client';
 
-import { Button, Label, RecordList, SectionHeader, StatTile, StatusIndicator, StatusPill, Surface, formatSiteLocalTime } from '@/components';
+import { Button, Label, WidgetContainer, RecordList, SectionHeader, StatTile, StatusIndicator, StatusPill, Surface, formatSiteLocalTime } from '@/components';
 import type { DashboardData } from '@/contracts';
+import { logEvent } from '@/runtime/telemetry';
 import { useShell } from '../layout/ShellContext';
 import { messages } from '../messages';
 import styles from './DashboardContent.module.css';
@@ -59,6 +60,18 @@ export function DashboardContent({ data }: { data: DashboardData }) {
           <Button label={featured.actionLabel} fullWidth onActivate={() => navigate('work-orders')} />
         </Surface>
       )}
+
+      {/* Insight-layer output appears ONLY through the WidgetContainer, which validates it and falls back safely. */}
+      {data.widgets?.map((widget, i) => (
+        <WidgetContainer
+          key={`${widget.type}-${i}`}
+          widget={widget}
+          headerLabel={messages.widget.headerLabel}
+          fallbackTitle={messages.widget.fallbackTitle}
+          fallbackMessage={messages.widget.fallbackMessage}
+          onDiagnostic={(reason) => logEvent(reason === 'unsupported' ? 'widget.unsupported' : reason === 'invalid' ? 'widget.invalid' : 'widget.render_error', 'warn')}
+        />
+      ))}
 
       <section className={styles.section} aria-labelledby="queue-title">
         <SectionHeader id="queue-title" text={data.queueTitle} level={3} size="md" trailing={data.queueCaption && <span className={`${styles.muted} type-body-sm`}>{data.queueCaption}</span>} />
