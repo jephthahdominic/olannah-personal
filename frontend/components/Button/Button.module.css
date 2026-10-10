@@ -1,0 +1,32 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: var(--width-touch-target);
+  min-inline-size: var(--width-touch-target);
+  padding-inline: var(--space-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background var(--motion-state-duration) var(--motion-state-easing),
+    transform var(--motion-state-duration) var(--motion-state-easing);
+}
+.full { inline-size: 100%; }
+
+.primary { background: var(--color-brand-primary); color: var(--color-text-on-chrome); }
+.primary:hover:not([aria-disabled='true']) { background: var(--color-brand-primary-hover); }
+.primary:active:not([aria-disabled='true']) { background: var(--color-brand-primary-pressed); transform: scale(0.97); }
+
+.accent { background: var(--color-brand-accent); color: var(--color-text-primary); }
+.accent:hover:not([aria-disabled='true']) { background: var(--color-brand-accent-hover); }
+.accent:active:not([aria-disabled='true']) { transform: scale(0.97); }
+
+.ghost { background: transparent; color: var(--color-brand-primary); border-color: var(--color-brand-primary); }
+.ghost:hover:not([aria-disabled='true']) { background: var(--color-surface-panel); }
+.ghost:active:not([aria-disabled='true']) { transform: scale(0.97); }
+
+/* Processing is not disabled: the action was accepted. Full opacity, default cursor, no repeat activation. */
+.button[aria-busy='true'] { opacity: 1; cursor: progress; }
+.button[aria-disabled='true']:not([aria-busy='true']) { opacity: 0.4; cursor: default; }

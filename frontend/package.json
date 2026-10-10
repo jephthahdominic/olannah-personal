@@ -3,23 +3,35 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "npm run tokens:build && next dev",
+    "build": "npm run tokens:build && next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "tokens:build": "node scripts/build-tokens.mjs",
+    "tokens:check": "node scripts/build-tokens.mjs && git diff --exit-code -- tokens/tokens.generated.css tokens/tokens.generated.ts",
+    "contrast": "node scripts/contrast-gate.mjs",
+    "lint:styles": "node scripts/check-styles.mjs",
+    "verify": "npm run tokens:build && npm run contrast && npm run lint:styles && npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {
+    "@tabler/icons-react": "^3.49.0",
     "next": "16.2.12",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axe-core": "^4.14.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
+    "jsdom": "^30.1.2",
     "typescript": "^5",
     "vitest": "^4.1.10"
   }

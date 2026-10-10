@@ -1,0 +1,180 @@
+import type { FormErrorCode } from '@/contracts';
+
+// The shell's own worker-facing text, in ONE catalogue keyed by message key (SDD 14.6), so copy can change under the
+// content standard (BRD 1.3 OQ1, still open) without touching components. Plain language: no codes, no service names,
+// no technical detail. Everything else the worker reads is supplied upstream and rendered as given.
+
+export const messages = {
+  brand: { name: 'Olannah' },
+
+  session: {
+    loading: 'Loading your workspace',
+    loadingSlow: 'Login is taking longer than expected. Your workspace will appear as soon as it is ready.',
+    loadingStatus: 'Loading',
+  },
+
+  context: {
+    degraded: 'Your workspace is taking longer than expected to load. You can keep waiting. We are still trying.',
+  },
+
+  recovery: {
+    title: 'We could not load your workspace',
+    body: 'Something went wrong on our side while setting up your workspace. Nothing you were working on has been lost.',
+    retry: 'Try again',
+    contactSupport: 'Contact support',
+    errorStatus: 'Workspace unavailable',
+  },
+
+  unknownRole: {
+    title: 'Your workspace is not set up yet',
+    body: 'We could not tell which role you work in, so we have not loaded a workspace. Try again, or contact support to have your role set up.',
+  },
+
+  expired: {
+    title: 'Your session has ended',
+    body: 'For your security you have been signed out. Any work you had not saved may need to be entered again.',
+    logIn: 'Log in',
+    redirecting: 'Taking you to sign in',
+  },
+
+  login: {
+    title: 'Sign in to Olannah',
+    email: 'Email',
+    password: 'Password',
+    submit: 'Sign in',
+    submitting: 'Signing in',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+    expiredNotice: 'Your session ended. Sign in to continue.',
+    signUpPrompt: 'New to Olannah?',
+    signUpLink: 'Create an account',
+    throttled: (seconds: number) => `Too many attempts. Try again in ${seconds} ${seconds === 1 ? 'second' : 'seconds'}.`,
+    // Deliberately identical for "no such account" and "wrong password" so the form cannot be used to discover accounts.
+    failures: {
+      invalid_credentials: 'That email and password do not match. Check them and try again.',
+      locked: 'This account is locked. Contact support to get back in.',
+      unavailable: 'Sign in is not available right now. Try again in a moment, or contact support.',
+      network: 'We could not reach the sign in service. Check your connection and try again.',
+      rate_limited: 'Too many attempts. Wait a moment, then try again.',
+    },
+  },
+
+  signup: {
+    title: 'Create your Olannah account',
+    fullName: 'Full name',
+    email: 'Work email',
+    password: 'Password',
+    confirmPassword: 'Confirm password',
+    passwordHelp: 'At least 12 characters. Avoid common passwords and anything from your email address.',
+    submit: 'Create account',
+    submitting: 'Creating account',
+    signInPrompt: 'Already have an account?',
+    signInLink: 'Sign in',
+    // Identical whether or not the address is already registered (no account enumeration).
+    doneTitle: 'Check your email',
+    doneBody: 'If this address can be registered, we have sent a message with a link to verify it. Your role and access are set up after you verify.',
+    backToSignIn: 'Back to sign in',
+    failures: {
+      unavailable: 'Account creation is not available right now. Try again in a moment, or contact support.',
+      network: 'We could not reach the service. Check your connection and try again.',
+      rate_limited: 'Too many attempts. Wait a moment, then try again.',
+      rejected: 'We could not create an account with those details. Check them and try again.',
+    },
+  },
+
+  // Plain-language text for each validation code. The contracts emit CODES only, never text and never the value typed.
+  validation: {
+    email_required: 'Enter your email address.',
+    email_invalid: 'Enter a valid email address, like name@company.com.',
+    email_too_long: 'That email address is too long.',
+    password_required: 'Enter your password.',
+    password_too_short: 'Use at least 12 characters.',
+    password_too_long: 'That password is too long. Use 128 characters or fewer.',
+    password_common: 'That password is too easy to guess. Choose a different one.',
+    password_contains_email: 'Do not build your password from your email address.',
+    password_mismatch: 'The passwords do not match.',
+    confirm_required: 'Enter your password again to confirm it.',
+    name_required: 'Enter your full name.',
+    name_too_short: 'Enter your full name.',
+    name_too_long: 'That name is too long. Use 80 characters or fewer.',
+    name_invalid: 'Use letters, spaces, hyphens, apostrophes and periods only.',
+    invalid_characters: 'That contains characters we cannot accept.',
+  } satisfies Record<FormErrorCode, string>,
+
+  nav: {
+    primaryLabel: 'Main navigation',
+    skipToContent: 'Skip to main content',
+    more: 'More',
+    moreActions: {
+      ask: { title: 'Ask Olannah', description: 'Get help from the assistant' },
+      feedback: { title: 'Feedback', description: 'Tell us about this screen' },
+      settings: { title: 'Settings', description: 'Account and preferences' },
+    },
+    unavailableReason: 'This area needs a connection. It will be available when you are back online.',
+    unavailableMarker: 'Needs a connection',
+    degradedStart: "Some of your navigation couldn't load. Dashboard is available.",
+    failed: "Navigation couldn't load. Refresh to try again.",
+    recoveryDashboard: 'Dashboard',
+    recoveryRefresh: 'Refresh',
+    deniedNotice: "You don't have access to this area.",
+    notYetAvailable: 'This is not available yet.',
+  },
+
+  settings: { title: 'Settings', name: 'Name', role: 'Role' },
+
+  zone: {
+    unavailableTitle: 'This section is unavailable',
+    unavailableBody: 'We could not load this section. The rest of your workspace is not affected.',
+    retry: 'Try again',
+    showContext: 'Show context',
+    hideContext: 'Hide context',
+    contextTitle: 'Context',
+    emptyTitle: 'Nothing here yet',
+    emptyBody: 'Information for this section appears here once your work is assigned.',
+    contextEmptyBody: 'Supporting details appear here when a job is open.',
+    refreshing: 'Updating',
+    refreshDelayed: 'This update is taking longer than expected. You are seeing information from earlier.',
+    stale: 'Not up to date',
+  },
+
+  connection: {
+    lost: 'Connection lost. You are seeing the last information we received, and anything that changes records is unavailable until it returns.',
+    failed: 'We could not restore the connection. You are seeing the last information we received, and anything that changes records is unavailable.',
+    retry: 'Try again',
+    contactSupport: 'Contact support',
+    reconnecting: 'Reconnecting',
+  },
+
+  history: {
+    label: 'Service history',
+    loading: 'Loading service history',
+    emptyTitle: 'No history yet',
+    emptyBody: 'Past visits for this site appear here once there are any.',
+    errorTitle: 'Service history is unavailable',
+    errorBody: 'We could not load the history. Your work is not affected.',
+    retry: 'Try again',
+    loadMore: 'Show earlier visits',
+  },
+
+  dashboard: {
+    featuredLabel: 'Next job',
+    queueEmptyTitle: 'Nothing queued',
+    queueEmptyBody: 'Items appear here as work is assigned to you.',
+    noteBy: (author: string) => `${author}:`,
+  },
+
+  shell: {
+    workspaceLabel: { technician: 'Technician workspace', estimator: 'Estimator workspace', default: 'Workspace' },
+    synced: 'Synced',
+    updating: 'Updating',
+    stale: 'Not up to date',
+    syncedDescription: 'Your information is up to date',
+    toastDismiss: 'Dismiss',
+  },
+
+  workspace: {
+    // Placeholder shell shown once boot settles, until the technician and estimator layouts are built.
+    placeholderTitle: 'Workspace ready',
+    signOut: 'Sign out',
+  },
+} as const;

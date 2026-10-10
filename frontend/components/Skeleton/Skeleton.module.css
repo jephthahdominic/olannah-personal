@@ -1,0 +1,38 @@
+.base {
+  display: block;
+  background: var(--color-surface-panel);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+.title { inline-size: 60%; block-size: 1rem; }
+.body { inline-size: 90%; block-size: 0.75rem; }
+.body-short { inline-size: 50%; block-size: 0.75rem; }
+.field-label { inline-size: 40%; block-size: 0.625rem; }
+.field-value { inline-size: 70%; block-size: 0.8125rem; }
+.data-value { inline-size: 30%; block-size: 0.8125rem; }
+.icon { inline-size: var(--icon-md); block-size: var(--icon-md); border-radius: var(--radius-pill); }
+.avatar { inline-size: 1.75rem; block-size: 1.75rem; border-radius: var(--radius-pill); }
+.action-button { inline-size: 100%; block-size: 2.25rem; border-radius: var(--radius-md); }
+.context-row { inline-size: 100%; block-size: 1.5rem; }
+.card { inline-size: 100%; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle); background: var(--color-surface-card); }
+.card-sm { block-size: 4rem; }
+.card-md { block-size: 8rem; }
+.card-lg { block-size: 14rem; }
+
+/* One left-to-right sweep at low opacity. All placeholders share the same animation clock. */
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--color-surface-card), transparent);
+  opacity: 0.5;
+  transform: translateX(-100%);
+  animation: sweep 1.4s ease-in-out infinite;
+}
+@keyframes sweep {
+  to { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shimmer::after { animation: none; display: none; }
+}

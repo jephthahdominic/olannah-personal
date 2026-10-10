@@ -1,0 +1,14 @@
+.frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  min-block-size: 100vh;
+  max-inline-size: var(--width-content-max);
+  margin-inline: auto;
+  text-align: center;
+}
+.wordmark { color: var(--color-brand-primary); }
+.body { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); }

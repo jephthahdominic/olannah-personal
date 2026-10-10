@@ -1,0 +1,7 @@
+.wrap { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 500; }
+.dot { inline-size: 0.5rem; block-size: 0.5rem; border-radius: var(--radius-pill); background: currentColor; }
+.fresh { color: var(--color-semantic-success); }
+.syncing { color: var(--color-brand-primary); }
+.stale { color: var(--color-semantic-warning); }
+/* A lost connection is a different condition from stale data: the dot becomes a hollow ring. */
+.broken { background: transparent; border: 2px solid currentColor; }

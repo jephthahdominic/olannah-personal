@@ -48,7 +48,14 @@ jobs:
         with:
           node-version: '20'
       - run: cd frontend && npm ci
+      # Architecture and quality gates (SDD 18.1). A broken build must never reach the deploy job.
+      - run: cd frontend && npm run tokens:check
+      - run: cd frontend && npm run contrast
+      - run: cd frontend && npm run lint:styles
+      - run: cd frontend && npm run lint
+      - run: cd frontend && npm run typecheck
       - run: cd frontend && npm test
+      - run: cd frontend && npm run build
 
   build-and-push-backend:
     needs: [detect-changes, test-backend]

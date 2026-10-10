@@ -1,0 +1,8 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--width-touch-target);
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+}
+.link:hover { color: var(--color-brand-primary-hover); }

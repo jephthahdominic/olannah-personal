@@ -1,0 +1,23 @@
+.overlay {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  inset-inline-start: var(--space-2);
+  inset-block-end: calc(var(--height-tab-bar) + var(--space-2));
+  max-inline-size: 18rem;
+  max-block-size: 70vh;
+  overflow: auto;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  border: 1px dashed var(--color-brand-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--type-caption-size);
+}
+@media (min-width: 769px) {
+  .overlay { inset-block-end: var(--space-2); }
+}
+.overlay summary { min-block-size: var(--width-touch-target); display: flex; align-items: center; cursor: pointer; }
+.body { display: flex; flex-direction: column; gap: var(--space-2); }
+.body button, .body select { min-block-size: var(--width-touch-target); text-align: start; }
+.body label { display: flex; align-items: center; gap: var(--space-2); min-block-size: var(--width-touch-target); }
+.group { font-weight: 600; margin-block-start: var(--space-2); }
