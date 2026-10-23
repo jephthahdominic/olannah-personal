@@ -4,7 +4,7 @@ import type { Ref } from 'react';
 import styles from './PortalHosts.module.css';
 
 // One portal host per layer, created by the shell, whose z-index is the layer TOKEN (SDD 9.7). Components render into a
-// host by name and never set a z-index. The checkpoint host is reserved for Stage 5.
+// host by name and never set a z-index. The checkpoint layer is NOT here: it is a sibling of the canvas root, so the blocking scope can make everything else inert (see CheckpointHost).
 export interface PortalTargets {
   setMoreMenu: Ref<HTMLDivElement>;
   setToast: Ref<HTMLDivElement>;
@@ -20,7 +20,6 @@ export function PortalHosts({ setMoreMenu, setToast, setDrawer }: PortalTargets)
       <div className={styles.modal} data-portal="modal" />
       <div className={styles.toast} ref={setToast} data-portal="toast" />
       <div className={styles.onboarding} data-portal="onboarding" />
-      <div className={styles.checkpoint} data-portal="checkpoint" />
     </>
   );
 }

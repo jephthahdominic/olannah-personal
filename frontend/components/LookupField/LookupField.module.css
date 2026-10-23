@@ -1,0 +1,39 @@
+.wrap { position: relative; }
+.input {
+  inline-size: 100%;
+  min-block-size: var(--width-touch-target);
+  padding-inline: var(--space-3);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-brand-secondary);
+  border-radius: var(--radius-md);
+}
+.popup {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 100%;
+  margin-block-start: var(--space-1);
+  z-index: var(--z-dropdown);
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  max-block-size: 16rem;
+  overflow-y: auto;
+}
+.list { list-style: none; }
+.option {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: var(--width-touch-target);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+}
+.option + .option { border-block-start: 1px solid var(--color-border-subtle); }
+.option[data-active] { background: var(--color-surface-panel); }
+@media (min-width: 769px) {
+  .option:hover { background: var(--color-surface-panel); }
+}
+.detail { color: var(--color-text-secondary); }
+.loading { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); }
+.empty { padding: var(--space-3); color: var(--color-text-secondary); }

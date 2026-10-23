@@ -21,7 +21,7 @@ Still blocked on other people: BRDs 1.1 and 1.4, the Figma file (connector not a
 The BRDs and the SDD govern behavior and contracts. The Figma designs (screenshots in `ai-contexts/ui`) govern look, layout, icons and copy tone wherever they do not contradict the BRDs. On a conflict the BRD wins. The full conflict-by-conflict outcome is in [DESIGN_REVIEW.md](DESIGN_REVIEW.md) section 6. Practical consequences for this checklist:
 
 - Navigation stays on the BRD sets (Dashboard / Work Orders / Assets / More; Dashboard / Quotes / Field Review / Settings) on Evergreen Dark. No Scan, Notes, Approvals, Customers or notification bell.
-- Chart components, HealthBadge and DatePicker are **deferred** (no approved screen uses them). Ignore the charts chunk in sections 5 and 11.
+- The eight estimator-only components (Select, DatePicker, HealthBadge, ProgressRing, SLAIndicator, BarChart, LineChart, DonutChart) are **approved P0.5** per BRD 1.2 §5.1.1, §5.8 and §5.9, and are built in Weeks 9 to 11 (SDD §18.6). The charts chunk stays in the plan (SDD §13.2). *(Corrected: an earlier note deferred these based on the Figma screenshots. The documents govern.)*
 - Checkpoint follows the BRD rules; the design supplies the visual layout.
 - Tint/text colors from the designs are tracked as **proposed** tokens (`tokens.json`, group `proposed`) pending a 1.3 update.
 - Worker identity (`displayName`, `initials`, `jobTitle`) is part of the context contract.
@@ -354,15 +354,15 @@ The BRDs say the shell does **not** authenticate. The SSO flow delivers a sessio
 - [~] KeyValue · DetailRow (2/3 columns → 1 on mobile; trailing status supplied) · RecordList (supplied order, windowed, `row-select`) · HistoryList (two-pass, `request-more`, progressive scroll) · **WorkflowStepper** (persistence-capable; `step-select`, `step-advance`; never advances itself). *(partly done: KeyValue, RecordList, HistoryList, StatTile built. DetailRow and WorkflowStepper not yet.)*
 
 **Input and control (P0; Select and DatePicker P0.5)**
-- [~] TextInput · LookupField (query event in, supplied results out; no debounce/cancel/stale logic inside) · PhotoCapture (entry point only; watchlist) · FormField (visible label always, never placeholder-only) · Select · DatePicker (bounds supplied). *(partly done: TextInput, PasswordInput, TextArea and FormField built. LookupField, PhotoCapture and Select not yet.)*
+- [~] TextInput · LookupField (query event in, supplied results out; no debounce/cancel/stale logic inside) · PhotoCapture (entry point only; watchlist) · FormField (visible label always, never placeholder-only) · Select · DatePicker (bounds supplied). *(partly done: TextInput, PasswordInput, TextArea, FormField, Select and DatePicker built, with tests. Select and DatePicker are estimator-only P0.5. LookupField and PhotoCapture are in the tree from the other session's work.)*
 - [x] Controlled-component model: composing layer owns values; inputs remount without losing them. Structural validation allowed in input, business validation never. *(holds for TextInput, PasswordInput, TextArea and the assistant and feedback drafts.)*
 
 **Feedback and status (P0; HealthBadge P0.5)**
-- [x] StatusPill · StatusIndicator · SyncDot (freshness and connectivity as **separate** dimensions) · Skeleton · Toast (7s default, pauses on hover/focus, never over checkpoint) · InlineError (code, meaning, suggested action all supplied; **never show codes to worker**) · DegradedBanner (warning token; not a failure) · EmptyState (explanation required) · HealthBadge.
+- [x] StatusPill · StatusIndicator · SyncDot (freshness and connectivity as **separate** dimensions) · Skeleton · Toast (7s default, pauses on hover/focus, never over checkpoint) · InlineError (code, meaning, suggested action all supplied; **never show codes to worker**) · DegradedBanner (warning token; not a failure) · EmptyState (explanation required) · HealthBadge. *(HealthBadge built: availability and connection as separate supplied dimensions.)*
 - [x] Distinct conditions stay distinct: loading, empty, stale, syncing, degraded, unavailable, error, warning, blocking.
 
 **Visualization (all P0.5)**
-- [ ] ProgressRing · SLAIndicator · BarChart · LineChart · DonutChart (≤ 5 series, text alternative, non-color differentiation, centered value, empty state).
+- [x] ProgressRing · SLAIndicator · BarChart · LineChart · DonutChart (≤ 5 series, text alternative, non-color differentiation, centered value, empty state). *(all five built in `components/visualization/`, a separate entry point so they can sit in the charts chunk. Viz palette only, pattern/dash/marker differentiation, more than 5 series shows a table, missing values are gaps never zeros, no trend lines or breach logic, all chart text is HTML. 73 behaviour and axe tests.)*
 
 **System surface (P0)**
 - [ ] CheckpointOverlay · CheckpointInitializing · DiffView · AccountabilityStatement · DecisionControls · ConfirmationGesture · AcknowledgmentControl (section 13).
@@ -459,10 +459,10 @@ The BRDs say the shell does **not** authenticate. The SSO flow delivers a sessio
 - [x] Estimator layout template (new template only; **zero** changes to runtime orchestration).
 - [~] 5-screen desktop prototype traced to components. *(partly done: estimator dashboard (figures with captions, priority queue with status pills) built. Field review, quote and approval screens not yet.)*
 - [x] Nav: Dashboard / Quotes / Field Review / Settings (mobile: …/More).
-- [ ] P0.5 components: Select, DatePicker, HealthBadge, ProgressRing, SLAIndicator, BarChart, LineChart, DonutChart.
+- [x] P0.5 components: Select, DatePicker, HealthBadge, ProgressRing, SLAIndicator, BarChart, LineChart, DonutChart. *(built, tested, in the gallery. They are not yet used by an estimator screen.)*
 - [~] Context zone as fixed 240px side rail; floating AI trigger bottom-right; topbar feedback link. *(partly done: 240px context rail done. AI trigger and feedback link pending.)*
 - [ ] Dashboard entry points for estimator work (undefined, Q19).
-- [ ] Charts chunk lazy-loaded so technician devices never download it.
+- [~] Charts chunk lazy-loaded so technician devices never download it. *(partly done: the charts are a separate entry point and nothing in the technician path imports them. The lazy import comes with the first estimator screen that uses one; the gallery route does load them.)*
 - [ ] Ships dark behind the `personas.enabled` flag until Week 12.
 - [ ] Open: do billing coordinator and dispatcher share components? (affects reuse now, 1.0 OQ8)
 

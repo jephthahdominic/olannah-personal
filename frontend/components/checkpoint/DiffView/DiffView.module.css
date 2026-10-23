@@ -1,0 +1,15 @@
+.diff { display: flex; flex-direction: column; gap: var(--space-4); }
+/* One column at narrow widths; the meta facts sit side by side from tablet up. */
+.meta { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+.fields { list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
+.field { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--color-surface-panel); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.values { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.values dt { color: var(--color-text-secondary); }
+.values dd { overflow-wrap: anywhere; }
+/* The current value is struck through and the proposed value carries a leading bar: a shape and a style, never color alone. */
+.current dd { text-decoration: line-through; color: var(--color-text-secondary); }
+.proposed { padding-inline-start: var(--space-3); border-inline-start: 3px solid var(--color-brand-primary); }
+@media (min-width: 769px) {
+  .meta { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .values { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+}

@@ -46,9 +46,23 @@ a {
   outline: none;
 }
 
+/* Two-tone ring: a Moss Gold ring (BRD 1.3 section 8.1) inside a dark neutral outer ring. Moss Gold alone is 2.90:1 on
+   Warm Cream and 2.77:1 on Sage Mist, below the 3:1 required by section 11.1. The outer ring carries the contrast on
+   every light surface. Both rings use existing tokens. Zero-blur spread only, so this is not elevation. */
 :focus-visible {
-  outline: 2px solid var(--color-brand-accent);
+  outline: 2px solid var(--color-text-primary);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-brand-accent);
+}
+
+/* Input fields get the Moss Gold ring on its own, with no dark outer ring: the field's own border and fill already carry
+   the contrast. Buttons, links and other controls keep the two-tone ring above. */
+input:not([type='checkbox'], [type='radio'], [type='file']):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--color-brand-accent);
+  box-shadow: 0 0 0 2px var(--color-brand-accent);
 }
 
 /* Disabled communicates "exists but unavailable": 40% opacity, visible, no pointer cursor (BRD 1.3 section 8.1). */

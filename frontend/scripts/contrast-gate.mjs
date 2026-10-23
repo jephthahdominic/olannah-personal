@@ -21,10 +21,6 @@ const ratio = (a, b) => {
 // Known spec conflicts awaiting a Design decision. Reported on every run, never silently dropped.
 // Remove an entry only when Design resolves it (and record the decision in BRD 1.3 first).
 const known = {
-  'Focus outline (Moss Gold) on Warm Cream':
-    'BRD 1.3 section 8.1 mandates a Moss Gold focus ring; section 11.1 requires 3:1 against the adjacent surface. Moss Gold is 2.90:1 on Warm Cream.',
-  'Focus outline (Moss Gold) on Sage Mist':
-    'Same conflict. Moss Gold is 2.77:1 on Sage Mist (context zone). Options for Design: darker ring token, or a two-tone ring.',
   'Base warning color as small text on White':
     'Design uses the base amber for small labels ("2 need attention today", "Required"). 3.79:1 fails AA at body size. Use color-semantic-warning-text for text and keep the base amber for shapes and borders.',
   'Base Moss Gold as small text on Warm Cream':
@@ -45,9 +41,16 @@ const pairs = [
   ['Warm Cream on Evergreen (primary button)', 'color-text-on-chrome', 'color-brand-primary', 4.5, 'P0'],
   ['Warm Cream on Evergreen Hover (button hover)', 'color-text-on-chrome', 'color-brand-primary-hover', 4.5, 'P0'],
   ['Moss Gold indicator on Evergreen Dark (non-text)', 'color-brand-accent', 'color-surface-chrome', 3, 'P0'],
-  ['Focus outline (Moss Gold) on Warm Cream', 'color-brand-accent', 'color-surface-workspace', 3, 'P0'],
-  ['Focus outline (Moss Gold) on White', 'color-brand-accent', 'color-surface-card', 3, 'P0'],
-  ['Focus outline (Moss Gold) on Sage Mist', 'color-brand-accent', 'color-surface-panel', 3, 'P0'],
+  // Focus ring is two-tone (decision pending 1.3 update, see DESIGN_REVIEW.md): dark neutral outer ring, Moss Gold inner ring.
+  ['Focus outer ring (dark neutral) on Warm Cream', 'color-text-primary', 'color-surface-workspace', 3, 'P0'],
+  ['Focus outer ring (dark neutral) on White', 'color-text-primary', 'color-surface-card', 3, 'P0'],
+  ['Focus outer ring (dark neutral) on Sage Mist', 'color-text-primary', 'color-surface-panel', 3, 'P0'],
+  ['Focus inner ring (Moss Gold) on Evergreen Dark (nav)', 'color-brand-accent', 'color-surface-chrome', 3, 'P0'],
+  ['Acknowledgment check (white) on Moss Gold toggle (non-text)', 'color-surface-card', 'color-semantic-checkpoint', 3, 'P0'],
+  ['Acknowledgment border (Warm Slate) on Sage Mist (non-text)', 'color-brand-secondary', 'color-surface-panel', 3, 'P0'],
+  // Decision (22 Oct 2026): the acknowledged border stays Moss Gold exactly as BRD 1.3 8.7 specifies. It is 2.77:1 on Sage Mist, but the
+  // border does not carry the state: the filled toggle with its white check (3.16:1), aria-checked and the statement text do. Informational only.
+  ['Acknowledgment border (Moss Gold) on Sage Mist, informational: state is carried by the check and aria-checked', 'color-semantic-checkpoint', 'color-surface-panel', 2.5, 'P1'],
   ['Success indicator on White', 'color-semantic-success', 'color-surface-card', 3, 'P0'],
   ['Warning indicator on White', 'color-semantic-warning', 'color-surface-card', 3, 'P0'],
   ['Error indicator on White', 'color-semantic-error', 'color-surface-card', 3, 'P0'],

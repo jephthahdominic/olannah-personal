@@ -84,7 +84,7 @@ These are listed by impact. For each, "BRD wins" is the default under 1.3 §13 u
 **Components not in the 45-component inventory** (each needs to trace to an approved screen and be added through 1.2 governance):
 Checkbox / checklist row, FilterChip (Today · 3 / Priority · 1), Accordion (collapsible job card), Avatar (initials), TextArea, PhoneInput (country + number), DataTable (sortable columns, row status), editable line-item table, SignatureCapture, notification Bell, Topbar (brand, workspace name, sync pill, user), PageHeader (eyebrow + title + date), stat tile, dismissible Banner/Notice variants, ProgressStepper segmented bar (check against WorkflowStepper), bottom-sheet.
 
-**Inventory components that never appear in these designs** (so by the 1.2 rule they would be **deferred, not built**): ProgressRing, SLAIndicator, BarChart, LineChart, DonutChart, HealthBadge, DatePicker. This removes the whole charts chunk from the Week 9 to 12 plan. Select appears (Failure condition, Repair classification).
+**Inventory components not visible in these screenshots** (approved P0.5 per BRD 1.2 §5.1.1, so still built in Weeks 9 to 11; the documents govern, not the screenshots): ProgressRing, SLAIndicator, BarChart, LineChart, DonutChart, HealthBadge, DatePicker. This removes the whole charts chunk from the Week 9 to 12 plan. Select appears (Failure condition, Repair classification).
 
 **Contract gaps:**
 - The session and context contracts have **no display name, initials, or job title**. The UI needs "Marcus Bell / MB" and "Kevin Osei, Senior estimator".
@@ -101,7 +101,7 @@ Checkbox / checklist row, FilterChip (Today · 3 / Priority · 1), Accordion (co
 - **Boot screens (Stage 1):** `ContextDegradedNotice`, `WorkspaceRecoveryScreen`, and the loading and expired screens follow the BRD. The designs disagree in items 3, 7 and 8 above. Don't restyle them until a decision lands.
 - **Contrast gate:** add the real pairs from the designs (amber text on warning surface, green on success surface, and so on) once the tint tokens exist.
 - **Fixtures:** switch the mock context to the freezer/FZ-02 scenario and add `displayName`, `initials`, `jobTitle`.
-- **Plan:** drop the charts chunk from Stages 7 and 8, and add the missing-component list to the library backlog.
+- **Plan:** keep the charts chunk (SDD §13.2) and add the missing-component list to the library backlog.
 
 ## 6. Resolution (decided 8 Oct 2026)
 
@@ -118,7 +118,16 @@ Checkbox / checklist row, FilterChip (Today · 3 / Priority · 1), Accordion (co
 | 7 | Tint and text colors, monospace, radii | **Added as proposals** (see tokens.json, group `proposed`), pending a 1.3 update. Monospace is **not** adopted: IDs and times use Inter with tabular numerals. Radii stay provisional until measured from Figma. | Surface tints, dark amber text, borders, insight accent. |
 | 8 | Topbar | **Defined from the design** (brand mark, workspace label, sync pill, user avatar/name/role) because the BRDs reference a topbar without defining one (SDD R20/Q30). BRD additions still apply: feedback link on tablet/desktop, AI assistant trigger, More menu on mobile. Bell is not built (no BRD). | Whole visual treatment. |
 | 9 | Missing components | Added to the library backlog through 1.2 governance, only for screens we actually build. | Component look. |
-| 10 | Chart components, HealthBadge, DatePicker | **Deferred** (never appear in an approved screen). Charts chunk removed from the plan. | n/a |
+| 10 | Chart components, HealthBadge, DatePicker | **Approved P0.5 by BRD 1.2.** Built in Weeks 9 to 11 with the charts chunk. (A first draft of this review deferred them from the screenshots; corrected.) | n/a |
+
+### Decisions pending a 1.3 update (recorded 22 Oct 2026, BRD 1.3 v1.2 and 1.2 v1.2)
+
+Per 1.3 section 13.2 these need the Web, Growth and Canvas team to record them in 1.3. They are implemented now so the P0 gate passes, and each is reversible in one place.
+
+1. **Focus ring is two-tone.** 1.3 section 8.1 mandates a Moss Gold ring and section 11.1 requires 3:1 against the adjacent surface. Moss Gold is 2.90:1 on Warm Cream and 2.77:1 on Sage Mist. Implemented in `app/globals.css`: a 2px dark neutral outer ring (`--color-text-primary`, 15 to 17:1 on light surfaces) around a 2px Moss Gold inner ring (3.33:1 on Evergreen Dark). No new token. `check-styles` allows a zero-blur, token-colored `box-shadow` for this ring only. Ask for 1.3: amend section 8.1 to describe the two-tone ring. On Evergreen Dark the outer ring is not visible; the Moss Gold ring carries the contrast there.
+2. **Border token names.** 1.3 section 7.1.1 names `--border` and `--border-strong` (1.5px for the Context Header), but neither is in the section 3 color tables. The repo uses `color-border-subtle` and `color-border-strong`. Section 3.5 treats token names as stable contracts, so we do not rename or alias. Mapping: `--border` = `color-border-subtle`, `--border-strong` = `color-border-strong`. Ask for 1.3: add both border tokens to section 3 using the repo names and correct the section 7.1.1 table. The 1.5px width is a component-level rule, not a color token.
+
+3. **Checkpoint group built (22 Oct 2026), BRD 1.4 still missing.** The contracts in `contracts/checkpoint.ts`, every window (3000ms diff wait, 8 and 10 minute inactivity, 2000ms revalidation, 5s retry) and the worker-facing wording in `messages.checkpoint` are the canvas's own draft, to be verified against 1.4. Decisions made where the BRDs are silent: the confirmation gesture is a two-step arm-then-confirm on the approve control (5s window, announced, works the same by pointer, touch and keyboard, adds no third control); the approve button uses the primary (Evergreen) variant, because 1.3 section 11.1 forbids text on a Moss Gold fill; Reject is first in the focus order. Acknowledged border decision (22 Oct 2026): it stays Moss Gold exactly as 1.3 section 8.7 specifies, with no darker or black border added. It is 2.77:1 on Sage Mist, but it does not carry the state: the filled toggle with its white check (3.16:1), `aria-checked` and the fixed statement text do, and the unchecked boundary (Warm Slate) is 4.95:1. The contrast gate lists it as informational.
 
 ## 7. Still open
 

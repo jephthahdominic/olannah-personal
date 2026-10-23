@@ -1,0 +1,34 @@
+.control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  inline-size: 100%;
+  min-block-size: var(--width-touch-target);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-panel);
+  color: var(--color-text-primary);
+  border: 1.5px solid var(--color-brand-secondary);
+  border-radius: var(--radius-md);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color var(--motion-state-duration) var(--motion-state-easing);
+}
+.control[data-acknowledged] { border-color: var(--color-semantic-checkpoint); }
+.statement { flex: 1; min-inline-size: 0; }
+.toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--icon-lg);
+  block-size: var(--icon-lg);
+  border: 2px solid var(--color-brand-secondary);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-surface-card);
+  transition: background var(--motion-state-duration) var(--motion-state-easing), border-color var(--motion-state-duration) var(--motion-state-easing);
+}
+/* Moss Gold here means a completed acknowledgment, not approval and not a successful write. */
+.control[data-acknowledged] .toggle { background: var(--color-semantic-checkpoint); border-color: var(--color-semantic-checkpoint); }
+.control[aria-disabled='true'] { opacity: 0.4; cursor: default; }

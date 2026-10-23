@@ -10,3 +10,4 @@ export * from './history';
 export * from './assistant';
 export * from './widget';
 export * from './feedback';
+export * from './checkpoint';

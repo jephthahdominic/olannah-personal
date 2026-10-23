@@ -188,6 +188,51 @@ export const messages = {
     },
   },
 
+  checkpoint: {
+    // DRAFT wording. BRD 1.4 owns the protocol and the accountability statement; plain language, no codes, no technical detail.
+    title: 'A decision is needed',
+    blockingNote: 'The rest of your work is paused until you decide.',
+    triggeredByLabel: 'Started by',
+    initializing: 'Preparing the changes for your review',
+    diff: {
+      heading: 'What will be written',
+      targetSystem: 'Target system',
+      record: 'Record',
+      originatingAgent: 'Started by',
+      now: 'Now',
+      willBe: 'Will be',
+      noCurrentValue: 'No value yet',
+    },
+    accountability: 'Approving sends the changes shown above to be written to the record. Your decision is recorded with your name and the time, and you are accountable for it.',
+    accountabilityHeading: 'Before you decide',
+    // Identical for every checkpoint and persona (BRD 1.3 section 8.7).
+    acknowledgment: 'I have reviewed the proposed changes shown above.',
+    approve: 'Approve changes',
+    approveArmed: 'Tap again to approve',
+    approveArmedAnnouncement: 'Approval is ready. Activate it again to confirm.',
+    approveDisarmed: 'Approval was not confirmed.',
+    reject: 'Reject changes',
+    submitting: 'Submitting your decision',
+    connectionLost: 'Your connection was lost. Nothing was submitted. Your decision is paused until the connection is back and the changes are checked again.',
+    inactivityWarning: 'Are you still there? This decision will close soon if nothing happens, and nothing will be submitted.',
+    // What the worker is told when it ends. Only a decision that reached the system is described as submitted, and never as completed.
+    outcome: {
+      approved: { tone: 'success', text: 'Your approval was submitted.' },
+      rejected: { tone: 'info', text: 'Your rejection was submitted. No changes were made.' },
+      timeout: { tone: 'info', text: 'This decision timed out. Nothing was submitted.' },
+      session_abandoned: { tone: 'info', text: 'Your session ended. Nothing was submitted.' },
+      render_failure: { tone: 'info', text: 'We could not show this decision. Nothing was submitted.' },
+      diff_load_failure: { tone: 'info', text: 'We could not load the changes for review. Nothing was submitted.' },
+      payload_mismatch: { tone: 'info', text: 'The changes no longer match what you reviewed. Nothing was submitted.' },
+      upstream_mutation: { tone: 'info', text: 'The record changed while you were reviewing. Nothing was submitted.' },
+      reconnection_validation_failure: { tone: 'info', text: 'We could not confirm the changes after your connection returned. Nothing was submitted.' },
+      component_load_failure: { tone: 'info', text: 'We could not open this decision. Nothing was submitted.' },
+      approval_submission_failure: { tone: 'info', text: 'Your approval could not be submitted. Nothing was submitted.' },
+      rejection_submission_failure: { tone: 'info', text: 'Your rejection could not be submitted. Nothing was submitted.' },
+    },
+    announce: (triggeredBy: string, description: string) => `A decision is needed. Started by ${triggeredBy}. ${description}`,
+  },
+
   widget: {
     headerLabel: 'Olannah Insight',
     fallbackTitle: 'Insight unavailable',

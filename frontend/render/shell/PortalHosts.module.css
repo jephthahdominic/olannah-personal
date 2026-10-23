@@ -1,10 +1,9 @@
-.moreMenu, .drawer, .modal, .onboarding, .checkpoint { position: fixed; inset: 0; pointer-events: none; }
-.moreMenu > *, .drawer > *, .modal > *, .onboarding > *, .checkpoint > * { pointer-events: auto; }
+.moreMenu, .drawer, .modal, .onboarding { position: fixed; inset: 0; pointer-events: none; }
+.moreMenu > *, .drawer > *, .modal > *, .onboarding > * { pointer-events: auto; }
 .moreMenu { z-index: var(--z-more-menu); }
 .drawer { z-index: var(--z-drawer); }
 .modal { z-index: var(--z-modal); }
 .onboarding { z-index: var(--z-onboarding); }
-.checkpoint { z-index: var(--z-checkpoint); }
 
 /* Toasts sit in a reserved region at the bottom, clear of the tab bar. */
 .toast {

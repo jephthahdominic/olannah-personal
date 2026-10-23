@@ -1,0 +1,54 @@
+/* Shared styling for the visualization group (BRD 1.3 section 10). Chart colors come from the separate --color-viz-* palette and
+   NEVER from brand, surface or semantic tokens. Series are told apart by PATTERN, DASH and MARKER SHAPE as well as color, so a
+   worker with a color vision deficiency, or in poor light, can still read them. Text is always HTML, never inside a scaled
+   SVG, so it can never shrink below the 11px floor. */
+
+.figure { display: flex; flex-direction: column; gap: var(--space-3); min-inline-size: 0; }
+.title { color: var(--color-text-primary); }
+.textAlt { color: var(--color-text-secondary); }
+
+/* Series color slots 0 to 4 map to viz-1 to viz-5, in order, so viz-3 and viz-5 are never neighbours (BRD 1.3 section 10.2). */
+.s0 { color: var(--color-viz-1); }
+.s1 { color: var(--color-viz-2); }
+.s2 { color: var(--color-viz-3); }
+.s3 { color: var(--color-viz-4); }
+.s4 { color: var(--color-viz-5); }
+
+/* Fill patterns for bars, swatches and legend keys. Every one also has a solid outline in the series color. */
+.fill0 { background: currentColor; }
+.fill1 { background-image: repeating-linear-gradient(45deg, currentColor 0 3px, transparent 3px 7px); }
+.fill2 { background-image: radial-gradient(currentColor 1.6px, transparent 1.7px); background-size: 6px 6px; }
+.fill3 { background-image: repeating-linear-gradient(0deg, currentColor 0 2px, transparent 2px 6px), repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 6px); }
+.fill4 { background-image: repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 7px); }
+.outlined { border: 2px solid currentColor; }
+
+/* Line dash styles. */
+.d0 { stroke-dasharray: none; }
+.d1 { stroke-dasharray: 8 5; }
+.d2 { stroke-dasharray: 2 4; }
+.d3 { stroke-dasharray: 10 4 2 4; }
+.d4 { stroke-dasharray: 1 6; }
+
+/* Point marker shapes. */
+.marker { display: block; inline-size: 0.625rem; block-size: 0.625rem; background: currentColor; }
+.m0 { border-radius: var(--radius-pill); }
+.m1 { border-radius: 0; }
+.m2 { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.m3 { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.m4 { clip-path: polygon(35% 0, 65% 0, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0 65%, 0 35%, 35% 35%); }
+
+/* Legend. Items are buttons only when selection is supplied, and always meet the 44px touch target. */
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); list-style: none; }
+.legendItem { display: inline-flex; align-items: center; gap: var(--space-2); min-block-size: var(--width-touch-target); padding-inline: var(--space-2); background: transparent; color: var(--color-text-primary); border: 1px solid transparent; border-radius: var(--radius-md); }
+button.legendItem { cursor: pointer; }
+.legendItem[aria-pressed='true'] { border-color: var(--color-text-primary); }
+.swatch { display: inline-block; flex: none; inline-size: 1rem; block-size: 1rem; border-radius: var(--radius-sm); }
+.lineKey { display: inline-block; flex: none; inline-size: 1.75rem; block-size: 0.5rem; }
+.legendValue { color: var(--color-text-secondary); }
+
+/* Axes and grid. */
+.axis { color: var(--color-text-secondary); }
+.table { inline-size: 100%; border-collapse: collapse; }
+.table th, .table td { padding: var(--space-2) var(--space-3); border-block-end: 1px solid var(--color-border-subtle); text-align: start; }
+.table th { color: var(--color-text-secondary); }
+.num { text-align: end; font-variant-numeric: tabular-nums; }

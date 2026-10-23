@@ -106,7 +106,8 @@ The full checklist is a 12-week build (technician Week 9, estimator Week 12). **
 - [ ] **Technician mobile release (Week 9)** behind `personas.enabled`.
 
 **Stage 8 (Wk 9 to 12): Estimator**
-- [ ] P0.5 components actually used by approved screens (Select; charts, HealthBadge and DatePicker are deferred), estimator layout/template only (no runtime changes), desktop screens, charts chunk, estimator onboarding, a11y and desktop performance pass, then release flag on (§14).
+- [x] P0.5 components per BRD 1.2 (Select, DatePicker, HealthBadge, ProgressRing, SLAIndicator, BarChart, LineChart, DonutChart): **built early** (9 Oct), charts in a separate entry point. Lazy loading is wired when the first estimator screen uses one.
+- [ ] Remaining for this stage: estimator layout/template only (no runtime changes), desktop screens, charts chunk, estimator onboarding, a11y and desktop performance pass, then release flag on (§14).
 
 ## Risks to Saturday
 

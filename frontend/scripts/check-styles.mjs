@@ -22,7 +22,7 @@ const rules = [
   [/\b(rgb|rgba|hsl|hsla)\(/, 'hard-coded color function'],
   [/z-index\s*:\s*-?\d/, 'literal z-index (use a --z-* token via a portal host)'],
   [/font-family\s*:(?!\s*var\()/, 'literal font-family (use a type token)'],
-  [/box-shadow\s*:(?!\s*none)/, 'box-shadow (the system has no elevation or shadows)'],
+  [/box-shadow\s*:(?!\s*none)(?!\s*0 0 0 \dpx var\(--color-)/, 'box-shadow (the system has no elevation or shadows; only a zero-blur token-colored focus ring is allowed)'],
   [/\b\d+ms\b/, 'literal duration (use a --motion-* token)'],
 ];
 

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { mockAssistantControl } from '@/clients/mock/mockAssistant';
 import { mockBusControl } from '@/clients/mock/mockBus';
+import { mockCheckpointControl, type MockDiffMode, type MockSubmitMode } from '@/clients/mock/mockCheckpointChannel';
+import { malformedTrigger, unknownVersionTrigger } from '@/contracts/fixtures/checkpoint';
 import { mockControls, resetMockControls, type HistoryMode } from '@/clients/mock/mockControls';
 import { getIdpPersona } from '@/clients/mock/mockIdp';
 import { estimatorDashboard, technicianDashboard, technicianDashboardWithNote } from '@/contracts/fixtures/zones';
@@ -59,6 +61,27 @@ export function DevOverlay({ runtime }: { runtime: CanvasRuntime }) {
         <label>
           <input type="checkbox" checked={feedbackFails} onChange={(e) => { setFeedbackFails(e.target.checked); mockControls.feedbackFails = e.target.checked; }} />
           Feedback submission fails
+        </label>
+
+        <p className={styles.group}>Checkpoint</p>
+        <button onClick={() => mockCheckpointControl.raise()}>Raise a checkpoint</button>
+        <button onClick={() => { mockCheckpointControl.raise(); mockCheckpointControl.raise(); }}>Raise two (second is rejected)</button>
+        <button onClick={() => mockCheckpointControl.raiseRaw(malformedTrigger)}>Raise malformed trigger (nothing shows)</button>
+        <button onClick={() => mockCheckpointControl.raiseRaw(unknownVersionTrigger)}>Raise unknown-version trigger</button>
+        <button onClick={() => { const id = mockCheckpointControl.raise(); window.setTimeout(() => mockCheckpointControl.upstreamChange(id), 3000); }}>Raise, upstream changes in 3s</button>
+        <button onClick={() => { mockCheckpointControl.raise(); window.setTimeout(() => mockBusControl.drop(), 2500); }}>Raise, connection drops in 2.5s (recovers)</button>
+        <button onClick={() => { mockCheckpointControl.validateValid = false; mockCheckpointControl.raise(); window.setTimeout(() => mockBusControl.drop(), 2500); }}>Raise, drop, then revalidation fails</button>
+        <label>
+          Diff behaviour
+          <select aria-label="Checkpoint diff behaviour" defaultValue={mockCheckpointControl.diffMode} onChange={(e) => (mockCheckpointControl.diffMode = e.target.value as MockDiffMode)}>
+            {(['ok', 'slow', 'never', 'malformed', 'error'] as const).map((m) => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </label>
+        <label>
+          Decision submission
+          <select aria-label="Checkpoint submission behaviour" defaultValue={mockCheckpointControl.submitMode} onChange={(e) => (mockCheckpointControl.submitMode = e.target.value as MockSubmitMode)}>
+            {(['ok', 'fail', 'mismatch', 'mutation'] as const).map((m) => <option key={m} value={m}>{m}</option>)}
+          </select>
         </label>
 
         <p className={styles.group}>Connection</p>
@@ -120,6 +143,7 @@ export function DevOverlay({ runtime }: { runtime: CanvasRuntime }) {
             resetMockControls();
             mockBusControl.reset();
             mockAssistantControl.reset();
+            mockCheckpointControl.reset();
             setFeedbackFails(false);
             setHistoryMode('ok');
             setSlowRefresh(false);

@@ -2,6 +2,7 @@
 // or personal identifier cannot be logged by accident (BRD 1.0 SR23B). Audit stubs are a different channel.
 // The sink is replaceable: the log channel is OPEN (BRD 1.0 OQ6), so call sites never change when it is chosen.
 
+import type { TerminalOutcome } from '@/contracts';
 import { registerPurgeHandler } from './purgeSession';
 
 export type EventName =
@@ -40,7 +41,11 @@ export type EventName =
   | 'nav.catalog_unavailable'
   | 'nav.destination_invalid'
   | 'nav.component_failure'
-  | 'nav.offline_unavailable_selected';
+  | 'nav.offline_unavailable_selected'
+  | 'checkpoint.shown'
+  | 'checkpoint.protocol_error'
+  | 'checkpoint.second_trigger_rejected'
+  | `checkpoint.${TerminalOutcome}`;
 
 export type Severity = 'info' | 'warn' | 'error';
 

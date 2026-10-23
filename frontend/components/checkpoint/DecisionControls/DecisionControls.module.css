@@ -1,0 +1,5 @@
+.controls { display: flex; flex-direction: column; gap: var(--space-3); }
+@media (min-width: 769px) {
+  .controls { flex-direction: row; }
+  .controls > * { flex: 1; }
+}

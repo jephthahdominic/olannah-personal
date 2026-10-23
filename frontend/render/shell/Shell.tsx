@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button, DegradedBanner, Label, MoreMenu, SectionHeader, Surface } from '@/components';
 import type { ContextEnvelope, ScreenContext } from '@/contracts';
@@ -8,6 +8,7 @@ import type { CanvasRuntime } from '@/runtime/canvas/canvasRuntime';
 import { useConnection } from '@/runtime/canvas/useCanvasRuntime';
 import type { DeepReadonly } from '@/runtime/freeze';
 import { liveRegion } from '@/runtime/liveRegion';
+import type { CheckpointController } from '@/runtime/checkpoint/checkpointController';
 import { registerPurgeHandler } from '@/runtime/purgeSession';
 import type { ResolvedLayout } from '@/runtime/boot/layoutRegistry';
 import { logEvent } from '@/runtime/telemetry';
@@ -23,6 +24,8 @@ import { NavigationZone } from '../navigation/NavigationZone';
 import { destinationIdForPath, routeForDestination } from '../navigation/routing';
 import { useNavigation } from '../navigation/useNavigation';
 import { AssistantHost } from '../assistant/AssistantHost';
+import { CheckpointHost } from '../checkpoint/CheckpointHost';
+import { useBlockingScope } from '../checkpoint/useBlockingScope';
 import { FeedbackHost } from '../feedback/FeedbackHost';
 import { LiveRegions } from './LiveRegions';
 import { PortalHosts } from './PortalHosts';
@@ -40,6 +43,9 @@ interface ShellProps {
   /** Where "contact support" goes. Supplied by runtime configuration. */
   supportHref: string;
   toastDurationMs?: number;
+  /** The checkpoint controller, created by the app layer. While it is active the whole canvas root is inert and only the
+   *  checkpoint surface is interactive (BRD 1.2 5.12 Feature 6). */
+  checkpoint?: CheckpointController;
   /** Development tools (mock fault injection), supplied by the app layer so the render path never imports the mocks. */
   devTools?: ReactNode;
 }
@@ -47,12 +53,18 @@ interface ShellProps {
 // The canvas shell: assembles the workspace from the context object (BRD 1.0). It composes; it decides nothing about
 // business meaning. Layout comes from a template (data), navigation from the pure assembly function, and every zone is
 // isolated behind its own host.
-export function Shell({ context, layout, runtime, signOut, supportHref, toastDurationMs, devTools }: ShellProps) {
+export function Shell({ context, layout, runtime, signOut, supportHref, toastDurationMs, checkpoint, devTools }: ShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const viewport = useViewport();
   const template = useMemo(() => getTemplate(layout.layoutId), [layout.layoutId]);
   const connection = useConnection(runtime);
+  const blocked = useSyncExternalStore(
+    (listener) => checkpoint?.subscribe(listener) ?? (() => {}),
+    () => checkpoint?.isActive() ?? false,
+    () => false,
+  );
+  useBlockingScope(blocked);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
@@ -155,7 +167,7 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
 
   return (
     <ShellContext.Provider value={shellValue}>
-      <div className={`${styles.shell} ${styles[viewport]}`} data-viewport={viewport}>
+      <div data-canvas-root className={`${styles.shell} ${styles[viewport]}`} data-viewport={viewport}>
         <a className={styles.skip} href="#primary-content">
           {messages.nav.skipToContent}
         </a>
@@ -253,6 +265,8 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
         <LiveRegions />
         {devTools}
       </div>
+      {/* A SIBLING of the canvas root, so it stays interactive while the root is inert. It renders nothing unless a checkpoint exists. */}
+      {checkpoint && <CheckpointHost controller={checkpoint} connection={connection} />}
     </ShellContext.Provider>
   );
 }

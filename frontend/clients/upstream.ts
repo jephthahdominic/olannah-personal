@@ -3,6 +3,9 @@ import type { ContextChannel } from './context/contextChannel';
 import type { HistoryChannel } from './history/historyChannel';
 import type { SourceFactory } from './bus/busConnection';
 import type { FeedbackChannel } from './feedback/feedbackChannel';
+import type { CheckpointChannel } from './checkpoint/checkpointChannel';
+import { MockCheckpointChannel } from './mock/mockCheckpointChannel';
+import { RealCheckpointChannel } from './real/realCheckpointChannel';
 import { createRealAssistantSource } from './assistant/realAssistantSource';
 import { createMockAssistantSource } from './mock/mockAssistant';
 import { MockFeedbackChannel } from './mock/mockFeedbackChannel';
@@ -30,6 +33,7 @@ export interface Upstream {
   /** The assistant is bidirectional and proactive, so it is a WebSocket alongside SSE (BRD 1.0 OQ9). */
   createAssistantSource: SourceFactory;
   feedback: FeedbackChannel;
+  checkpoint: CheckpointChannel;
 }
 
 let instance: Upstream | null = null;
@@ -37,7 +41,7 @@ let instance: Upstream | null = null;
 export function getUpstream(): Upstream {
   instance ??=
     upstreamMode === 'mock'
-      ? { auth: new MockAuthProvider(), context: new MockContextChannel(), history: new MockHistoryChannel(), createBusSource: createMockBusSource, createAssistantSource: createMockAssistantSource, feedback: new MockFeedbackChannel() }
-      : { auth: new RealAuthProvider(), context: new RealContextChannel(), history: new RealHistoryChannel(), createBusSource: createRealBusSource, createAssistantSource: createRealAssistantSource, feedback: new RealFeedbackChannel() };
+      ? { auth: new MockAuthProvider(), context: new MockContextChannel(), history: new MockHistoryChannel(), createBusSource: createMockBusSource, createAssistantSource: createMockAssistantSource, feedback: new MockFeedbackChannel(), checkpoint: new MockCheckpointChannel() }
+      : { auth: new RealAuthProvider(), context: new RealContextChannel(), history: new RealHistoryChannel(), createBusSource: createRealBusSource, createAssistantSource: createRealAssistantSource, feedback: new RealFeedbackChannel(), checkpoint: new RealCheckpointChannel() };
   return instance;
 }

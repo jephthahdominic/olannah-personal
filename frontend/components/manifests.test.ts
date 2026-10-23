@@ -5,7 +5,9 @@ import { manifests } from './manifests';
 
 // Compliance with 1.2 5.2, 5.13 and 5.14 becomes a build result (ADR-009).
 const indexSource = readFileSync(join(__dirname, 'index.ts'), 'utf8');
-const exported = [...indexSource.matchAll(/export \{ ([A-Za-z]+)[,} ]/g)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n)); // components only: hooks and formatters are utilities
+const checkpointSource = readFileSync(join(__dirname, 'checkpoint/index.ts'), 'utf8');
+const visualizationSource = readFileSync(join(__dirname, 'visualization/index.ts'), 'utf8');
+const exported = [...(indexSource + checkpointSource + visualizationSource).matchAll(/export \{ ([A-Za-z]+)[,} ]/g)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n)); // components only: hooks and formatters are utilities
 
 describe('component manifests', () => {
   it('every exported component has a manifest, and every manifest is for an exported component', () => {
@@ -41,6 +43,6 @@ describe('component manifests', () => {
 
   it('only WorkflowStepper and AssistantPanel may be persistence-capable (BRD 1.2 5.4), and the shell, not the component, elects them', () => {
     const capable = Object.values(manifests).filter((m) => m.lifecycle === 'persistence-capable').map((m) => m.name);
-    expect(capable.sort()).toEqual(['AssistantPanel']);
+    expect(capable.sort()).toEqual(['AssistantPanel', 'WorkflowStepper']);
   });
 });
