@@ -1,0 +1,7 @@
+.bar {
+  background: var(--color-surface-chrome);
+  color: var(--color-text-on-chrome);
+  padding-block-end: env(safe-area-inset-bottom);
+}
+.list { display: flex; list-style: none; min-block-size: var(--height-tab-bar); }
+.cell { flex: 1; display: flex; }

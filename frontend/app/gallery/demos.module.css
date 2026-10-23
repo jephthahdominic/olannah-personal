@@ -1,0 +1,9 @@
+.stack { display: flex; flex-direction: column; gap: var(--space-3); }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.labeled { display: inline-flex; align-items: center; gap: var(--space-2); }
+.skeletonRow { display: grid; grid-template-columns: 6rem 1fr; align-items: center; gap: var(--space-3); }
+
+/* A transformed ancestor becomes the containing block for fixed descendants, so the live checkpoint overlay fills this frame
+   instead of the whole page. */
+.contain { position: relative; transform: translateZ(0); block-size: 34rem; overflow: hidden; border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-workspace); }
+.outcome { padding: var(--space-6); }

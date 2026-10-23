@@ -1,0 +1,5 @@
+.banner { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid; border-radius: var(--radius-md); }
+.warning { background: var(--color-semantic-warning-surface); border-color: var(--color-semantic-warning); color: var(--color-semantic-warning-text); }
+.error { background: var(--color-semantic-error-surface); border-color: var(--color-semantic-error); color: var(--color-semantic-error); }
+.banner p { flex: 1 1 12rem; }
+.actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }

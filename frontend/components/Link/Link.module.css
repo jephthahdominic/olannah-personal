@@ -1,0 +1,11 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--width-touch-target);
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+}
+.link:hover { color: var(--color-brand-primary-hover); }
+.onChrome { color: var(--color-text-on-chrome); }
+.onChrome:hover { color: var(--color-text-on-chrome); }
+.asButton { background: transparent; border: 0; padding: 0; cursor: pointer; font: inherit; }

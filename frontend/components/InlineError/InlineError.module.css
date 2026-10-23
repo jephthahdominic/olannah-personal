@@ -1,0 +1,8 @@
+.box { display: flex; gap: var(--space-3); padding: var(--space-4); border: 1px solid; border-radius: var(--radius-md); }
+.failure { background: var(--color-semantic-error-surface); border-color: var(--color-semantic-error); }
+.degraded { background: var(--color-semantic-warning-surface); border-color: var(--color-semantic-warning); }
+.failure .text p:first-child { color: var(--color-semantic-error); }
+.degraded .text p:first-child { color: var(--color-semantic-warning-text); }
+.text { display: flex; flex-direction: column; gap: var(--space-2); }
+.text p + p { color: var(--color-text-secondary); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }

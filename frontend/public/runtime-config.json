@@ -1,0 +1,37 @@
+{
+  "session": {
+    "slowMessageAfterMs": 3000,
+    "expiredRedirectMs": 2000
+  },
+  "support": {
+    "contactHref": "mailto:support@olannah.invalid"
+  },
+  "context": {
+    "deliveryBudgetMs": 800,
+    "hardTimeoutMs": 10000
+  },
+  "toast": {
+    "durationMs": 7000
+  },
+  "refresh": {
+    "autoIntervalMs": 300000,
+    "stalenessWarnMs": 30000
+  },
+  "bus": {
+    "heartbeatMs": 15000,
+    "backoffMs": [
+      1000,
+      2000,
+      4000,
+      8000
+    ],
+    "maxBackoffMs": 30000,
+    "failAfterAttempts": 3,
+    "failAfterMs": 30000
+  },
+  "persistence": {
+    "elected": [
+      "AssistantPanel"
+    ]
+  }
+}

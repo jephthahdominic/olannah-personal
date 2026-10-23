@@ -1,0 +1,1 @@
+.box { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); background: var(--color-semantic-checkpoint-surface); border: 1px solid var(--color-semantic-checkpoint); border-radius: var(--radius-md); }

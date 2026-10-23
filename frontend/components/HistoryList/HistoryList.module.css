@@ -1,0 +1,8 @@
+.wrap { display: flex; flex-direction: column; gap: var(--space-3); }
+.list { list-style: none; display: flex; flex-direction: column; }
+.item { display: flex; flex-direction: column; gap: var(--space-1); padding-block: var(--space-3); }
+.item + .item { border-block-start: 1px solid var(--color-border-subtle); }
+.summary { color: var(--color-text-secondary); }
+.sentinel { block-size: 1px; }
+.skeleton { display: flex; flex-direction: column; gap: var(--space-4); }
+.skeletonRow { display: flex; flex-direction: column; gap: var(--space-2); }

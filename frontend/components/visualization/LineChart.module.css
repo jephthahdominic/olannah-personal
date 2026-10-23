@@ -1,0 +1,18 @@
+.plot { display: flex; gap: var(--space-2); inline-size: 100%; }
+.yAxis { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; block-size: 12rem; flex: none; }
+.area { flex: 1; min-inline-size: 0; }
+.canvas { position: relative; block-size: 12rem; }
+.grid { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+.grid span { display: block; block-size: 1px; background: var(--color-border-subtle); }
+.lines { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; overflow: visible; }
+.point, .dot { position: absolute; transform: translate(-50%, -50%); display: inline-flex; align-items: center; justify-content: center; }
+.point {
+  inline-size: var(--width-touch-target);
+  block-size: var(--width-touch-target);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+.xAxis { position: relative; block-size: 1.5rem; margin-block-start: var(--space-1); }
+.xLabel { position: absolute; transform: translateX(-50%); white-space: nowrap; }

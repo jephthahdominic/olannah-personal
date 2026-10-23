@@ -1,0 +1,6 @@
+.ring { position: relative; align-self: flex-start; inline-size: 11rem; block-size: 11rem; }
+.svg { inline-size: 100%; block-size: 100%; }
+.segment[role='button'] { cursor: pointer; }
+.segment[data-muted] { opacity: 0.35; }
+.center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 3.25rem; color: var(--color-text-primary); pointer-events: none; }
+.caption { color: var(--color-text-secondary); }

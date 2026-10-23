@@ -1,0 +1,8 @@
+.box { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--color-surface-card); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); }
+.heading { display: flex; align-items: center; gap: var(--space-2); }
+.heading p { flex: 1; min-inline-size: 0; }
+/* "Required" is text with a border, never color alone. */
+.required { padding: 0 var(--space-2); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-pill); color: var(--color-text-primary); }
+.empty { color: var(--color-text-secondary); }
+.thumbs { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.thumb { inline-size: 4.5rem; block-size: 4.5rem; object-fit: cover; border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); display: block; }

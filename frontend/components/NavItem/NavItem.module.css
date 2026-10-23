@@ -1,0 +1,40 @@
+.item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-block-size: var(--width-touch-target);
+  min-inline-size: var(--width-touch-target);
+  padding: var(--space-2);
+  background: transparent;
+  border: 0;
+  /* Warm Cream in EVERY state, active and inactive, at full opacity (BRD 1.3 section 7.5). Never dimmed. */
+  color: var(--color-text-on-chrome);
+  cursor: pointer;
+  text-align: center;
+  /* No uppercase, no letter spacing on navigation labels. */
+  text-transform: none;
+  letter-spacing: normal;
+}
+.rail { inline-size: 100%; border-radius: var(--radius-md); }
+.tab { flex: 1; }
+
+/* Active: an indicator SHAPE in Moss Gold (never color alone) plus a heavier label. Gold is never label or icon color. */
+.item::before { content: ''; position: absolute; background: transparent; border-radius: var(--radius-pill); }
+.rail::before { inset-inline-start: 0; inset-block: var(--space-2); inline-size: 3px; }
+.tab::before { inset-block-start: 0; inset-inline: 30%; block-size: 3px; }
+.active::before { background: var(--color-brand-accent); }
+
+/* Hover fill only on tablet and desktop, not on mobile. */
+@media (min-width: 769px) {
+  .item:hover { background: var(--color-brand-primary-hover); }
+}
+
+/* Unavailable keeps full contrast: it must NOT use the global 40% opacity, and it stays clickable. */
+.item[aria-disabled='true'] { opacity: 1; cursor: pointer; }
+
+.icon { position: relative; display: inline-flex; }
+.marker { position: absolute; inset-block-start: -0.25rem; inset-inline-end: -0.5rem; display: inline-flex; color: var(--color-text-on-chrome); }
+.label { display: block; max-inline-size: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

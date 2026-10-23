@@ -1,0 +1,23 @@
+.moreMenu, .drawer, .modal, .onboarding { position: fixed; inset: 0; pointer-events: none; }
+.moreMenu > *, .drawer > *, .modal > *, .onboarding > * { pointer-events: auto; }
+.moreMenu { z-index: var(--z-more-menu); }
+.drawer { z-index: var(--z-drawer); }
+.modal { z-index: var(--z-modal); }
+.onboarding { z-index: var(--z-onboarding); }
+
+/* Toasts sit in a reserved region at the bottom, clear of the tab bar. */
+.toast {
+  position: fixed;
+  z-index: var(--z-toast);
+  inset-inline: var(--space-4);
+  inset-block-end: calc(var(--height-tab-bar) + env(safe-area-inset-bottom) + var(--space-4));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+.toast > * { pointer-events: auto; }
+@media (min-width: 769px) {
+  .toast { inset-block-end: var(--space-6); align-items: flex-end; }
+}

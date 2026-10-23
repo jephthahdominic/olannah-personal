@@ -1,0 +1,22 @@
+.base { display: inline-block; flex: none; }
+.sm { inline-size: var(--icon-sm); block-size: var(--icon-sm); }
+.md { inline-size: var(--icon-md); block-size: var(--icon-md); }
+.lg { inline-size: var(--icon-xl); block-size: var(--icon-xl); }
+
+.success { color: var(--color-semantic-success); }
+.warning { color: var(--color-semantic-warning); }
+.error { color: var(--color-semantic-error); }
+.checkpoint { color: var(--color-semantic-checkpoint); }
+.inactive { color: var(--color-brand-secondary); }
+.loading { color: var(--color-brand-primary); }
+
+.fill { fill: currentColor; }
+.mark { fill: none; stroke: var(--color-surface-card); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.outline { fill: none; stroke: currentColor; stroke-width: 2; }
+.outlineMark { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.track { fill: none; stroke: var(--color-surface-panel); stroke-width: 2.4; }
+.arc { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; transform-origin: center; animation: spin 1s linear infinite; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

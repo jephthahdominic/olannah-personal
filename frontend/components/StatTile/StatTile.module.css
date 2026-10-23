@@ -1,0 +1,15 @@
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+.attention { border-color: var(--color-semantic-warning); }
+.success { border-color: var(--color-semantic-success); }
+.value { color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+.caption { color: var(--color-text-secondary); }
+.attention .caption { color: var(--color-semantic-warning-text); }

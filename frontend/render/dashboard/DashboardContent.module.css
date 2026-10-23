@@ -1,0 +1,12 @@
+.dashboard { display: flex; flex-direction: column; gap: var(--space-6); }
+.section { display: flex; flex-direction: column; gap: var(--space-3); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: var(--space-3); }
+.featured { display: flex; flex-direction: column; gap: var(--space-2); border: 1px solid var(--color-brand-primary); border-radius: var(--radius-md); }
+.featuredHead { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+.reference { color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.muted { color: var(--color-text-secondary); }
+.note { padding: var(--space-3); background: var(--color-surface-panel); border-radius: var(--radius-md); }
+.queue { border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.notice { display: flex; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.success { background: var(--color-semantic-success-surface); border-color: var(--color-semantic-success); }
+.info { background: var(--color-surface-panel); }

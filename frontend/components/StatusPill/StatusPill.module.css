@@ -1,0 +1,16 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-block-size: 1.25rem;
+  padding-inline: var(--space-2);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.success { color: var(--color-semantic-success); background: var(--color-semantic-success-surface); }
+.warning { color: var(--color-semantic-warning-text); background: var(--color-semantic-warning-surface); }
+.error { color: var(--color-semantic-error); background: var(--color-semantic-error-surface); }
+.checkpoint { color: var(--color-semantic-warning-text); background: var(--color-semantic-checkpoint-surface); }
+.neutral { color: var(--color-text-secondary); background: var(--color-surface-panel); }

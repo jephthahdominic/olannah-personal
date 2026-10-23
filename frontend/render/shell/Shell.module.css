@@ -1,0 +1,48 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  background: var(--color-surface-workspace);
+}
+
+/* Skip link: the first focusable element on every screen. Visible only when focused. */
+.skip {
+  position: absolute;
+  inset-inline-start: var(--space-2);
+  inset-block-start: calc(-1 * var(--space-12));
+  z-index: var(--z-tooltip);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-text-primary);
+  border-radius: var(--radius-md);
+}
+.skip:focus { inset-block-start: var(--space-2); }
+
+.body { flex: 1; display: flex; min-block-size: 0; }
+.navRail { flex: none; display: flex; }
+.main {
+  flex: 1;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+.main:focus { outline: none; }
+.pageHeader { display: flex; flex-direction: column; gap: var(--space-1); }
+.collapsible { display: flex; flex-direction: column; gap: var(--space-3); }
+
+/* Context zone: fixed-width side rail on tablet and desktop. */
+.aside {
+  flex: none;
+  inline-size: var(--width-panel);
+  padding: var(--space-4) var(--space-4) var(--space-4) 0;
+}
+
+/* Mobile: the tab bar is fixed to the bottom and the page leaves room for it. */
+.tabBar { position: sticky; inset-block-end: 0; z-index: var(--z-card); }
+.mobile .main { max-inline-size: 100%; }
+@media (min-width: 769px) {
+  .main { max-inline-size: calc(var(--width-content-max) + var(--space-8)); }
+}

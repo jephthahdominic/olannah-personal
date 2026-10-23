@@ -1,0 +1,72 @@
+.page { min-block-size: 100vh; display: flex; flex-direction: column; background: var(--color-surface-workspace); }
+
+/* Sidebar: the navigation zone treatment (Evergreen Dark, Warm Cream text, Moss Gold indicator shape). */
+.sidebar { background: var(--color-surface-chrome); color: var(--color-text-on-chrome); padding: var(--space-3) var(--space-4); }
+.brand { display: none; }
+.tabs { display: flex; gap: var(--space-1); overflow-x: auto; }
+.tab {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-block-size: var(--width-touch-target);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  color: var(--color-text-on-chrome);
+  border: 0;
+  border-radius: var(--radius-md);
+  text-align: start;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--motion-state-duration) var(--motion-state-easing);
+}
+.count { color: var(--color-text-on-chrome); border: 1px solid var(--color-text-on-chrome); border-radius: var(--radius-pill); padding: 0 var(--space-2); font-size: var(--type-caption-size); line-height: var(--type-caption-line-height); }
+/* Active is marked by a bar shape as well as the heavier label, never color alone. On mobile the bar sits under the tab. */
+.active::before { content: ''; position: absolute; inset-inline: var(--space-3); inset-block-end: 0; block-size: 3px; background: var(--color-brand-accent); border-radius: var(--radius-pill); }
+
+.main { flex: 1; min-inline-size: 0; padding: var(--space-5) var(--space-4) var(--space-12); display: flex; flex-direction: column; gap: var(--space-6); }
+.mainHeader { display: flex; flex-direction: column; gap: var(--space-2); max-inline-size: var(--width-content-max); }
+.summaryBand { position: relative; overflow: hidden; padding: var(--space-4) var(--space-5); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+/* The bottom edge fills like a progress bar as the figure counts up. */
+.progressEdge { position: absolute; inset-inline: 0; inset-block-end: 0; block-size: 4px; background: var(--color-brand-primary); transform-origin: left center; will-change: transform; }
+.summaryLead strong { font-variant-numeric: tabular-nums; }
+.search { display: flex; flex-direction: column; gap: var(--space-1); color: var(--color-text-on-chrome); margin-block-end: var(--space-3); }
+.search input { min-block-size: var(--width-touch-target); padding-inline: var(--space-3); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.summary { color: var(--color-text-secondary); }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-items: start; }
+
+.card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--color-surface-card); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); min-inline-size: 0; }
+.planned { background: transparent; border: 1px dashed var(--color-border-subtle); }
+.cardHeader { display: flex; flex-direction: column; gap: var(--space-2); }
+.chips { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip { padding: 0 var(--space-2); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-pill); font-size: var(--type-caption-size); line-height: var(--type-caption-line-height); color: var(--color-text-primary); }
+.chipPlanned { border-style: dashed; border-color: var(--color-brand-secondary); }
+.purpose { color: var(--color-text-secondary); }
+.note { color: var(--color-text-secondary); }
+.footer { color: var(--color-text-secondary); }
+
+.stage { min-inline-size: 0; }
+.stage > * { min-inline-size: 0; }
+.stage-chrome > * { padding: 0; }
+.frame { block-size: 18rem; display: flex; }
+
+@media (min-width: 769px) {
+  .page { flex-direction: row; }
+  .sidebar { flex: none; inline-size: var(--width-panel); min-block-size: 100vh; position: sticky; inset-block-start: 0; align-self: flex-start; block-size: 100vh; overflow-y: auto; padding: var(--space-6) var(--space-3); display: flex; flex-direction: column; gap: var(--space-6); }
+  .brand { display: flex; flex-direction: column; padding-inline: var(--space-3); }
+  .tabs { flex-direction: column; overflow-x: visible; }
+  .tab { inline-size: 100%; }
+  .tab:hover { background: var(--color-brand-primary-hover); }
+  /* On the rail layout the indicator is a vertical bar on the leading edge. */
+  .active::before { inset-inline-start: 0; inset-inline-end: auto; inset-block: var(--space-2); inline-size: 3px; block-size: auto; }
+  .main { padding: var(--space-8) var(--space-8) var(--space-12); }
+}
+@media (min-width: 1025px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wide { grid-column: 1 / -1; }
+}
+@media (min-width: 1500px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

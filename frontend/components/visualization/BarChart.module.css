@@ -1,0 +1,23 @@
+.plot { display: flex; gap: var(--space-2); inline-size: 100%; }
+.vertical { block-size: 14rem; }
+.yAxis { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-block-end: 1.5rem; flex: none; }
+.area { position: relative; flex: 1; min-inline-size: 0; display: flex; flex-direction: column; }
+.grid { position: absolute; inset-inline: 0; inset-block: 0 1.5rem; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+.grid span { display: block; block-size: 1px; background: var(--color-border-subtle); }
+.groups { position: relative; flex: 1; display: flex; gap: var(--space-2); min-block-size: 0; }
+.group { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; }
+.bars { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: var(--space-1); }
+.catLabel { block-size: 1.5rem; padding-block-start: var(--space-1); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar { position: relative; flex: 1; max-inline-size: 2.5rem; min-block-size: 2px; }
+.gap { flex: 1; max-inline-size: 2.5rem; }
+.v { display: block; }
+.value { position: absolute; inset-block-end: 100%; inset-inline: 0; text-align: center; color: var(--color-text-primary); padding-block-end: 2px; }
+.bar[data-muted] { opacity: 0.35; }
+
+.horizontal { flex-direction: column; }
+.rows { display: flex; flex-direction: column; gap: var(--space-3); inline-size: 100%; }
+.row { display: flex; align-items: center; gap: var(--space-3); }
+.rowLabel { flex: none; inline-size: 6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rowBars { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
+.h { display: block; block-size: 1.25rem; min-inline-size: 2px; }
+.h .value { position: absolute; inset-block-end: auto; inset-inline: 100% auto; padding-inline-start: var(--space-1); text-align: start; }
