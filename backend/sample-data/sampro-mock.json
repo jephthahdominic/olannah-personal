@@ -1,0 +1,259 @@
+{
+  "_meta": {
+    "note": "FICTIONAL data shaped like a legacy job-management export. Not real Sampro output. Used to test adapters.",
+    "scenario": "Marcus (technician) marks himself on site for WO-4471 on 2026-10-23. Compressor on E-2231 has failed twice in 12 months; required valve V-221 is out of stock in his van.",
+    "conventions": "Dates are YYYYMMDD strings. Quantities are numbers. Status codes: OPN open, INP in progress, HLD on hold, CMP complete, CAN cancelled."
+  },
+  "techs": [
+    {
+      "tech_id": "T0042",
+      "tech_nm": "MARCUS ALLEN",
+      "role_cd": "TECH",
+      "van_id": "VAN-07",
+      "depot": "AUS-01"
+    }
+  ],
+  "customers": [
+    {
+      "cust_id": "C1180",
+      "cust_nm": "NORTHFIELD GROCERS",
+      "portal": "NG-VENDOR",
+      "safety_req_flag": "Y",
+      "ppe_req": "GLOVES,EYE,LOCKOUT",
+      "access_note": "Check in at receiving dock. Refrigeration room needs escort."
+    }
+  ],
+  "sites": [
+    {
+      "site_id": "S0118",
+      "cust_id": "C1180",
+      "site_nm": "STORE 118",
+      "addr1": "4410 BURNET RD",
+      "city": "AUSTIN",
+      "st": "TX"
+    },
+    {
+      "site_id": "S0204",
+      "cust_id": "C1180",
+      "site_nm": "STORE 204",
+      "addr1": "900 S LAMAR BLVD",
+      "city": "AUSTIN",
+      "st": "TX"
+    }
+  ],
+  "equipment": [
+    {
+      "eq_id": "E-2231",
+      "site_id": "S0118",
+      "eq_type": "COMP-SCR",
+      "make": "COPELAND",
+      "model": "ZR72KC",
+      "serial": "11C48802",
+      "install_dt": "20190614",
+      "warranty_end": "20240614"
+    },
+    {
+      "eq_id": "E-3340",
+      "site_id": "S0204",
+      "eq_type": "COMP-SCR",
+      "make": "COPELAND",
+      "model": "ZR72KC",
+      "serial": "12A10311",
+      "install_dt": "20200302",
+      "warranty_end": "20250302"
+    }
+  ],
+  "work_orders": [
+    {
+      "wo_no": 4471,
+      "wo_stat": "INP",
+      "pri": 1,
+      "cust_id": "C1180",
+      "site_id": "S0118",
+      "eq_id": "E-2231",
+      "wo_desc": "COMPRESSOR FAULT - WALK-IN COOLER TEMP ALARM",
+      "sched_dt": "20261023",
+      "sched_tm": "0800",
+      "assigned_tech": "T0042",
+      "req_parts": [
+        "V-221",
+        "FLT-10"
+      ],
+      "po_no": "NG-PO-88217",
+      "est_hrs": 3.5
+    }
+  ],
+  "service_history": [
+    {
+      "svc_id": 8841,
+      "eq_id": "E-2231",
+      "svc_dt": "20260814",
+      "work_desc": "COMPRESSOR TRIPPED ON HIGH PRESSURE. REPLACED DISCHARGE VALVE.",
+      "st_cd": "CMP",
+      "repeat_fail": 1,
+      "tech_id": "T0019",
+      "hrs": 4.0,
+      "parts_used": [
+        "V-221"
+      ]
+    },
+    {
+      "svc_id": 8310,
+      "eq_id": "E-2231",
+      "svc_dt": "20260302",
+      "work_desc": "COMPRESSOR SHORT CYCLING. CLEANED CONDENSER, CHECKED CHARGE.",
+      "st_cd": "CMP",
+      "repeat_fail": 1,
+      "tech_id": "T0042",
+      "hrs": 2.5,
+      "parts_used": []
+    },
+    {
+      "svc_id": 7502,
+      "eq_id": "E-2231",
+      "svc_dt": "20250611",
+      "work_desc": "ANNUAL PM",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 1.5,
+      "parts_used": [
+        "FLT-10"
+      ]
+    },
+    {
+      "svc_id": 6120,
+      "eq_id": "E-2231",
+      "svc_dt": "20231120",
+      "work_desc": "REPLACED CONTACTOR",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0019",
+      "hrs": 1.0,
+      "parts_used": [
+        "CT-30"
+      ]
+    },
+    {
+      "svc_id": 8702,
+      "eq_id": "E-3340",
+      "svc_dt": "20260918",
+      "work_desc": "SAME HIGH PRESSURE TRIP AS E-2231. V-221 BACKORDERED, INSTALLED V-224 AS SUBSTITUTE, RESOLVED.",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0027",
+      "hrs": 3.0,
+      "parts_used": [
+        "V-224"
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "part_id": "V-221",
+      "part_desc": "DISCHARGE VALVE ZR72",
+      "alt_part_id": "V-224",
+      "unit_cost": 184.5
+    },
+    {
+      "part_id": "V-224",
+      "part_desc": "DISCHARGE VALVE ZR72 (ALT)",
+      "alt_part_id": null,
+      "unit_cost": 201.0
+    },
+    {
+      "part_id": "FLT-10",
+      "part_desc": "FILTER DRIER 10CU",
+      "alt_part_id": null,
+      "unit_cost": 36.0
+    }
+  ],
+  "van_inventory": [
+    {
+      "van_id": "VAN-07",
+      "part_id": "V-221",
+      "qty_on_hand": 0
+    },
+    {
+      "van_id": "VAN-07",
+      "part_id": "V-224",
+      "qty_on_hand": 2
+    },
+    {
+      "van_id": "VAN-07",
+      "part_id": "FLT-10",
+      "qty_on_hand": 5
+    }
+  ],
+  "edge_cases": {
+    "_note": "Deliberately awkward records. The adapter must handle each without crashing.",
+    "service_history": [
+      {
+        "svc_id": 9001,
+        "eq_id": "E-2231",
+        "svc_dt": "20260101",
+        "work_desc": null,
+        "st_cd": "CMP",
+        "repeat_fail": 0,
+        "tech_id": "T0019",
+        "hrs": null,
+        "parts_used": []
+      },
+      {
+        "svc_id": 9002,
+        "eq_id": "E-2231",
+        "svc_dt": "20260102",
+        "work_desc": "UNKNOWN STATUS CODE",
+        "st_cd": "XYZ",
+        "repeat_fail": 0,
+        "tech_id": "T0019",
+        "hrs": 1.0,
+        "parts_used": []
+      },
+      {
+        "svc_id": 9003,
+        "eq_id": "E-2231",
+        "svc_dt": "bad-date",
+        "work_desc": "MALFORMED DATE",
+        "st_cd": "CMP",
+        "repeat_fail": 0,
+        "tech_id": "T0019",
+        "hrs": 1.0,
+        "parts_used": []
+      },
+      {
+        "svc_id": 9004,
+        "eq_id": "E-2231",
+        "work_desc": "MISSING svc_dt FIELD ENTIRELY",
+        "st_cd": "CMP",
+        "repeat_fail": 0,
+        "tech_id": "T0019",
+        "hrs": 1.0,
+        "parts_used": []
+      }
+    ],
+    "van_inventory": [
+      {
+        "van_id": "VAN-07",
+        "part_id": "CT-30",
+        "qty_on_hand": -1
+      }
+    ],
+    "empty_equipment_history": {
+      "eq_id": "E-9999",
+      "service_history": []
+    },
+    "system_unavailable": {
+      "status": 503,
+      "body": "Service Unavailable"
+    }
+  },
+  "expected_mapping_checks": [
+    "Service history for E-2231 is flagged 'recurring issue' on svc_id 8841 and 8310 (repeat_fail = 1), and merged newest-first with the shared-drive history.",
+    "Alert (warning): 'This equipment has failed twice in the past 12 months.'",
+    "Alert (warning): 'Discharge valve ZR72 (V-221) is not in your van (0 on hand).' with suggestion 'V-224 (2 on hand) was used as a substitute on 2026-09-18 (service 8702).'",
+    "Entity card for WO-4471 shows customer Northfield Grocers, Store 118, scheduled 2026-10-23 08:00, PO NG-PO-88217.",
+    "Customer C1180 fields ppe_req and access_note are present in the data but NOT used by the MVP. PPE/lockout steps come from SiteDocs and XOi instead.",
+    "Edge cases: null work_desc becomes the title '(no description)'; unknown status XYZ becomes 'unknown'; bad or missing dates are dropped and counted; qty -1 is clamped to 0; a simulated 503 (fault 'down') makes the dependent zone 'unavailable'."
+  ]
+}

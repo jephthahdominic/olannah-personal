@@ -1,0 +1,51 @@
+{
+  "_meta": {
+    "system": "Xtreme (FICTIONAL mock)",
+    "role": "Work orders. Modern REST-style JSON: camelCase, ISO-8601 timestamps with timezone, nested objects.",
+    "write_back": false,
+    "job_identifier": "jobId like JOB-2026-004471. externalRef holds the Sampro number as a STRING, but it is not guaranteed to be present."
+  },
+  "workOrders": [
+    {
+      "jobId": "JOB-2026-004471",
+      "externalRef": "4471",
+      "status": "IN_PROGRESS",
+      "priority": "HIGH",
+      "customer": { "name": "Northfield Grocers", "accountCode": "C1180" },
+      "site": { "name": "Store 118", "code": "S0118", "geo": { "lat": 30.3236, "lon": -97.7403 } },
+      "asset": { "assetId": "E-2231", "description": "Scroll compressor, walk-in cooler" },
+      "scheduledStart": "2026-10-23T08:00:00-05:00",
+      "assignedTo": { "employeeId": "T0042", "name": "Marcus Allen" },
+      "problemStatement": "Walk-in cooler temp alarm; compressor fault",
+      "customerPO": "NG-PO-88217",
+      "onSiteAt": null,
+      "lastSyncedAt": "2026-10-22T16:40:00-05:00"
+    },
+    {
+      "jobId": "JOB-2026-004480",
+      "externalRef": "4480",
+      "status": "SCHEDULED",
+      "priority": "NORMAL",
+      "customer": { "name": "Northfield Grocers", "accountCode": "C1180" },
+      "site": { "name": "Store 204", "code": "S0204", "geo": { "lat": 30.2487, "lon": -97.7629 } },
+      "asset": { "assetId": "E-3340", "description": "Scroll compressor, produce cooler" },
+      "scheduledStart": "2026-10-24T09:00:00-05:00",
+      "assignedTo": { "employeeId": "T0042", "name": "Marcus Allen" },
+      "problemStatement": "Quarterly inspection",
+      "customerPO": null,
+      "onSiteAt": null,
+      "lastSyncedAt": "2026-10-22T16:40:00-05:00"
+    }
+  ],
+  "edge_cases": {
+    "_note": "Awkward records the adapter must survive.",
+    "workOrders": [
+      { "jobId": "JOB-2026-004499", "externalRef": null, "status": "PENDING_REVIEW", "priority": "HIGH",
+        "customer": { "name": "Northfield Grocers", "accountCode": null }, "site": { "name": "Store 118", "code": "S0118" },
+        "asset": null, "scheduledStart": "not-a-date", "assignedTo": null, "problemStatement": "", "customerPO": null,
+        "onSiteAt": null, "lastSyncedAt": "2026-09-01T00:00:00-05:00" }
+    ],
+    "stale_sync_test": "Real job JOB-2026-004471 has lastSyncedAt 2026-10-22 16:40, i.e. about 15 hours old at 08:00 on 2026-10-23. The canvas should show a freshness indicator, not present it as live.",
+    "system_unavailable": { "status": 503, "body": { "error": "upstream timeout" } }
+  }
+}

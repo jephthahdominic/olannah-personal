@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "system": "XOi (FICTIONAL mock)",
+    "role": "Client workflow requirements: the steps a technician must perform for a given customer and equipment type.",
+    "write_back": false,
+    "job_identifier": "None. Workflows are keyed by customer NAME (free text) and equipment type, not by job id or account code. The PCR/adapter must join on name."
+  },
+  "workflows": [
+    {
+      "workflow_id": "xoi_wf_9912",
+      "version": 7,
+      "effective_from": "2026-06-01",
+      "customer_name": "NORTHFIELD GROCERS",
+      "applies_to_equipment_types": ["COMP-SCR", "COMP-REC"],
+      "steps": [
+        { "seq": 1, "type": "confirm",  "title": "Check in at receiving dock", "required": true,  "help": "Refrigeration room needs an escort." },
+        { "seq": 2, "type": "photo",    "title": "Photo of compressor nameplate", "required": true },
+        { "seq": 3, "type": "question", "title": "Is the walk-in currently above 41F?", "required": true, "answers": ["Yes", "No", "Not sure"] },
+        { "seq": 4, "type": "guide",    "title": "High-pressure trip troubleshooting", "required": false, "guide_ref": "KB-HP-TRIP-02" },
+        { "seq": 5, "type": "photo",    "title": "Photo of completed repair", "required": true },
+        { "seq": 6, "type": "confirm",  "title": "Store manager sign-off obtained", "required": true }
+      ]
+    },
+    {
+      "workflow_id": "xoi_wf_4410",
+      "version": 3,
+      "effective_from": "2025-01-15",
+      "customer_name": "Northfield Grocers",
+      "applies_to_equipment_types": ["COMP-SCR"],
+      "steps": [
+        { "seq": 1, "type": "confirm", "title": "OLD VERSION - superseded", "required": true }
+      ]
+    }
+  ],
+  "edge_cases": {
+    "_note": "The name casing differs between the two Northfield workflows (NORTHFIELD GROCERS vs Northfield Grocers). The adapter must pick the highest version and handle case differences.",
+    "unknown_step_type": { "seq": 7, "type": "voice_note", "title": "Record a voice summary", "required": false },
+    "missing_title": { "seq": 8, "type": "confirm", "title": null, "required": true },
+    "no_workflow_for_customer": { "customer_name": "SOME OTHER CLIENT", "workflows": [] },
+    "system_unavailable": { "status": 502, "body": "Bad Gateway" }
+  }
+}

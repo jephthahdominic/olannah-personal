@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "system": "Northfield vendor portal (FICTIONAL mock)",
+    "role": "The client's view of the job. READ-ONLY for the MVP: no write-back available.",
+    "write_back": false,
+    "job_identifier": "ticket number NG-T-220931 plus the client's PO. Not Sampro's number."
+  },
+  "tickets": [
+    {
+      "ticket": "NG-T-220931",
+      "po": "NG-PO-88217",
+      "store": "118",
+      "category": "REFRIGERATION",
+      "client_status": "VENDOR_ASSIGNED",
+      "sla": { "respond_by": "2026-10-23T12:00:00-05:00", "resolve_by": "2026-10-24T08:00:00-05:00" },
+      "access_instructions": "Check in at receiving dock. Refrigeration room needs escort.",
+      "closeout_requirements": ["Completion photos", "Store manager signature", "Refrigerant log if refrigerant added"],
+      "notes": []
+    }
+  ],
+  "edge_cases": {
+    "_note": "Awkward records.",
+    "sla_already_breached": { "ticket": "NG-T-220100", "po": "NG-PO-88000", "store": "118", "client_status": "OVERDUE",
+      "sla": { "respond_by": "2026-10-20T12:00:00-05:00", "resolve_by": "2026-10-21T08:00:00-05:00" }, "closeout_requirements": [], "notes": ["Client escalated"] },
+    "no_matching_ticket": "A Sampro job with a PO that has no portal ticket. The zone should show an empty state, not an error.",
+    "login_wall": { "status": 200, "body": "<html>Please sign in to continue</html>", "_note": "Returns 200 with an HTML login page instead of JSON. The adapter must treat it as unavailable, not as valid data." },
+    "system_unavailable": { "status": 503, "body": "Maintenance window" }
+  }
+}
