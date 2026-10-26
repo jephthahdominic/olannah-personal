@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "session_id": "s_8f2",
+  "delivered_at": "2026-10-23T08:00:03-05:00",
+  "worker": {
+    "id": "T0042",
+    "name": "T0042",
+    "role_label": "Field Technician"
+  },
+  "layout": {
+    "template_id": "technician.v1",
+    "destinations": [
+      "jobs",
+      "inventory"
+    ]
+  },
+  "active_work_order": null,
+  "connection_status": [
+    {
+      "system": "sampro",
+      "state": "down",
+      "write_back": false,
+      "last_synced": null
+    }
+  ],
+  "zones": {
+    "alerts": {
+      "state": "unavailable",
+      "as_of": null,
+      "data": []
+    },
+    "work_order": {
+      "state": "unavailable",
+      "as_of": null,
+      "data": null
+    },
+    "steps": {
+      "state": "unavailable",
+      "as_of": null,
+      "data": []
+    },
+    "actions": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": [
+        {
+          "name": "closeJob",
+          "label": "Close job",
+          "enabled": false,
+          "write_back": "manual",
+          "needs_checkpoint": true
+        }
+      ]
+    },
+    "history": {
+      "state": "unavailable",
+      "pointer": null
+    }
+  },
+  "degraded_fields": [
+    {
+      "field": "work_order",
+      "reason": "unavailable"
+    }
+  ]
+}
