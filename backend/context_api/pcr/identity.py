@@ -15,6 +15,9 @@ class ResolvedIdentity:
 
 _SESSIONS = {
     "s_8f2": ResolvedIdentity("T0042", "technician", 4471),
+    "s_clear": ResolvedIdentity("T0051", "technician", 4502),  # everything fine: empty alerts, steps, history
+    "s_busy": ResolvedIdentity("T0063", "technician", 4510),  # volume, long text, done steps
+    "s_nojob": ResolvedIdentity("T0071", "technician", None),  # logged in, no active work order
     # a role that exists but has no layout in the registry (exercises the unmapped-role path)
     "s_unmapped": ResolvedIdentity("T0042", "dispatcher", 4471),
 }

@@ -80,6 +80,12 @@ class MockSources:
         await self._guard("xoi")
         return list(self._xoi["workflows"])
 
+    async def xoi_progress(self, wo_no):
+        """Workflow step numbers already completed on this job (empty when XOi has no record)."""
+        await self._guard("xoi")
+        row = self._find(self._xoi.get("progress", []), "wo_no", wo_no)
+        return list(row["completed_seqs"]) if row else []
+
     # ----- SiteDocs -----
     async def sitedocs_required(self):
         await self._guard("sitedocs")

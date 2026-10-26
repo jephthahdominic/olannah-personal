@@ -70,4 +70,7 @@ The default clock is frozen because the sample data is dated around 2026-10-23.
 |---|---|
 | `s_8f2` | Marcus, field technician, work order WO-4471 (the main scenario) |
 | `s_unmapped` | A role with no layout, to exercise the platform-default path |
+| `s_clear` | Priya, WO-4502. Everything is fine, so `alerts`, `steps` and `history` are empty lists (empty states) and `closeJob` is enabled |
+| `s_busy` | Dana, WO-4510. 10 alerts of every severity and suggestion shape, 19 steps (`done`, `current`, `todo`, all four kinds), long text, a 28-record history |
+| `s_nojob` | Owen, logged in with no active work order. `active_work_order` is null, every zone is `ready` and empty, and `zones.history.pointer` is null |
 | anything else | 404 |

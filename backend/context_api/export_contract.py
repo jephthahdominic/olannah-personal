@@ -23,6 +23,10 @@ CONTEXT_SCENARIOS = [
     ("context.portal-login-wall.json", "s_8f2", {"client_portal": "login_wall"}),
     ("context.sampro-down.json", "s_8f2", {"sampro": "down"}),
     ("context.unmapped-role.json", "s_unmapped", {}),
+    ("context.clear.json", "s_clear", {}),
+    ("context.busy.json", "s_busy", {}),
+    ("context.busy-xoi-down.json", "s_busy", {"xoi": "down"}),
+    ("context.no-active-job.json", "s_nojob", {}),
 ]
 
 
@@ -46,6 +50,10 @@ def main() -> None:
     happy = client({})
     pointer = happy.get("/v1/sessions/s_8f2/context", headers=AUTH).json()["zones"]["history"]["pointer"]
     write(DOCS / "examples" / "history.happy.json", happy.get(f"/v1/sessions/s_8f2/history/{pointer}", headers=AUTH).json())
+    for name, session_id in (("history.clear.json", "s_clear"), ("history.busy.json", "s_busy")):
+        c = client({})
+        pointer = c.get(f"/v1/sessions/{session_id}/context", headers=AUTH).json()["zones"]["history"]["pointer"]
+        write(DOCS / "examples" / name, c.get(f"/v1/sessions/{session_id}/history/{pointer}", headers=AUTH).json())
     down = client({"shared_drive": "down"})
     pointer = down.get("/v1/sessions/s_8f2/context", headers=AUTH).json()["zones"]["history"]["pointer"]
     write(DOCS / "examples" / "history.drive-down.json", down.get(f"/v1/sessions/s_8f2/history/{pointer}", headers=AUTH).json())

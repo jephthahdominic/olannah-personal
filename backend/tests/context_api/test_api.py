@@ -83,3 +83,14 @@ def test_dev_faults_reject_unknown_systems_and_modes():
     c = client(dev_endpoints=True)
     assert c.post("/v1/dev/faults", json={"nonsense": "down"}).status_code == 422
     assert c.post("/v1/dev/faults", json={"sitedocs": "explode"}).status_code == 422
+
+
+@pytest.mark.parametrize("session_id, work_order", [("s_clear", "WO-4502"), ("s_busy", "WO-4510"), ("s_nojob", None)])
+def test_extra_mock_sessions_are_served(session_id, work_order):
+    body = client().get(f"/v1/sessions/{session_id}/context", headers=AUTH).json()
+    assert (body["active_work_order"] or {}).get("id") == work_order
+
+
+def test_session_without_a_job_has_no_history_pointer():
+    body = client().get("/v1/sessions/s_nojob/context", headers=AUTH).json()
+    assert body["zones"]["history"] == {"state": "ready", "pointer": None}

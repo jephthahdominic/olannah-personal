@@ -3,7 +3,8 @@
     "system": "XOi (FICTIONAL mock)",
     "role": "Client workflow requirements: the steps a technician must perform for a given customer and equipment type.",
     "write_back": false,
-    "job_identifier": "None. Workflows are keyed by customer NAME (free text) and equipment type, not by job id or account code. The PCR/adapter must join on name."
+    "job_identifier": "None. Workflows are keyed by customer NAME (free text) and equipment type, not by job id or account code. The PCR/adapter must join on name.",
+    "progress_note": "progress[] is per job: which workflow step numbers the technician has already completed. Mock addition used to test 'done' steps."
   },
   "workflows": [
     {
@@ -11,14 +12,54 @@
       "version": 7,
       "effective_from": "2026-06-01",
       "customer_name": "NORTHFIELD GROCERS",
-      "applies_to_equipment_types": ["COMP-SCR", "COMP-REC"],
+      "applies_to_equipment_types": [
+        "COMP-SCR",
+        "COMP-REC"
+      ],
       "steps": [
-        { "seq": 1, "type": "confirm",  "title": "Check in at receiving dock", "required": true,  "help": "Refrigeration room needs an escort." },
-        { "seq": 2, "type": "photo",    "title": "Photo of compressor nameplate", "required": true },
-        { "seq": 3, "type": "question", "title": "Is the walk-in currently above 41F?", "required": true, "answers": ["Yes", "No", "Not sure"] },
-        { "seq": 4, "type": "guide",    "title": "High-pressure trip troubleshooting", "required": false, "guide_ref": "KB-HP-TRIP-02" },
-        { "seq": 5, "type": "photo",    "title": "Photo of completed repair", "required": true },
-        { "seq": 6, "type": "confirm",  "title": "Store manager sign-off obtained", "required": true }
+        {
+          "seq": 1,
+          "type": "confirm",
+          "title": "Check in at receiving dock",
+          "required": true,
+          "help": "Refrigeration room needs an escort."
+        },
+        {
+          "seq": 2,
+          "type": "photo",
+          "title": "Photo of compressor nameplate",
+          "required": true
+        },
+        {
+          "seq": 3,
+          "type": "question",
+          "title": "Is the walk-in currently above 41F?",
+          "required": true,
+          "answers": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        },
+        {
+          "seq": 4,
+          "type": "guide",
+          "title": "High-pressure trip troubleshooting",
+          "required": false,
+          "guide_ref": "KB-HP-TRIP-02"
+        },
+        {
+          "seq": 5,
+          "type": "photo",
+          "title": "Photo of completed repair",
+          "required": true
+        },
+        {
+          "seq": 6,
+          "type": "confirm",
+          "title": "Store manager sign-off obtained",
+          "required": true
+        }
       ]
     },
     {
@@ -26,17 +67,164 @@
       "version": 3,
       "effective_from": "2025-01-15",
       "customer_name": "Northfield Grocers",
-      "applies_to_equipment_types": ["COMP-SCR"],
+      "applies_to_equipment_types": [
+        "COMP-SCR"
+      ],
       "steps": [
-        { "seq": 1, "type": "confirm", "title": "OLD VERSION - superseded", "required": true }
+        {
+          "seq": 1,
+          "type": "confirm",
+          "title": "OLD VERSION - superseded",
+          "required": true
+        }
+      ]
+    },
+    {
+      "workflow_id": "xoi_wf_7788",
+      "version": 4,
+      "effective_from": "2026-03-01",
+      "customer_name": "GREATER METROPOLITAN REGIONAL MEDICAL CENTER AND RESEARCH INSTITUTE",
+      "applies_to_equipment_types": [
+        "CHILLER"
+      ],
+      "steps": [
+        {
+          "seq": 1,
+          "type": "confirm",
+          "title": "Check in at the central plant security desk and collect an escort badge",
+          "required": true
+        },
+        {
+          "seq": 2,
+          "type": "confirm",
+          "title": "Notify the facilities duty manager before any shutdown of chilled water to the surgical wing",
+          "required": true
+        },
+        {
+          "seq": 3,
+          "type": "photo",
+          "title": "Photo of chiller nameplate and current control panel display",
+          "required": true
+        },
+        {
+          "seq": 4,
+          "type": "question",
+          "title": "What is the current chilled water supply temperature?",
+          "required": true,
+          "answers": [
+            "Below 42F",
+            "42F to 46F",
+            "Above 46F",
+            "Unable to read"
+          ]
+        },
+        {
+          "seq": 5,
+          "type": "question",
+          "title": "Is the compressor 2 vibration alarm currently active?",
+          "required": true,
+          "answers": [
+            "Yes",
+            "No",
+            "Intermittent"
+          ]
+        },
+        {
+          "seq": 6,
+          "type": "guide",
+          "title": "Low evaporator pressure trip: diagnostic flowchart",
+          "required": false,
+          "guide_ref": "KB-CHL-LEP-01"
+        },
+        {
+          "seq": 7,
+          "type": "guide",
+          "title": "Compressor bearing inspection procedure",
+          "required": false,
+          "guide_ref": "KB-CHL-BRG-04"
+        },
+        {
+          "seq": 8,
+          "type": "photo",
+          "title": "Photo of bearing condition before replacement",
+          "required": true
+        },
+        {
+          "seq": 9,
+          "type": "confirm",
+          "title": "Isolate and lock out the chiller and chilled water pumps",
+          "required": true
+        },
+        {
+          "seq": 10,
+          "type": "confirm",
+          "title": "Verify zero energy at the VFD and compressor motor",
+          "required": true
+        },
+        {
+          "seq": 11,
+          "type": "photo",
+          "title": "Photo of replaced parts with the old parts tagged",
+          "required": true
+        },
+        {
+          "seq": 12,
+          "type": "question",
+          "title": "Were any refrigerant additions made? If yes, record the pounds in the refrigerant log",
+          "required": true,
+          "answers": [
+            "Yes",
+            "No"
+          ]
+        },
+        {
+          "seq": 13,
+          "type": "confirm",
+          "title": "Return the system to service and confirm a stable supply temperature for 30 minutes",
+          "required": true
+        },
+        {
+          "seq": 14,
+          "type": "confirm",
+          "title": "Facilities duty manager sign-off obtained",
+          "required": true
+        }
       ]
     }
   ],
   "edge_cases": {
     "_note": "The name casing differs between the two Northfield workflows (NORTHFIELD GROCERS vs Northfield Grocers). The adapter must pick the highest version and handle case differences.",
-    "unknown_step_type": { "seq": 7, "type": "voice_note", "title": "Record a voice summary", "required": false },
-    "missing_title": { "seq": 8, "type": "confirm", "title": null, "required": true },
-    "no_workflow_for_customer": { "customer_name": "SOME OTHER CLIENT", "workflows": [] },
-    "system_unavailable": { "status": 502, "body": "Bad Gateway" }
-  }
+    "unknown_step_type": {
+      "seq": 7,
+      "type": "voice_note",
+      "title": "Record a voice summary",
+      "required": false
+    },
+    "missing_title": {
+      "seq": 8,
+      "type": "confirm",
+      "title": null,
+      "required": true
+    },
+    "no_workflow_for_customer": {
+      "customer_name": "SOME OTHER CLIENT",
+      "workflows": []
+    },
+    "system_unavailable": {
+      "status": 502,
+      "body": "Bad Gateway"
+    }
+  },
+  "progress": [
+    {
+      "wo_no": 4510,
+      "completed_seqs": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ]
 }

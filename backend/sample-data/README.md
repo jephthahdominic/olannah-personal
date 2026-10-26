@@ -28,6 +28,16 @@ Scenario: Marcus Allen (technician T0042) marks himself on site at Store 118 for
 6. Freshness: Xtreme data was last synced 2026-10-22 16:40, so the work-order zone should show it as not live.
 7. Write-back: no system supports it, so Action Panel actions must show `write_back: manual`.
 
+## More scenarios (added for frontend testing)
+
+| Session | Worker / job | Tests |
+|---|---|---|
+| `s_clear` | Priya Raman, WO-4502, Bayview Cafe, E-5510 | Empty alerts, steps and history; no portal ticket; fresh Xtreme sync; `closeJob` enabled |
+| `s_busy` | Dana Whitfield, WO-4510, Greater Metropolitan Regional Medical Center, chiller E-7001 | 4 failures in 12 months; 4 missing parts (with an in-stock substitute, a listed substitute, and none); 2 expired safety documents; 3 expiring certifications; 19 steps with done steps; 28 history records with 3 duplicates and 1 undated row |
+| `s_nojob` | Owen Park, no work order | Logged in with nothing active |
+
+XOi `progress[]` in `xoi.json` lists which workflow steps are already done per job.
+
 ## Failure drills (each system file has a `system_unavailable` case)
 
 Take down one system at a time and check that only the zones depending on it become unavailable. A hard 200-with-HTML login page from the portal must also count as unavailable.

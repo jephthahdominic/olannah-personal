@@ -10,7 +10,7 @@ You are building the canvas. This API gives you everything it renders. You never
 | Auth headers (required on every `/v1/sessions/...` call) | `Authorization: Bearer <any token in the mock>` and `X-Tenant-Id: <any>` |
 | CORS | `http://localhost:3000` is allowed by default |
 | Types | `npx openapi-typescript handoff/openapi.json -o src/types/olannah.d.ts` |
-| Mock session ids | `s_8f2` (Marcus, main scenario), `s_unmapped` (no layout for the role), anything else is a 404 |
+| Mock session ids | `s_8f2` (Marcus, main scenario), `s_clear` (all empty), `s_busy` (lots of data, `done` steps), `s_nojob` (no active work order), `s_unmapped` (no layout for the role), anything else is a 404 |
 
 ## 2. The two calls
 
@@ -23,7 +23,7 @@ Sequence:
 
 1. `GET context`. Pick your layout template from `layout.template_id`. Render every zone.
 2. A zone with `state: "loading"` shows a skeleton. Today only `zones.history` arrives that way.
-3. Take `zones.history.pointer` and `GET history/{pointer}`. Fill the history zone from `data`.
+3. Take `zones.history.pointer` and `GET history/{pointer}`. Fill the history zone from `data`. If the pointer is `null` there is nothing to load (the worker has no active job): do not call.
 
 Never construct or edit a pointer yourself. Treat it as an opaque string.
 
@@ -73,7 +73,12 @@ Real responses for each state are in `handoff/examples/`:
 | `context.portal-login-wall.json` | Portal down, no SLA field |
 | `context.sampro-down.json` | System of record down: no work order, most zones `unavailable` |
 | `context.unmapped-role.json` | Platform default layout plus an `unmapped_role` flag |
+| `context.clear.json` | Healthy job with no alerts, no steps and no history: test every empty state |
+| `context.busy.json` | 10 alerts, 19 steps including `done`, long labels, SLA row, fresh (not stale) work order |
+| `context.busy-xoi-down.json` | Same job with XOi down: `steps` falls back to the safety-document steps only |
+| `context.no-active-job.json` | No active work order: null header, all zones `ready` and empty, null history pointer |
 | `history.happy.json` / `history.drive-down.json` | Merged history, and history with one source missing |
+| `history.clear.json` / `history.busy.json` | Empty history (`data: []`, still `ready`), and a 28-record history with duplicates absorbed |
 
 With the server started using `OLANNAH_DEV=1` you can flip faults live:
 

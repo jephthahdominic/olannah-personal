@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "session_id": "s_clear",
+  "delivered_at": "2026-10-23T08:00:03-05:00",
+  "worker": {
+    "id": "T0051",
+    "name": "Priya Raman",
+    "role_label": "Field Technician"
+  },
+  "layout": {
+    "template_id": "technician.v1",
+    "destinations": [
+      "jobs",
+      "inventory"
+    ]
+  },
+  "active_work_order": {
+    "id": "WO-4502",
+    "site_name": "Main Street",
+    "task_summary": "Routine quarterly inspection - walk-in freezer"
+  },
+  "connection_status": [
+    {
+      "system": "sampro",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "xtreme",
+      "state": "live",
+      "write_back": false,
+      "last_synced": "2026-10-23T07:45:00-05:00"
+    },
+    {
+      "system": "xoi",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "sitedocs",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "client_portal",
+      "state": "read_only",
+      "write_back": false,
+      "last_synced": null
+    }
+  ],
+  "zones": {
+    "alerts": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": []
+    },
+    "work_order": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": {
+        "id": "WO-4502",
+        "title": "Routine quarterly inspection - walk-in freezer",
+        "fields": [
+          {
+            "label": "Customer",
+            "value": "Bayview Cafe"
+          },
+          {
+            "label": "Site",
+            "value": "Main Street"
+          },
+          {
+            "label": "Scheduled",
+            "value": "2026-10-23 07:30"
+          },
+          {
+            "label": "PO",
+            "value": "BC-PO-1042"
+          }
+        ]
+      }
+    },
+    "steps": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": []
+    },
+    "actions": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": [
+        {
+          "name": "closeJob",
+          "label": "Close job",
+          "enabled": true,
+          "write_back": "manual",
+          "needs_checkpoint": true
+        },
+        {
+          "name": "requestPart",
+          "label": "Request part",
+          "enabled": true,
+          "write_back": "manual",
+          "needs_checkpoint": false
+        }
+      ]
+    },
+    "history": {
+      "state": "loading",
+      "pointer": "hist_s_clear_E-5510"
+    }
+  },
+  "degraded_fields": []
+}

@@ -64,8 +64,11 @@ class Resolver:
         s = self.sources
         layout, degraded = layout_for(ident.role)
 
+        if ident.wo_no is None:
+            return await self._idle(session_id, ident, now, layout, degraded)
+
         # ---- stage 1: independent of each other ----
-        wo_call = s.work_order(ident.wo_no) if ident.wo_no is not None else _missing()
+        wo_call = s.work_order(ident.wo_no)
         wo_out, tech_out, parts_out = await asyncio.gather(
             call(wo_call, timeout), call(s.tech(ident.worker_id), timeout), call(s.parts(), timeout)
         )
@@ -92,6 +95,7 @@ class Resolver:
             "history": s.service_history(wo["eq_id"]),
             "van": s.van_inventory(van_id) if van_id else _missing(),
             "xoi": s.xoi_workflows(),
+            "progress": s.xoi_progress(wo["wo_no"]),
             "sd_docs": s.sitedocs_required(),
             "sd_certs": s.sitedocs_certs(ident.worker_id),
             "portal": s.portal_ticket(wo["po_no"]),
@@ -130,7 +134,7 @@ class Resolver:
         states = {
             "sampro": "live" if sampro_ok else "down",
             "xtreme": "live" if out["xtreme"].ok else "down",
-            "xoi": "live" if out["xoi"].ok else "down",
+            "xoi": "live" if out["xoi"].ok and out["progress"].ok else "down",
             "sitedocs": "live" if sitedocs_ok else "down",
             "client_portal": "read_only" if portal_ok else "down",
         }
@@ -202,29 +206,35 @@ class Resolver:
         )
 
         # ---- steps ----
-        step_specs: list[tuple[str, str, bool, str]] = []  # (kind, label, required, source)
+        # (kind, label, required, source, done)
+        step_specs: list[tuple[str, str, bool, str, bool]] = []
         for doc in sorted(docs, key=lambda d: 0 if d.must_complete_by == "ON_ARRIVAL" else 1):
-            if doc.status not in ("EXPIRED", "REQUIRED") or doc.must_complete_by not in ("ON_ARRIVAL", "BEFORE_WORK"):
+            if doc.must_complete_by not in ("ON_ARRIVAL", "BEFORE_WORK"):
                 continue
-            label = f"Complete {doc.title}"
-            if doc.status == "EXPIRED":
-                label += f" again (expired {doc.expires_on:%m/%d/%Y})" if doc.expires_on else " again"
-            step_specs.append(("confirm", label, True, "sitedocs"))
-        xoi_ok = out["xoi"].ok and equipment is not None and customer_name is not None
+            if doc.status in ("EXPIRED", "REQUIRED"):
+                label = f"Complete {doc.title}"
+                if doc.status == "EXPIRED":
+                    label += f" again (expired {doc.expires_on:%m/%d/%Y})" if doc.expires_on else " again"
+                step_specs.append(("confirm", label, True, "sitedocs", False))
+            elif doc.status == "COMPLETED":
+                step_specs.append(("confirm", f"Complete {doc.title}", True, "sitedocs", True))
+        xoi_ok = out["xoi"].ok and out["progress"].ok and equipment is not None and customer_name is not None
         if xoi_ok:
+            finished = set(out["progress"].value or [])
             for step in xoi_adapter.pick_steps(out["xoi"].value, customer_name, equipment["eq_type"]):
-                step_specs.append((step.kind, step.label, step.required, "xoi"))
+                step_specs.append((step.kind, step.label, step.required, "xoi", step.seq in finished))
         steps_ok = (out["sd_docs"].ok and site_name is not None) or xoi_ok
+        first_open = next((i for i, spec in enumerate(step_specs) if not spec[4]), None)
         steps = [
             Step(
                 id=f"st{i}",
                 kind=kind,
                 label=label,
-                status="current" if i == 1 else "todo",
+                status="done" if done else ("current" if i - 1 == first_open else "todo"),
                 required=required,
                 source=source,
             )
-            for i, (kind, label, required, source) in enumerate(step_specs, start=1)
+            for i, (kind, label, required, source, done) in enumerate(step_specs, start=1)
         ]
         steps_zone = (
             StepsZone(state="ready", as_of=now.isoformat(), data=steps) if steps_ok else StepsZone(state="unavailable")
@@ -261,6 +271,32 @@ class Resolver:
                 steps=steps_zone,
                 actions=actions_zone,
                 history=history_zone,
+            ),
+            degraded_fields=degraded,
+        )
+
+    async def _idle(self, session_id, ident, now: datetime, layout, degraded) -> ContextObject:
+        """Logged in but not on a job: a healthy, empty workspace (not an outage)."""
+        tech_out = await call(self.sources.tech(ident.worker_id), self.settings.source_timeout)
+        name = tech_out.value["tech_nm"].title() if tech_out.ok and tech_out.value else ident.worker_id
+        worker = Worker(id=ident.worker_id, name=name, role_label=ROLE_LABELS.get(ident.role, ident.role.title()))
+        if not tech_out.ok:
+            return self._without_work_order(session_id, now, worker, layout, degraded)
+        stamp = now.isoformat()
+        return ContextObject(
+            schema_version=SCHEMA_VERSION,
+            session_id=session_id,
+            delivered_at=stamp,
+            worker=worker,
+            layout=layout,
+            active_work_order=None,
+            connection_status=[SystemStatus(system="sampro", state="live", write_back=SYSTEM_WRITE_BACK["sampro"])],
+            zones=Zones(
+                alerts=AlertsZone(state="ready", as_of=stamp),
+                work_order=WorkOrderZone(state="ready", as_of=stamp),
+                steps=StepsZone(state="ready", as_of=stamp),
+                actions=ActionsZone(state="ready", as_of=stamp),
+                history=HistoryZone(state="ready"),  # no pointer: there is no equipment to load history for
             ),
             degraded_fields=degraded,
         )

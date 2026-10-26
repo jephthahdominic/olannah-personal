@@ -9,6 +9,7 @@ class XoiStep:
     kind: str
     label: str
     required: bool
+    seq: int = 0
 
 
 def pick_steps(workflows: list[dict], customer_name: str, equipment_type: str) -> list[XoiStep]:
@@ -26,7 +27,7 @@ def pick_steps(workflows: list[dict], customer_name: str, equipment_type: str) -
     best = max(candidates, key=lambda w: w.get("version", 0))
     steps = sorted(best.get("steps", []), key=lambda s: s.get("seq", 0))
     return [
-        XoiStep(kind=s["type"], label=s["title"], required=bool(s.get("required", True)))
+        XoiStep(kind=s["type"], label=s["title"], required=bool(s.get("required", True)), seq=s.get("seq", 0))
         for s in steps
         if s.get("type") in ALLOWED_KINDS and s.get("title")
     ]

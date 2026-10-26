@@ -12,7 +12,7 @@ async def test_returns_raw_records(sources):
     assert wo["eq_id"] == "E-2231" and wo["po_no"] == "NG-PO-88217"
     assert (await sources.xtreme_work_order("4471"))["jobId"] == "JOB-2026-004471"
     assert len(await sources.service_history("E-2231")) == 4
-    assert len(await sources.drive_history()) == 7
+    assert len(await sources.drive_history()) == 15
 
 
 async def test_missing_records_are_none_or_empty(sources):
@@ -46,3 +46,14 @@ async def test_slow_fault_exceeds_a_timeout():
 async def test_login_wall_returns_html_instead_of_data():
     src = MockSources(FIXTURES, {"client_portal": "login_wall"})
     assert await src.portal_ticket("NG-PO-88217") == LOGIN_PAGE
+
+
+async def test_xoi_progress_lists_completed_steps_per_job(sources):
+    assert await sources.xoi_progress(4510) == [1, 2, 3, 4, 5]
+    assert await sources.xoi_progress(4471) == []
+
+
+async def test_xoi_progress_follows_the_xoi_fault():
+    src = MockSources(FIXTURES, {"xoi": "down"})
+    with pytest.raises(SourceUnavailable):
+        await src.xoi_progress(4510)

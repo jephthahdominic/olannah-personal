@@ -1,0 +1,304 @@
+{
+  "schema_version": "1.0",
+  "session_id": "s_busy",
+  "delivered_at": "2026-10-23T08:00:03-05:00",
+  "worker": {
+    "id": "T0063",
+    "name": "Dana Whitfield",
+    "role_label": "Field Technician"
+  },
+  "layout": {
+    "template_id": "technician.v1",
+    "destinations": [
+      "jobs",
+      "inventory"
+    ]
+  },
+  "active_work_order": {
+    "id": "WO-4510",
+    "site_name": "Building C Central Plant - Sublevel Mechanical Room",
+    "task_summary": "Centrifugal chiller tripping on low evaporator pressure. Intermittent vibration alarm on compressor 2. Client reports partial cooling loss in the surgical wing and requests root cause before end of day"
+  },
+  "connection_status": [
+    {
+      "system": "sampro",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "xtreme",
+      "state": "live",
+      "write_back": false,
+      "last_synced": "2026-10-23T06:00:00-05:00"
+    },
+    {
+      "system": "xoi",
+      "state": "down",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "sitedocs",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "client_portal",
+      "state": "read_only",
+      "write_back": false,
+      "last_synced": null
+    }
+  ],
+  "zones": {
+    "alerts": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": [
+        {
+          "id": "a1",
+          "severity": "critical",
+          "message": "Confined Space Entry Permit for Building C Central Plant - Sublevel Mechanical Room expired 10/01/2026. Complete it again on arrival.",
+          "suggestion": null,
+          "evidence": [
+            {
+              "system": "sitedocs",
+              "ref": "SD-61002"
+            }
+          ]
+        },
+        {
+          "id": "a2",
+          "severity": "critical",
+          "message": "Hot Work Permit for Building C Central Plant - Sublevel Mechanical Room expired 09/15/2026. Complete it again on arrival.",
+          "suggestion": null,
+          "evidence": [
+            {
+              "system": "sitedocs",
+              "ref": "SD-61005"
+            }
+          ]
+        },
+        {
+          "id": "a3",
+          "severity": "warning",
+          "message": "This equipment has failed 4 times in the past 12 months.",
+          "suggestion": null,
+          "evidence": [
+            {
+              "system": "sampro",
+              "ref": "svc 9118"
+            },
+            {
+              "system": "sampro",
+              "ref": "svc 9120"
+            },
+            {
+              "system": "sampro",
+              "ref": "svc 9122"
+            },
+            {
+              "system": "sampro",
+              "ref": "svc 9123"
+            }
+          ]
+        },
+        {
+          "id": "a4",
+          "severity": "warning",
+          "message": "Bearing assembly centrifugal compressor (BRG-880) is not in your van (0 on hand).",
+          "suggestion": "BRG-882 (3 on hand) was used as a substitute on 2026-06-03 (service 9122).",
+          "evidence": [
+            {
+              "system": "sampro",
+              "ref": "VAN-14/BRG-880"
+            },
+            {
+              "system": "sampro",
+              "ref": "svc 9122"
+            }
+          ]
+        },
+        {
+          "id": "a5",
+          "severity": "warning",
+          "message": "Evaporator pressure sensor (SNS-12) is not in your van (0 on hand).",
+          "suggestion": "SNS-14 (2 on hand) is a listed substitute.",
+          "evidence": [
+            {
+              "system": "sampro",
+              "ref": "VAN-14/SNS-12"
+            }
+          ]
+        },
+        {
+          "id": "a6",
+          "severity": "warning",
+          "message": "Oil cooler gasket kit (GSK-77) is not in your van (0 on hand).",
+          "suggestion": null,
+          "evidence": [
+            {
+              "system": "sampro",
+              "ref": "VAN-14/GSK-77"
+            }
+          ]
+        },
+        {
+          "id": "a7",
+          "severity": "warning",
+          "message": "Expansion valve actuator (VLV-410) is not in your van (0 on hand).",
+          "suggestion": null,
+          "evidence": [
+            {
+              "system": "sampro",
+              "ref": "VAN-14/VLV-410"
+            }
+          ]
+        },
+        {
+          "id": "a8",
+          "severity": "info",
+          "message": "Your Lockout/Tagout Authorized certification expires 10/28/2026.",
+          "suggestion": null,
+          "evidence": [
+            {
+              "system": "sitedocs",
+              "ref": "T0063/Lockout/Tagout Authorized"
+            }
+          ]
+        },
+        {
+          "id": "a9",
+          "severity": "info",
+          "message": "Your Confined Space Entry certification expires 11/01/2026.",
+          "suggestion": null,
+          "evidence": [
+            {
+              "system": "sitedocs",
+              "ref": "T0063/Confined Space Entry"
+            }
+          ]
+        },
+        {
+          "id": "a10",
+          "severity": "info",
+          "message": "Your High Voltage Safety certification expires 11/06/2026.",
+          "suggestion": null,
+          "evidence": [
+            {
+              "system": "sitedocs",
+              "ref": "T0063/High Voltage Safety"
+            }
+          ]
+        }
+      ]
+    },
+    "work_order": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": {
+        "id": "WO-4510",
+        "title": "Centrifugal chiller tripping on low evaporator pressure. Intermittent vibration alarm on compressor 2. Client reports partial cooling loss in the surgical wing and requests root cause before end of day",
+        "fields": [
+          {
+            "label": "Customer",
+            "value": "Greater Metropolitan Regional Medical Center and Research Institute"
+          },
+          {
+            "label": "Site",
+            "value": "Building C Central Plant - Sublevel Mechanical Room"
+          },
+          {
+            "label": "Scheduled",
+            "value": "2026-10-23 07:00"
+          },
+          {
+            "label": "PO",
+            "value": "MR-PO-77120"
+          },
+          {
+            "label": "Client SLA",
+            "value": "Respond by 2026-10-23 09:00, resolve by 2026-10-23 17:00"
+          }
+        ]
+      }
+    },
+    "steps": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": [
+        {
+          "id": "st1",
+          "kind": "confirm",
+          "label": "Complete Job Safety Analysis (JSA)",
+          "status": "done",
+          "required": true,
+          "source": "sitedocs"
+        },
+        {
+          "id": "st2",
+          "kind": "confirm",
+          "label": "Complete Confined Space Entry Permit again (expired 10/01/2026)",
+          "status": "current",
+          "required": true,
+          "source": "sitedocs"
+        },
+        {
+          "id": "st3",
+          "kind": "confirm",
+          "label": "Complete Infection Control Risk Assessment (ICRA)",
+          "status": "todo",
+          "required": true,
+          "source": "sitedocs"
+        },
+        {
+          "id": "st4",
+          "kind": "confirm",
+          "label": "Complete Lockout/Tagout Verification",
+          "status": "done",
+          "required": true,
+          "source": "sitedocs"
+        },
+        {
+          "id": "st5",
+          "kind": "confirm",
+          "label": "Complete Hot Work Permit again (expired 09/15/2026)",
+          "status": "todo",
+          "required": true,
+          "source": "sitedocs"
+        }
+      ]
+    },
+    "actions": {
+      "state": "ready",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": [
+        {
+          "name": "closeJob",
+          "label": "Close job",
+          "enabled": false,
+          "write_back": "manual",
+          "needs_checkpoint": true
+        },
+        {
+          "name": "requestPart",
+          "label": "Request part",
+          "enabled": true,
+          "write_back": "manual",
+          "needs_checkpoint": false
+        }
+      ]
+    },
+    "history": {
+      "state": "loading",
+      "pointer": "hist_s_busy_E-7001"
+    }
+  },
+  "degraded_fields": [
+    {
+      "field": "source.xoi",
+      "reason": "unavailable"
+    }
+  ]
+}
