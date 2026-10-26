@@ -2,12 +2,13 @@
   "schema_version": "1.0",
   "session_id": "s_8f2",
   "delivered_at": "2026-10-23T08:00:03-05:00",
+  "resolved_role": "technician",
   "worker": {
     "id": "T0042",
     "name": "T0042",
     "role_label": "Field Technician"
   },
-  "layout": {
+  "layout_config": {
     "template_id": "technician.v1",
     "destinations": [
       "jobs",
@@ -40,7 +41,7 @@
       "data": []
     },
     "actions": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": [
         {

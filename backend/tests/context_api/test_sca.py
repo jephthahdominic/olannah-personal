@@ -39,7 +39,7 @@ async def test_history_merges_both_sources(settings, pointers):
     sources = MockSources(FIXTURES)
     pointer = await pointer_for(settings, pointers, sources)
     msg = await HistoryService(sources, settings, pointers).fetch("s_8f2", pointer)
-    assert msg.state == "ready" and msg.zone_id == "history" and msg.type == "zone_data"
+    assert msg.state == "rendered" and msg.zone_id == "history" and msg.type == "zone_data"
     assert [r.date for r in msg.data] == ["2026-08-14", "2026-03-02", "2025-06-11", "2024-02-09", "2023-11-20"]
     by_date = {r.date: r for r in msg.data}
     assert by_date["2026-08-14"].sources == ["sampro"]  # the drive never logged it
@@ -71,7 +71,7 @@ async def test_one_source_down_still_delivers_the_other(settings, pointers):
     sources = MockSources(FIXTURES, {"shared_drive": "down"})
     pointer = await pointer_for(settings, pointers, MockSources(FIXTURES))
     msg = await HistoryService(sources, settings, pointers).fetch("s_8f2", pointer)
-    assert msg.state == "ready" and len(msg.data) == 4
+    assert msg.state == "rendered" and len(msg.data) == 4
     assert msg.data_quality.unavailable_sources == ["shared_drive"]
 
 

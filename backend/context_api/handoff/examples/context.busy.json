@@ -2,12 +2,13 @@
   "schema_version": "1.0",
   "session_id": "s_busy",
   "delivered_at": "2026-10-23T08:00:03-05:00",
+  "resolved_role": "technician",
   "worker": {
     "id": "T0063",
     "name": "Dana Whitfield",
     "role_label": "Field Technician"
   },
-  "layout": {
+  "layout_config": {
     "template_id": "technician.v1",
     "destinations": [
       "jobs",
@@ -53,7 +54,7 @@
   ],
   "zones": {
     "alerts": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": [
         {
@@ -195,8 +196,8 @@
       ]
     },
     "work_order": {
-      "state": "ready",
-      "as_of": "2026-10-23T08:00:03-05:00",
+      "state": "rendered",
+      "as_of": "2026-10-23T06:00:00-05:00",
       "data": {
         "id": "WO-4510",
         "title": "Centrifugal chiller tripping on low evaporator pressure. Intermittent vibration alarm on compressor 2. Client reports partial cooling loss in the surgical wing and requests root cause before end of day",
@@ -225,7 +226,7 @@
       }
     },
     "steps": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": [
         {
@@ -383,7 +384,7 @@
       ]
     },
     "actions": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": [
         {

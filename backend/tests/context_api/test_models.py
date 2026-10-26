@@ -5,13 +5,14 @@ from context_api.models import Alert, ContextObject
 
 
 def minimal_context() -> dict:
-    zone = {"state": "ready", "as_of": "2026-10-23T08:00:03-05:00"}
+    zone = {"state": "rendered", "as_of": "2026-10-23T08:00:03-05:00"}
     return {
         "schema_version": "1.0",
         "session_id": "s_1",
         "delivered_at": "2026-10-23T08:00:03-05:00",
+        "resolved_role": "technician",
         "worker": {"id": "T1", "name": "A", "role_label": "Field Technician"},
-        "layout": {"template_id": "technician.v1", "destinations": []},
+        "layout_config": {"template_id": "technician.v1", "destinations": []},
         "active_work_order": None,
         "connection_status": [],
         "zones": {
@@ -29,6 +30,14 @@ def test_minimal_context_validates():
     ctx = ContextObject.model_validate(minimal_context())
     assert ctx.active_work_order is None
     assert ctx.zones.history.pointer == "hist_x"
+
+
+@pytest.mark.parametrize("state", ["ready", "stale", "weird"])
+def test_rejects_zone_states_the_pcr_does_not_deliver(state):
+    bad = minimal_context()
+    bad["zones"]["alerts"]["state"] = state
+    with pytest.raises(ValidationError):
+        ContextObject.model_validate(bad)
 
 
 def test_rejects_unknown_zone_state():

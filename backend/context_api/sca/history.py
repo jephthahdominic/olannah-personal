@@ -46,7 +46,7 @@ class HistoryService:
         return HistoryMessage(
             session_id=session_id,
             seq=seq,
-            state="ready",
+            state="rendered",
             as_of=now.isoformat(),
             data=records,
             data_quality=DataQuality(

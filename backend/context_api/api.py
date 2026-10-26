@@ -4,19 +4,46 @@
 `create_app` wraps the router in its own FastAPI app with CORS; tests and the contract export use it.
 """
 import asyncio
+import logging
+import time
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
 from context_api.config import FAULT_MODES, KNOWN_SYSTEMS, Settings
-from context_api.models import ContextObject, HistoryMessage
+from context_api.models import ContextObject, DegradedField, HistoryMessage
 from context_api.pcr.pointers import PointerStore
 from context_api.pcr.resolver import Resolver
 from context_api.sca.history import HistoryService
 from context_api.sources.base import Sources
 from context_api.sources.mock import MockSources
+
+
+log = logging.getLogger("olannah.delivery")
+
+PayloadFault = Literal["bad_schema", "malformed_zone", "malformed_envelope"]
+NOT_A_LIST = "not-a-list"
+
+
+class DeliveryControls(BaseModel):
+    """Dev-only: make the mock misbehave the way the BRD says the canvas must survive."""
+
+    delay_seconds: float = Field(default=0.0, ge=0)  # slow the whole context delivery
+    payload: Optional[PayloadFault] = None  # corrupt what is delivered
+
+
+def corrupt_context(context: ContextObject, fault: PayloadFault) -> dict:
+    body = context.model_dump(mode="json")
+    if fault == "bad_schema":
+        body["schema_version"] = "9.9"  # unrecognised version -> canvas fallback state (BRD SR 20)
+    elif fault == "malformed_zone":
+        body["zones"]["alerts"]["data"] = NOT_A_LIST  # one zone is unreadable -> that zone only (SR 21A)
+    else:
+        body["zones"] = "garbage"  # the envelope itself is unreadable -> workspace fallback (SR 21B)
+    return body
 
 
 class Session(BaseModel):
@@ -53,6 +80,7 @@ def create_router(settings: Optional[Settings] = None, sources: Optional[Sources
     history = HistoryService(sources, settings, pointers)
 
     router = APIRouter()
+    dev = DeliveryControls()  # mutable, only reachable through the dev endpoints
 
     @router.get("/healthz")
     async def healthz() -> dict:
@@ -64,17 +92,31 @@ def create_router(settings: Optional[Settings] = None, sources: Optional[Sources
         responses={
             401: {"description": "Session not confirmed"},
             404: {"description": "Session or role cannot be determined"},
-            504: {"description": "Context delivery exceeded the 800ms budget"},
+            504: {"description": "Context was not delivered before the hard timeout (10s): show the recovery screen"},
         },
     )
     async def get_context(response: Response, session: Session = Depends(get_session)) -> ContextObject:
+        async def deliver() -> Optional[ContextObject]:
+            if dev.delay_seconds:
+                await asyncio.sleep(dev.delay_seconds)
+            return await resolver.resolve(session.session_id)
+
+        started = time.monotonic()
         try:
-            context = await asyncio.wait_for(resolver.resolve(session.session_id), settings.pcr_budget)
+            context = await asyncio.wait_for(deliver(), settings.hard_timeout)
         except asyncio.TimeoutError:
-            raise HTTPException(status_code=504, detail="Context delivery exceeded budget")
+            log.error("context delivery hard timeout session=%s after=%.1fs", session.session_id, settings.hard_timeout)
+            raise HTTPException(status_code=504, detail="Context delivery timed out")
         if context is None:
             raise HTTPException(status_code=404, detail="Role could not be determined")
+        elapsed = time.monotonic() - started
+        if elapsed > settings.pcr_budget:
+            # BRD UR 10B: over budget is a degraded delivery, not a failure. Still delivered, and recorded.
+            log.warning("degraded context delivery session=%s elapsed=%.3fs budget=%.1fs", session.session_id, elapsed, settings.pcr_budget)
+            context.degraded_fields.append(DegradedField(field="delivery", reason="budget_exceeded"))
         response.headers["Cache-Control"] = "no-store"  # worker-specific data
+        if dev.payload:
+            return JSONResponse(corrupt_context(context, dev.payload), headers={"Cache-Control": "no-store"})
         return context
 
     @router.get(
@@ -87,7 +129,27 @@ def create_router(settings: Optional[Settings] = None, sources: Optional[Sources
         if message is None:
             raise HTTPException(status_code=404, detail="Unknown history pointer")
         response.headers["Cache-Control"] = "no-store"
+        if dev.payload == "malformed_zone":
+            body = message.model_dump(mode="json")
+            body["data"] = NOT_A_LIST
+            return JSONResponse(body, headers={"Cache-Control": "no-store"})
         return message
+
+    if settings.dev_endpoints:
+
+        @router.get("/v1/dev/delivery")
+        async def get_delivery() -> DeliveryControls:
+            return dev
+
+        @router.post("/v1/dev/delivery")
+        async def set_delivery(controls: DeliveryControls) -> DeliveryControls:
+            dev.delay_seconds, dev.payload = controls.delay_seconds, controls.payload
+            return dev
+
+        @router.delete("/v1/dev/delivery")
+        async def clear_delivery() -> DeliveryControls:
+            dev.delay_seconds, dev.payload = 0.0, None
+            return dev
 
     if settings.dev_endpoints and hasattr(sources, "faults"):
         FaultMap = dict[str, Literal[FAULT_MODES]]  # type: ignore[valid-type]

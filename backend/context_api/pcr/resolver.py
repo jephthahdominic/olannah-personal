@@ -5,7 +5,7 @@ each call individually timed out) -> correlate -> run alert rules -> assemble zo
 A failed source degrades only the zones that need it.
 """
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
 from context_api.adapters import portal as portal_adapter
@@ -79,7 +79,7 @@ class Resolver:
         )
         wo = wo_out.value if wo_out.ok else None
         if wo is None:
-            return self._without_work_order(session_id, now, worker, layout, degraded)
+            return self._without_work_order(session_id, ident.role, now, worker, layout, degraded)
 
         # ---- stage 2: everything else, in parallel ----
         van_id = tech_out.value.get("van_id") if tech_out.ok and tech_out.value else None
@@ -171,7 +171,7 @@ class Resolver:
         alerts += alert_rules.expiring_certs(certs, today)
         alert_inputs_ok = any(out[k].ok for k in ("history", "van", "sd_docs", "sd_certs"))
         alerts_zone = (
-            AlertsZone(state="ready", as_of=now.isoformat(), data=alert_rules.rank(alerts))
+            AlertsZone(state="rendered", as_of=now.isoformat(), data=alert_rules.rank(alerts))
             if alert_inputs_ok
             else AlertsZone(state="unavailable")
         )
@@ -194,14 +194,9 @@ class Resolver:
                 )
             )
         description = sentence_case(wo.get("wo_desc")) or "Work order"
-        stale = (
-            job is not None
-            and job.last_synced is not None
-            and now - job.last_synced > timedelta(hours=self.settings.stale_after_hours)
-        )
         work_order_zone = WorkOrderZone(
-            state="stale" if stale else "ready",
-            as_of=job.last_synced.isoformat() if stale else now.isoformat(),
+            state="rendered",
+            as_of=job.last_synced.isoformat() if job and job.last_synced else now.isoformat(),  # data age, not a state
             data=Entity(id=f"WO-{wo['wo_no']}", title=description, fields=fields),
         )
 
@@ -237,14 +232,14 @@ class Resolver:
             for i, (kind, label, required, source, done) in enumerate(step_specs, start=1)
         ]
         steps_zone = (
-            StepsZone(state="ready", as_of=now.isoformat(), data=steps) if steps_ok else StepsZone(state="unavailable")
+            StepsZone(state="rendered", as_of=now.isoformat(), data=steps) if steps_ok else StepsZone(state="unavailable")
         )
 
         # ---- actions ----
         write_back = "auto" if SYSTEM_WRITE_BACK["sampro"] else "manual"
         close_enabled = steps_ok and not any(st.required and st.status != "done" for st in steps)
         actions_zone = ActionsZone(
-            state="ready",
+            state="rendered",
             as_of=now.isoformat(),
             data=[
                 Action(name="closeJob", label="Close job", enabled=close_enabled, write_back=write_back, needs_checkpoint=True),
@@ -260,7 +255,8 @@ class Resolver:
             session_id=session_id,
             delivered_at=now.isoformat(),
             worker=worker,
-            layout=layout,
+            resolved_role=ident.role,
+            layout_config=layout,
             active_work_order=ActiveWorkOrder(
                 id=f"WO-{wo['wo_no']}", site_name=site_name or "Unknown", task_summary=description
             ),
@@ -281,34 +277,36 @@ class Resolver:
         name = tech_out.value["tech_nm"].title() if tech_out.ok and tech_out.value else ident.worker_id
         worker = Worker(id=ident.worker_id, name=name, role_label=ROLE_LABELS.get(ident.role, ident.role.title()))
         if not tech_out.ok:
-            return self._without_work_order(session_id, now, worker, layout, degraded)
+            return self._without_work_order(session_id, ident.role, now, worker, layout, degraded)
         stamp = now.isoformat()
         return ContextObject(
             schema_version=SCHEMA_VERSION,
             session_id=session_id,
             delivered_at=stamp,
             worker=worker,
-            layout=layout,
+            resolved_role=ident.role,
+            layout_config=layout,
             active_work_order=None,
             connection_status=[SystemStatus(system="sampro", state="live", write_back=SYSTEM_WRITE_BACK["sampro"])],
             zones=Zones(
-                alerts=AlertsZone(state="ready", as_of=stamp),
-                work_order=WorkOrderZone(state="ready", as_of=stamp),
-                steps=StepsZone(state="ready", as_of=stamp),
-                actions=ActionsZone(state="ready", as_of=stamp),
-                history=HistoryZone(state="ready"),  # no pointer: there is no equipment to load history for
+                alerts=AlertsZone(state="rendered", as_of=stamp),
+                work_order=WorkOrderZone(state="rendered", as_of=stamp),
+                steps=StepsZone(state="rendered", as_of=stamp),
+                actions=ActionsZone(state="rendered", as_of=stamp),
+                history=HistoryZone(state="rendered"),  # no pointer: there is no equipment to load history for
             ),
             degraded_fields=degraded,
         )
 
-    def _without_work_order(self, session_id, now: datetime, worker, layout, degraded) -> ContextObject:
+    def _without_work_order(self, session_id, role, now: datetime, worker, layout, degraded) -> ContextObject:
         """Sampro (the system of record) is unreachable or there is no active job: nothing to build on."""
         return ContextObject(
             schema_version=SCHEMA_VERSION,
             session_id=session_id,
             delivered_at=now.isoformat(),
             worker=worker,
-            layout=layout,
+            resolved_role=role,
+            layout_config=layout,
             active_work_order=None,
             connection_status=[
                 SystemStatus(system="sampro", state="down", write_back=SYSTEM_WRITE_BACK["sampro"])
@@ -318,7 +316,7 @@ class Resolver:
                 work_order=WorkOrderZone(state="unavailable"),
                 steps=StepsZone(state="unavailable"),
                 actions=ActionsZone(
-                    state="ready",
+                    state="rendered",
                     as_of=now.isoformat(),
                     data=[Action(name="closeJob", label="Close job", enabled=False, write_back="manual", needs_checkpoint=True)],
                 ),

@@ -21,15 +21,24 @@ async def test_header_layout_and_worker(ctx):
     assert ctx.schema_version == "1.0"
     assert ctx.delivered_at == "2026-10-23T08:00:03-05:00"
     assert ctx.worker.name == "Marcus Allen" and ctx.worker.role_label == "Field Technician"
-    assert ctx.layout.template_id == "technician.v1"
+    assert ctx.layout_config.template_id == "technician.v1"
     assert ctx.active_work_order.id == "WO-4471"
     assert ctx.active_work_order.site_name == "Store 118"
     assert ctx.degraded_fields == []
 
 
+async def test_context_carries_the_resolved_role(ctx):
+    assert ctx.resolved_role == "technician"
+
+
+async def test_unmapped_role_keeps_its_resolved_role(settings, pointers):
+    ctx = await make(settings, pointers).resolve("s_unmapped")
+    assert ctx.resolved_role == "dispatcher"
+
+
 async def test_alerts_are_ranked_and_evidenced(ctx):
     zone = ctx.zones.alerts
-    assert zone.state == "ready"
+    assert zone.state == "rendered"
     assert [(a.id, a.severity) for a in zone.data] == [("a1", "critical"), ("a2", "warning"), ("a3", "warning"), ("a4", "info")]
     assert zone.data[0].message == "Job Safety Analysis (JSA) for Store 118 expired 10/12/2026. Complete it again on arrival."
     assert zone.data[1].message == "This equipment has failed twice in the past 12 months."
@@ -38,9 +47,9 @@ async def test_alerts_are_ranked_and_evidenced(ctx):
     assert zone.data[3].message == "Your Lockout/Tagout Authorized certification expires 11/02/2026."
 
 
-async def test_work_order_is_stale_because_xtreme_is_15_hours_old(ctx):
+async def test_work_order_reports_the_xtreme_sync_time_as_its_freshness(ctx):
     zone = ctx.zones.work_order
-    assert zone.state == "stale"
+    assert zone.state == "rendered"  # never "stale": the canvas derives that from refresh timing (BRD SR 16)
     assert zone.as_of == "2026-10-22T16:40:00-05:00"
     fields = {f.label: f.value for f in zone.data.fields}
     assert fields["Customer"] == "Northfield Grocers"
@@ -87,16 +96,16 @@ async def test_unknown_session_resolves_to_none(settings, pointers):
 
 async def test_unmapped_role_gets_the_default_layout_and_a_flag(settings, pointers):
     ctx = await make(settings, pointers).resolve("s_unmapped")
-    assert ctx.layout.template_id == "platform.default.v1"
+    assert ctx.layout_config.template_id == "platform.default.v1"
     assert any(d.field == "layout" and d.reason == "unmapped_role" for d in ctx.degraded_fields)
 
 
 # ---------- failure drills: one system down, only its zones degrade ----------
 async def test_sitedocs_down_removes_safety_alerts_and_steps_but_nothing_else(settings, pointers):
     ctx = await make(settings, pointers, {"sitedocs": "down"}).resolve("s_8f2")
-    assert ctx.zones.alerts.state == "ready"
+    assert ctx.zones.alerts.state == "rendered"
     assert [a.severity for a in ctx.zones.alerts.data] == ["warning", "warning"]  # no JSA, no cert
-    assert ctx.zones.steps.state == "ready"
+    assert ctx.zones.steps.state == "rendered"
     assert [s.source for s in ctx.zones.steps.data] == ["xoi"] * 6
     assert {s.system: s.state for s in ctx.connection_status}["sitedocs"] == "down"
     assert any(d.field == "source.sitedocs" for d in ctx.degraded_fields)
@@ -107,13 +116,14 @@ async def test_sitedocs_and_xoi_down_makes_steps_unavailable(settings, pointers)
     assert ctx.zones.steps.state == "unavailable"
     assert ctx.zones.steps.data == []
     assert ctx.zones.actions.data[0].enabled is False
-    assert ctx.zones.work_order.state == "stale"  # unrelated zones are untouched
+    assert ctx.zones.work_order.state == "rendered"  # unrelated zones are untouched
 
 
 async def test_slow_xtreme_times_out_and_work_order_falls_back_to_sampro(settings, pointers):
     ctx = await make(settings, pointers, {"xtreme": "slow"}).resolve("s_8f2")
     assert {s.system: s.state for s in ctx.connection_status}["xtreme"] == "down"
-    assert ctx.zones.work_order.state == "ready"  # no Xtreme sync time, so nothing to call stale
+    assert ctx.zones.work_order.state == "rendered"
+    assert ctx.zones.work_order.as_of == "2026-10-23T08:00:03-05:00"  # no Xtreme sync time, so "as of now"
     assert {f.label: f.value for f in ctx.zones.work_order.data.fields}["Site"] == "Store 118"  # from Sampro
 
 

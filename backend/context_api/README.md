@@ -56,7 +56,7 @@ to `create_router(sources=...)` (see `main.py`). Nothing above that layer change
 
 | Variable | Meaning | Default |
 |---|---|---|
-| `OLANNAH_DEV` | `1` enables `/v1/dev/faults` | off |
+| `OLANNAH_DEV` | `1` enables `/v1/dev/faults` and `/v1/dev/delivery` (slow or corrupt the delivery) | off |
 | `OLANNAH_FAULTS` | start with faults, e.g. `sitedocs=down,xtreme=slow` | none |
 | `OLANNAH_NOW` | ISO timestamp the app treats as "now", or `real` | `2026-10-23T08:00:03-05:00` |
 | `OLANNAH_CORS_ORIGINS` | comma-separated allowed origins | `http://localhost:3000` |
@@ -72,5 +72,5 @@ The default clock is frozen because the sample data is dated around 2026-10-23.
 | `s_unmapped` | A role with no layout, to exercise the platform-default path |
 | `s_clear` | Priya, WO-4502. Everything is fine, so `alerts`, `steps` and `history` are empty lists (empty states) and `closeJob` is enabled |
 | `s_busy` | Dana, WO-4510. 10 alerts of every severity and suggestion shape, 19 steps (`done`, `current`, `todo`, all four kinds), long text, a 28-record history |
-| `s_nojob` | Owen, logged in with no active work order. `active_work_order` is null, every zone is `ready` and empty, and `zones.history.pointer` is null |
+| `s_nojob` | Owen, logged in with no active work order. `active_work_order` is null, every zone is `rendered` and empty, and `zones.history.pointer` is null |
 | anything else | 404 |

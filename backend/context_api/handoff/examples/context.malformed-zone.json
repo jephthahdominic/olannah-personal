@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "session_id": "s_8f2",
+  "delivered_at": "2026-10-23T08:00:03-05:00",
+  "resolved_role": "technician",
+  "worker": {
+    "id": "T0042",
+    "name": "Marcus Allen",
+    "role_label": "Field Technician"
+  },
+  "layout_config": {
+    "template_id": "technician.v1",
+    "destinations": [
+      "jobs",
+      "inventory"
+    ]
+  },
+  "active_work_order": {
+    "id": "WO-4471",
+    "site_name": "Store 118",
+    "task_summary": "Compressor fault - walk-in cooler temp alarm"
+  },
+  "connection_status": [
+    {
+      "system": "sampro",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "xtreme",
+      "state": "live",
+      "write_back": false,
+      "last_synced": "2026-10-22T16:40:00-05:00"
+    },
+    {
+      "system": "xoi",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "sitedocs",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "client_portal",
+      "state": "read_only",
+      "write_back": false,
+      "last_synced": null
+    }
+  ],
+  "zones": {
+    "alerts": {
+      "state": "rendered",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": "not-a-list"
+    },
+    "work_order": {
+      "state": "rendered",
+      "as_of": "2026-10-22T16:40:00-05:00",
+      "data": {
+        "id": "WO-4471",
+        "title": "Compressor fault - walk-in cooler temp alarm",
+        "fields": [
+          {
+            "label": "Customer",
+            "value": "Northfield Grocers"
+          },
+          {
+            "label": "Site",
+            "value": "Store 118"
+          },
+          {
+            "label": "Scheduled",
+            "value": "2026-10-23 08:00"
+          },
+          {
+            "label": "PO",
+            "value": "NG-PO-88217"
+          },
+          {
+            "label": "Client SLA",
+            "value": "Respond by 2026-10-23 12:00, resolve by 2026-10-24 08:00"
+          }
+        ]
+      }
+    },
+    "steps": {
+      "state": "rendered",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": [
+        {
+          "id": "st1",
+          "kind": "confirm",
+          "label": "Complete Job Safety Analysis (JSA) again (expired 10/12/2026)",
+          "status": "current",
+          "required": true,
+          "source": "sitedocs"
+        },
+        {
+          "id": "st2",
+          "kind": "confirm",
+          "label": "Complete Lockout/Tagout Verification",
+          "status": "todo",
+          "required": true,
+          "source": "sitedocs"
+        },
+        {
+          "id": "st3",
+          "kind": "confirm",
+          "label": "Check in at receiving dock",
+          "status": "todo",
+          "required": true,
+          "source": "xoi"
+        },
+        {
+          "id": "st4",
+          "kind": "photo",
+          "label": "Photo of compressor nameplate",
+          "status": "todo",
+          "required": true,
+          "source": "xoi"
+        },
+        {
+          "id": "st5",
+          "kind": "question",
+          "label": "Is the walk-in currently above 41F?",
+          "status": "todo",
+          "required": true,
+          "source": "xoi"
+        },
+        {
+          "id": "st6",
+          "kind": "guide",
+          "label": "High-pressure trip troubleshooting",
+          "status": "todo",
+          "required": false,
+          "source": "xoi"
+        },
+        {
+          "id": "st7",
+          "kind": "photo",
+          "label": "Photo of completed repair",
+          "status": "todo",
+          "required": true,
+          "source": "xoi"
+        },
+        {
+          "id": "st8",
+          "kind": "confirm",
+          "label": "Store manager sign-off obtained",
+          "status": "todo",
+          "required": true,
+          "source": "xoi"
+        }
+      ]
+    },
+    "actions": {
+      "state": "rendered",
+      "as_of": "2026-10-23T08:00:03-05:00",
+      "data": [
+        {
+          "name": "closeJob",
+          "label": "Close job",
+          "enabled": false,
+          "write_back": "manual",
+          "needs_checkpoint": true
+        },
+        {
+          "name": "requestPart",
+          "label": "Request part",
+          "enabled": true,
+          "write_back": "manual",
+          "needs_checkpoint": false
+        }
+      ]
+    },
+    "history": {
+      "state": "loading",
+      "pointer": "hist_s_8f2_E-2231"
+    }
+  },
+  "degraded_fields": []
+}

@@ -32,7 +32,7 @@ class Settings:
     now: str = DEFAULT_NOW  # ISO timestamp, or "real" for the wall clock
     source_timeout: float = 0.3  # seconds per source call
     pcr_budget: float = 0.8  # BRD: PCR delivery budget
-    stale_after_hours: float = 12.0  # work-order data older than this is shown as stale
+    hard_timeout: float = 10.0  # BRD Performance Target 16: past this the canvas shows its recovery screen
     cors_origins: tuple = ("http://localhost:3000",)
     dev_endpoints: bool = False  # enables /v1/dev/faults
 

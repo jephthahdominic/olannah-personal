@@ -30,6 +30,15 @@ CONTEXT_SCENARIOS = [
 ]
 
 
+# (file name, session id, dev delivery controls): what the canvas must survive per the BRD
+DEV_SCENARIOS = [
+    ("context.over-budget.json", {"delay_seconds": 1.0}),  # arrives after the 800ms budget: still 200, flagged
+    ("context.bad-schema.json", {"payload": "bad_schema"}),  # unrecognised schema_version (SR 20)
+    ("context.malformed-zone.json", {"payload": "malformed_zone"}),  # one zone unreadable (SR 21A)
+    ("context.malformed-envelope.json", {"payload": "malformed_envelope"}),  # whole envelope unreadable (SR 21B)
+]
+
+
 def write(path: Path, payload) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n")
@@ -47,6 +56,16 @@ def main() -> None:
         response = client(faults).get(f"/v1/sessions/{session_id}/context", headers=AUTH)
         response.raise_for_status()
         write(DOCS / "examples" / name, response.json())
+    for name, controls in DEV_SCENARIOS:
+        dev = TestClient(create_app(Settings(fixture_dir=ROOT / "sample-data", dev_endpoints=True)))
+        dev.post("/v1/dev/delivery", json=controls).raise_for_status()
+        response = dev.get("/v1/sessions/s_8f2/context", headers=AUTH)
+        response.raise_for_status()
+        write(DOCS / "examples" / name, response.json())
+    dev = TestClient(create_app(Settings(fixture_dir=ROOT / "sample-data", dev_endpoints=True)))
+    pointer = dev.get("/v1/sessions/s_8f2/context", headers=AUTH).json()["zones"]["history"]["pointer"]
+    dev.post("/v1/dev/delivery", json={"payload": "malformed_zone"}).raise_for_status()
+    write(DOCS / "examples" / "history.malformed-zone.json", dev.get(f"/v1/sessions/s_8f2/history/{pointer}", headers=AUTH).json())
     happy = client({})
     pointer = happy.get("/v1/sessions/s_8f2/context", headers=AUTH).json()["zones"]["history"]["pointer"]
     write(DOCS / "examples" / "history.happy.json", happy.get(f"/v1/sessions/s_8f2/history/{pointer}", headers=AUTH).json())

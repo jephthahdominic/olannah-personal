@@ -2,12 +2,13 @@
   "schema_version": "1.0",
   "session_id": "s_unmapped",
   "delivered_at": "2026-10-23T08:00:03-05:00",
+  "resolved_role": "dispatcher",
   "worker": {
     "id": "T0042",
     "name": "Marcus Allen",
     "role_label": "Dispatcher"
   },
-  "layout": {
+  "layout_config": {
     "template_id": "platform.default.v1",
     "destinations": []
   },
@@ -50,7 +51,7 @@
   ],
   "zones": {
     "alerts": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": [
         {
@@ -112,7 +113,7 @@
       ]
     },
     "work_order": {
-      "state": "stale",
+      "state": "rendered",
       "as_of": "2026-10-22T16:40:00-05:00",
       "data": {
         "id": "WO-4471",
@@ -142,7 +143,7 @@
       }
     },
     "steps": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": [
         {
@@ -212,7 +213,7 @@
       ]
     },
     "actions": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": [
         {

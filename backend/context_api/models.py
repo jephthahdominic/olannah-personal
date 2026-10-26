@@ -3,7 +3,9 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
-ZoneState = Literal["loading", "ready", "stale", "unavailable"]
+# What the PCR can say about a zone. The canvas adds `stale` itself (a refresh that has not resolved), so the
+# API never sends it (BRD System Requirement 16: one owner per piece of state). Data age is `as_of`.
+ZoneState = Literal["loading", "rendered", "unavailable"]
 
 
 # ---------- view models ----------
@@ -129,8 +131,9 @@ class ContextObject(BaseModel):
     schema_version: str
     session_id: str
     delivered_at: str
+    resolved_role: str
     worker: Worker
-    layout: Layout
+    layout_config: Layout
     active_work_order: Optional[ActiveWorkOrder] = None
     connection_status: list[SystemStatus]
     zones: Zones

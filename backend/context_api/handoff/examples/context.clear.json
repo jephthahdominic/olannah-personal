@@ -2,12 +2,13 @@
   "schema_version": "1.0",
   "session_id": "s_clear",
   "delivered_at": "2026-10-23T08:00:03-05:00",
+  "resolved_role": "technician",
   "worker": {
     "id": "T0051",
     "name": "Priya Raman",
     "role_label": "Field Technician"
   },
-  "layout": {
+  "layout_config": {
     "template_id": "technician.v1",
     "destinations": [
       "jobs",
@@ -53,13 +54,13 @@
   ],
   "zones": {
     "alerts": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": []
     },
     "work_order": {
-      "state": "ready",
-      "as_of": "2026-10-23T08:00:03-05:00",
+      "state": "rendered",
+      "as_of": "2026-10-23T07:45:00-05:00",
       "data": {
         "id": "WO-4502",
         "title": "Routine quarterly inspection - walk-in freezer",
@@ -84,12 +85,12 @@
       }
     },
     "steps": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": []
     },
     "actions": {
-      "state": "ready",
+      "state": "rendered",
       "as_of": "2026-10-23T08:00:03-05:00",
       "data": [
         {

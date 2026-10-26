@@ -21,18 +21,18 @@ async def clear(settings, pointers):
     return ctx, history
 
 
-async def test_clear_job_has_empty_alerts_and_steps_but_ready_zones(clear):
+async def test_clear_job_has_empty_alerts_and_steps_but_rendered_zones(clear):
     ctx, _ = clear
     assert ctx.worker.name == "Priya Raman"
     assert ctx.active_work_order.id == "WO-4502"
-    assert ctx.zones.alerts.state == "ready" and ctx.zones.alerts.data == []
-    assert ctx.zones.steps.state == "ready" and ctx.zones.steps.data == []
+    assert ctx.zones.alerts.state == "rendered" and ctx.zones.alerts.data == []
+    assert ctx.zones.steps.state == "rendered" and ctx.zones.steps.data == []
     assert ctx.degraded_fields == []
 
 
 async def test_clear_job_work_order_is_fresh_and_has_no_sla_row(clear):
     ctx, _ = clear
-    assert ctx.zones.work_order.state == "ready"
+    assert ctx.zones.work_order.state == "rendered"
     labels = [f.label for f in ctx.zones.work_order.data.fields]
     assert "Client SLA" not in labels  # no portal ticket: an empty state, not an error
     assert ctx.zones.work_order.data.title == "Routine quarterly inspection - walk-in freezer"
@@ -44,10 +44,10 @@ async def test_clear_job_can_be_closed(clear):
     assert close.enabled is True
 
 
-async def test_clear_job_history_is_ready_but_empty(clear):
+async def test_clear_job_history_is_rendered_but_empty(clear):
     ctx, history = clear
     message = await history.fetch("s_clear", ctx.zones.history.pointer)
-    assert message.state == "ready" and message.data == []
+    assert message.state == "rendered" and message.data == []
 
 
 # ---------- s_busy: volume, long text, done steps ----------
@@ -97,7 +97,7 @@ async def test_busy_job_cannot_be_closed_yet_and_has_long_text(busy):
     close = next(a for a in ctx.zones.actions.data if a.name == "closeJob")
     assert close.enabled is False
     assert len(ctx.active_work_order.task_summary) > 150
-    assert ctx.zones.work_order.state == "ready"  # synced two hours ago, not stale
+    assert ctx.zones.work_order.as_of == "2026-10-23T06:00:00-05:00"  # synced two hours before "now"
     assert {f.label for f in ctx.zones.work_order.data.fields} >= {"Client SLA"}
 
 
@@ -117,12 +117,12 @@ async def test_worker_with_no_active_job_gets_an_empty_but_healthy_context(setti
     ctx = await resolver.resolve("s_nojob")
     assert ctx.worker.name == "Owen Park"
     assert ctx.active_work_order is None
-    assert ctx.layout.template_id == "technician.v1"
-    assert ctx.zones.alerts.state == "ready" and ctx.zones.alerts.data == []
-    assert ctx.zones.work_order.state == "ready" and ctx.zones.work_order.data is None
-    assert ctx.zones.steps.state == "ready" and ctx.zones.steps.data == []
-    assert ctx.zones.actions.state == "ready" and ctx.zones.actions.data == []
-    assert ctx.zones.history.state == "ready" and ctx.zones.history.pointer is None
+    assert ctx.layout_config.template_id == "technician.v1"
+    assert ctx.zones.alerts.state == "rendered" and ctx.zones.alerts.data == []
+    assert ctx.zones.work_order.state == "rendered" and ctx.zones.work_order.data is None
+    assert ctx.zones.steps.state == "rendered" and ctx.zones.steps.data == []
+    assert ctx.zones.actions.state == "rendered" and ctx.zones.actions.data == []
+    assert ctx.zones.history.state == "rendered" and ctx.zones.history.pointer is None
     assert [(s.system, s.state) for s in ctx.connection_status] == [("sampro", "live")]
     assert ctx.degraded_fields == []
 

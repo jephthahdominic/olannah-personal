@@ -90,7 +90,7 @@
             "description": "Session or role cannot be determined"
           },
           "504": {
-            "description": "Context delivery exceeded the 800ms budget"
+            "description": "Context was not delivered before the hard timeout (10s): show the recovery screen"
           },
           "422": {
             "description": "Validation Error",
@@ -238,8 +238,7 @@
             "type": "string",
             "enum": [
               "loading",
-              "ready",
-              "stale",
+              "rendered",
               "unavailable"
             ],
             "title": "State"
@@ -350,8 +349,7 @@
             "type": "string",
             "enum": [
               "loading",
-              "ready",
-              "stale",
+              "rendered",
               "unavailable"
             ],
             "title": "State"
@@ -395,10 +393,14 @@
             "type": "string",
             "title": "Delivered At"
           },
+          "resolved_role": {
+            "type": "string",
+            "title": "Resolved Role"
+          },
           "worker": {
             "$ref": "#/components/schemas/Worker"
           },
-          "layout": {
+          "layout_config": {
             "$ref": "#/components/schemas/Layout"
           },
           "active_work_order": {
@@ -434,8 +436,9 @@
           "schema_version",
           "session_id",
           "delivered_at",
+          "resolved_role",
           "worker",
-          "layout",
+          "layout_config",
           "connection_status",
           "zones"
         ],
@@ -583,8 +586,7 @@
             "type": "string",
             "enum": [
               "loading",
-              "ready",
-              "stale",
+              "rendered",
               "unavailable"
             ],
             "title": "State"
@@ -619,8 +621,7 @@
             "type": "string",
             "enum": [
               "loading",
-              "ready",
-              "stale",
+              "rendered",
               "unavailable"
             ],
             "title": "State"
@@ -767,8 +768,7 @@
             "type": "string",
             "enum": [
               "loading",
-              "ready",
-              "stale",
+              "rendered",
               "unavailable"
             ],
             "title": "State"
@@ -883,8 +883,7 @@
             "type": "string",
             "enum": [
               "loading",
-              "ready",
-              "stale",
+              "rendered",
               "unavailable"
             ],
             "title": "State"
