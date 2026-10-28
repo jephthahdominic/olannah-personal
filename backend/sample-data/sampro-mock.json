@@ -1,0 +1,759 @@
+{
+  "_meta": {
+    "note": "FICTIONAL data shaped like a legacy job-management export. Not real Sampro output. Used to test adapters.",
+    "scenario": "Marcus (technician) marks himself on site for WO-4471 on 2026-10-23. Compressor on E-2231 has failed twice in 12 months; required valve V-221 is out of stock in his van.",
+    "conventions": "Dates are YYYYMMDD strings. Quantities are numbers. Status codes: OPN open, INP in progress, HLD on hold, CMP complete, CAN cancelled."
+  },
+  "techs": [
+    {
+      "tech_id": "T0042",
+      "tech_nm": "MARCUS ALLEN",
+      "role_cd": "TECH",
+      "van_id": "VAN-07",
+      "depot": "AUS-01"
+    },
+    {
+      "tech_id": "T0051",
+      "tech_nm": "PRIYA RAMAN",
+      "role_cd": "TECH",
+      "van_id": "VAN-11",
+      "depot": "AUS-02"
+    },
+    {
+      "tech_id": "T0063",
+      "tech_nm": "DANA WHITFIELD",
+      "role_cd": "TECH",
+      "van_id": "VAN-14",
+      "depot": "AUS-01"
+    },
+    {
+      "tech_id": "T0071",
+      "tech_nm": "OWEN PARK",
+      "role_cd": "TECH",
+      "van_id": "VAN-09",
+      "depot": "AUS-02"
+    }
+  ],
+  "customers": [
+    {
+      "cust_id": "C1180",
+      "cust_nm": "NORTHFIELD GROCERS",
+      "portal": "NG-VENDOR",
+      "safety_req_flag": "Y",
+      "ppe_req": "GLOVES,EYE,LOCKOUT",
+      "access_note": "Check in at receiving dock. Refrigeration room needs escort."
+    },
+    {
+      "cust_id": "C1300",
+      "cust_nm": "BAYVIEW CAFE",
+      "portal": null,
+      "safety_req_flag": "N",
+      "ppe_req": "",
+      "access_note": ""
+    },
+    {
+      "cust_id": "C1400",
+      "cust_nm": "GREATER METROPOLITAN REGIONAL MEDICAL CENTER AND RESEARCH INSTITUTE",
+      "portal": "MR-VENDOR",
+      "safety_req_flag": "Y",
+      "ppe_req": "GLOVES,EYE,LOCKOUT,HEARING",
+      "access_note": "Security desk escort required. No work in surgical wing during procedures."
+    }
+  ],
+  "sites": [
+    {
+      "site_id": "S0118",
+      "cust_id": "C1180",
+      "site_nm": "STORE 118",
+      "addr1": "4410 BURNET RD",
+      "city": "AUSTIN",
+      "st": "TX"
+    },
+    {
+      "site_id": "S0204",
+      "cust_id": "C1180",
+      "site_nm": "STORE 204",
+      "addr1": "900 S LAMAR BLVD",
+      "city": "AUSTIN",
+      "st": "TX"
+    },
+    {
+      "site_id": "S0310",
+      "cust_id": "C1300",
+      "site_nm": "MAIN STREET",
+      "addr1": "212 MAIN ST",
+      "city": "AUSTIN",
+      "st": "TX"
+    },
+    {
+      "site_id": "S0420",
+      "cust_id": "C1400",
+      "site_nm": "BUILDING C CENTRAL PLANT - SUBLEVEL MECHANICAL ROOM",
+      "addr1": "1 MEDICAL CENTER DR",
+      "city": "AUSTIN",
+      "st": "TX"
+    }
+  ],
+  "equipment": [
+    {
+      "eq_id": "E-2231",
+      "site_id": "S0118",
+      "eq_type": "COMP-SCR",
+      "make": "COPELAND",
+      "model": "ZR72KC",
+      "serial": "11C48802",
+      "install_dt": "20190614",
+      "warranty_end": "20240614"
+    },
+    {
+      "eq_id": "E-3340",
+      "site_id": "S0204",
+      "eq_type": "COMP-SCR",
+      "make": "COPELAND",
+      "model": "ZR72KC",
+      "serial": "12A10311",
+      "install_dt": "20200302",
+      "warranty_end": "20250302"
+    },
+    {
+      "eq_id": "E-5510",
+      "site_id": "S0310",
+      "eq_type": "FRZ-WALK",
+      "make": "KOLPAK",
+      "model": "KP6-FR",
+      "serial": "22F10455",
+      "install_dt": "20240211",
+      "warranty_end": "20290211"
+    },
+    {
+      "eq_id": "E-7001",
+      "site_id": "S0420",
+      "eq_type": "CHILLER",
+      "make": "TRANE",
+      "model": "CVHE-0800",
+      "serial": "19T77410",
+      "install_dt": "20180305",
+      "warranty_end": "20230305"
+    }
+  ],
+  "work_orders": [
+    {
+      "wo_no": 4471,
+      "wo_stat": "INP",
+      "pri": 1,
+      "cust_id": "C1180",
+      "site_id": "S0118",
+      "eq_id": "E-2231",
+      "wo_desc": "COMPRESSOR FAULT - WALK-IN COOLER TEMP ALARM",
+      "sched_dt": "20261023",
+      "sched_tm": "0800",
+      "assigned_tech": "T0042",
+      "req_parts": [
+        "V-221",
+        "FLT-10"
+      ],
+      "po_no": "NG-PO-88217",
+      "est_hrs": 3.5
+    },
+    {
+      "wo_no": 4502,
+      "wo_stat": "INP",
+      "pri": 2,
+      "cust_id": "C1300",
+      "site_id": "S0310",
+      "eq_id": "E-5510",
+      "wo_desc": "ROUTINE QUARTERLY INSPECTION - WALK-IN FREEZER",
+      "sched_dt": "20261023",
+      "sched_tm": "0730",
+      "assigned_tech": "T0051",
+      "req_parts": [
+        "FLT-10"
+      ],
+      "po_no": "BC-PO-1042",
+      "est_hrs": 1.5
+    },
+    {
+      "wo_no": 4510,
+      "wo_stat": "INP",
+      "pri": 1,
+      "cust_id": "C1400",
+      "site_id": "S0420",
+      "eq_id": "E-7001",
+      "wo_desc": "CENTRIFUGAL CHILLER TRIPPING ON LOW EVAPORATOR PRESSURE. INTERMITTENT VIBRATION ALARM ON COMPRESSOR 2. CLIENT REPORTS PARTIAL COOLING LOSS IN THE SURGICAL WING AND REQUESTS ROOT CAUSE BEFORE END OF DAY",
+      "sched_dt": "20261023",
+      "sched_tm": "0700",
+      "assigned_tech": "T0063",
+      "req_parts": [
+        "BRG-880",
+        "SNS-12",
+        "GSK-77",
+        "OIL-5G",
+        "VLV-410"
+      ],
+      "po_no": "MR-PO-77120",
+      "est_hrs": 10.0
+    }
+  ],
+  "service_history": [
+    {
+      "svc_id": 8841,
+      "eq_id": "E-2231",
+      "svc_dt": "20260814",
+      "work_desc": "COMPRESSOR TRIPPED ON HIGH PRESSURE. REPLACED DISCHARGE VALVE.",
+      "st_cd": "CMP",
+      "repeat_fail": 1,
+      "tech_id": "T0019",
+      "hrs": 4.0,
+      "parts_used": [
+        "V-221"
+      ]
+    },
+    {
+      "svc_id": 8310,
+      "eq_id": "E-2231",
+      "svc_dt": "20260302",
+      "work_desc": "COMPRESSOR SHORT CYCLING. CLEANED CONDENSER, CHECKED CHARGE.",
+      "st_cd": "CMP",
+      "repeat_fail": 1,
+      "tech_id": "T0042",
+      "hrs": 2.5,
+      "parts_used": []
+    },
+    {
+      "svc_id": 7502,
+      "eq_id": "E-2231",
+      "svc_dt": "20250611",
+      "work_desc": "ANNUAL PM",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 1.5,
+      "parts_used": [
+        "FLT-10"
+      ]
+    },
+    {
+      "svc_id": 6120,
+      "eq_id": "E-2231",
+      "svc_dt": "20231120",
+      "work_desc": "REPLACED CONTACTOR",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0019",
+      "hrs": 1.0,
+      "parts_used": [
+        "CT-30"
+      ]
+    },
+    {
+      "svc_id": 8702,
+      "eq_id": "E-3340",
+      "svc_dt": "20260918",
+      "work_desc": "SAME HIGH PRESSURE TRIP AS E-2231. V-221 BACKORDERED, INSTALLED V-224 AS SUBSTITUTE, RESOLVED.",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0027",
+      "hrs": 3.0,
+      "parts_used": [
+        "V-224"
+      ]
+    },
+    {
+      "svc_id": 9100,
+      "eq_id": "E-7001",
+      "svc_dt": "20230214",
+      "work_desc": "ANNUAL PM - CHILLER",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 3.0,
+      "parts_used": [
+        "OIL-5G"
+      ]
+    },
+    {
+      "svc_id": 9101,
+      "eq_id": "E-7001",
+      "svc_dt": "20230427",
+      "work_desc": "REPLACED CONDENSER WATER PUMP SEAL",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0019",
+      "hrs": 4.5,
+      "parts_used": [
+        "GSK-77"
+      ]
+    },
+    {
+      "svc_id": 9102,
+      "eq_id": "E-7001",
+      "svc_dt": "20230608",
+      "work_desc": "VIBRATION CHECK, TIGHTENED MOUNTING BOLTS",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 1.5,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9103,
+      "eq_id": "E-7001",
+      "svc_dt": "20230822",
+      "work_desc": "CLEANED CONDENSER TUBES",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0019",
+      "hrs": 6.0,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9104,
+      "eq_id": "E-7001",
+      "svc_dt": "20231005",
+      "work_desc": "ANNUAL PM - CHILLER",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 3.0,
+      "parts_used": [
+        "OIL-5G"
+      ]
+    },
+    {
+      "svc_id": 9105,
+      "eq_id": "E-7001",
+      "svc_dt": "20231130",
+      "work_desc": "REPLACED EVAPORATOR PRESSURE TRANSDUCER",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0063",
+      "hrs": 2.5,
+      "parts_used": [
+        "SNS-12"
+      ]
+    },
+    {
+      "svc_id": 9106,
+      "eq_id": "E-7001",
+      "svc_dt": "20240118",
+      "work_desc": "CONTROL PANEL FAULT, REBOOTED PLC",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0063",
+      "hrs": 1.0,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9107,
+      "eq_id": "E-7001",
+      "svc_dt": "20240307",
+      "work_desc": "OIL ANALYSIS AND CHANGE",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 2.0,
+      "parts_used": [
+        "OIL-5G"
+      ]
+    },
+    {
+      "svc_id": 9108,
+      "eq_id": "E-7001",
+      "svc_dt": "20240425",
+      "work_desc": "LOW REFRIGERANT, LEAK TEST, NO LEAK FOUND",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0019",
+      "hrs": 3.5,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9109,
+      "eq_id": "E-7001",
+      "svc_dt": "20240613",
+      "work_desc": "ANNUAL PM - CHILLER",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 3.0,
+      "parts_used": [
+        "OIL-5G"
+      ]
+    },
+    {
+      "svc_id": 9110,
+      "eq_id": "E-7001",
+      "svc_dt": "20240801",
+      "work_desc": "REPLACED EXPANSION VALVE ACTUATOR",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0063",
+      "hrs": 5.0,
+      "parts_used": [
+        "VLV-410"
+      ]
+    },
+    {
+      "svc_id": 9111,
+      "eq_id": "E-7001",
+      "svc_dt": "20240919",
+      "work_desc": "BEARING TEMP ALARM, GREASED BEARINGS",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0019",
+      "hrs": 2.0,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9112,
+      "eq_id": "E-7001",
+      "svc_dt": "20241107",
+      "work_desc": "CLEANED STRAINERS",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 1.5,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9113,
+      "eq_id": "E-7001",
+      "svc_dt": "20250123",
+      "work_desc": "VFD FAULT CODE 31, RESET",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0063",
+      "hrs": 1.0,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9114,
+      "eq_id": "E-7001",
+      "svc_dt": "20250313",
+      "work_desc": "ANNUAL PM - CHILLER",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 3.0,
+      "parts_used": [
+        "OIL-5G",
+        "GSK-77"
+      ]
+    },
+    {
+      "svc_id": 9115,
+      "eq_id": "E-7001",
+      "svc_dt": "20250501",
+      "work_desc": "REPLACED CHILLED WATER FLOW SWITCH",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0019",
+      "hrs": 2.5,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9116,
+      "eq_id": "E-7001",
+      "svc_dt": "20250717",
+      "work_desc": "CONDENSER FAN MOTOR NOISE, REPLACED BEARING",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0063",
+      "hrs": 4.0,
+      "parts_used": [
+        "BRG-880"
+      ]
+    },
+    {
+      "svc_id": 9117,
+      "eq_id": "E-7001",
+      "svc_dt": "20250904",
+      "work_desc": "OIL PRESSURE LOW ALARM, REPLACED OIL FILTER",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 2.0,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9118,
+      "eq_id": "E-7001",
+      "svc_dt": "20251112",
+      "work_desc": "TRIPPED ON LOW EVAPORATOR PRESSURE. RECHARGED.",
+      "st_cd": "CMP",
+      "repeat_fail": 1,
+      "tech_id": "T0019",
+      "hrs": 4.0,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9119,
+      "eq_id": "E-7001",
+      "svc_dt": "20260115",
+      "work_desc": "ANNUAL PM - CHILLER",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0031",
+      "hrs": 3.0,
+      "parts_used": [
+        "OIL-5G"
+      ]
+    },
+    {
+      "svc_id": 9120,
+      "eq_id": "E-7001",
+      "svc_dt": "20260220",
+      "work_desc": "TRIPPED ON LOW EVAPORATOR PRESSURE. REPLACED SENSOR SNS-12.",
+      "st_cd": "CMP",
+      "repeat_fail": 1,
+      "tech_id": "T0063",
+      "hrs": 3.5,
+      "parts_used": [
+        "SNS-12"
+      ]
+    },
+    {
+      "svc_id": 9121,
+      "eq_id": "E-7001",
+      "svc_dt": "20260409",
+      "work_desc": "VIBRATION ALARM COMPRESSOR 2. SHIMMED MOTOR.",
+      "st_cd": "CMP",
+      "repeat_fail": 0,
+      "tech_id": "T0063",
+      "hrs": 2.5,
+      "parts_used": []
+    },
+    {
+      "svc_id": 9122,
+      "eq_id": "E-7001",
+      "svc_dt": "20260603",
+      "work_desc": "COMPRESSOR 2 BEARING FAILURE. INSTALLED BRG-882 AS SUBSTITUTE FOR BRG-880.",
+      "st_cd": "CMP",
+      "repeat_fail": 1,
+      "tech_id": "T0019",
+      "hrs": 8.0,
+      "parts_used": [
+        "BRG-882"
+      ]
+    },
+    {
+      "svc_id": 9123,
+      "eq_id": "E-7001",
+      "svc_dt": "20260911",
+      "work_desc": "TRIPPED ON LOW EVAPORATOR PRESSURE AGAIN. GASKET LEAK.",
+      "st_cd": "CMP",
+      "repeat_fail": 1,
+      "tech_id": "T0063",
+      "hrs": 5.5,
+      "parts_used": [
+        "GSK-77"
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "part_id": "V-221",
+      "part_desc": "DISCHARGE VALVE ZR72",
+      "alt_part_id": "V-224",
+      "unit_cost": 184.5
+    },
+    {
+      "part_id": "V-224",
+      "part_desc": "DISCHARGE VALVE ZR72 (ALT)",
+      "alt_part_id": null,
+      "unit_cost": 201.0
+    },
+    {
+      "part_id": "FLT-10",
+      "part_desc": "FILTER DRIER 10CU",
+      "alt_part_id": null,
+      "unit_cost": 36.0
+    },
+    {
+      "part_id": "BRG-880",
+      "part_desc": "BEARING ASSEMBLY CENTRIFUGAL COMPRESSOR",
+      "alt_part_id": "BRG-882",
+      "unit_cost": 912.0
+    },
+    {
+      "part_id": "BRG-882",
+      "part_desc": "BEARING ASSEMBLY CENTRIFUGAL COMPRESSOR (ALT)",
+      "alt_part_id": null,
+      "unit_cost": 968.0
+    },
+    {
+      "part_id": "SNS-12",
+      "part_desc": "EVAPORATOR PRESSURE SENSOR",
+      "alt_part_id": "SNS-14",
+      "unit_cost": 214.0
+    },
+    {
+      "part_id": "SNS-14",
+      "part_desc": "EVAPORATOR PRESSURE SENSOR (ALT)",
+      "alt_part_id": null,
+      "unit_cost": 229.0
+    },
+    {
+      "part_id": "GSK-77",
+      "part_desc": "OIL COOLER GASKET KIT",
+      "alt_part_id": null,
+      "unit_cost": 58.0
+    },
+    {
+      "part_id": "OIL-5G",
+      "part_desc": "COMPRESSOR OIL 5 GALLON",
+      "alt_part_id": null,
+      "unit_cost": 310.0
+    },
+    {
+      "part_id": "VLV-410",
+      "part_desc": "EXPANSION VALVE ACTUATOR",
+      "alt_part_id": "VLV-411",
+      "unit_cost": 488.0
+    },
+    {
+      "part_id": "VLV-411",
+      "part_desc": "EXPANSION VALVE ACTUATOR (ALT)",
+      "alt_part_id": null,
+      "unit_cost": 510.0
+    }
+  ],
+  "van_inventory": [
+    {
+      "van_id": "VAN-07",
+      "part_id": "V-221",
+      "qty_on_hand": 0
+    },
+    {
+      "van_id": "VAN-07",
+      "part_id": "V-224",
+      "qty_on_hand": 2
+    },
+    {
+      "van_id": "VAN-07",
+      "part_id": "FLT-10",
+      "qty_on_hand": 5
+    },
+    {
+      "van_id": "VAN-11",
+      "part_id": "FLT-10",
+      "qty_on_hand": 6
+    },
+    {
+      "van_id": "VAN-09",
+      "part_id": "FLT-10",
+      "qty_on_hand": 4
+    },
+    {
+      "van_id": "VAN-14",
+      "part_id": "BRG-880",
+      "qty_on_hand": 0
+    },
+    {
+      "van_id": "VAN-14",
+      "part_id": "BRG-882",
+      "qty_on_hand": 3
+    },
+    {
+      "van_id": "VAN-14",
+      "part_id": "SNS-12",
+      "qty_on_hand": 0
+    },
+    {
+      "van_id": "VAN-14",
+      "part_id": "SNS-14",
+      "qty_on_hand": 2
+    },
+    {
+      "van_id": "VAN-14",
+      "part_id": "GSK-77",
+      "qty_on_hand": 0
+    },
+    {
+      "van_id": "VAN-14",
+      "part_id": "OIL-5G",
+      "qty_on_hand": 1
+    },
+    {
+      "van_id": "VAN-14",
+      "part_id": "VLV-410",
+      "qty_on_hand": 0
+    },
+    {
+      "van_id": "VAN-14",
+      "part_id": "VLV-411",
+      "qty_on_hand": 0
+    }
+  ],
+  "edge_cases": {
+    "_note": "Deliberately awkward records. The adapter must handle each without crashing.",
+    "service_history": [
+      {
+        "svc_id": 9001,
+        "eq_id": "E-2231",
+        "svc_dt": "20260101",
+        "work_desc": null,
+        "st_cd": "CMP",
+        "repeat_fail": 0,
+        "tech_id": "T0019",
+        "hrs": null,
+        "parts_used": []
+      },
+      {
+        "svc_id": 9002,
+        "eq_id": "E-2231",
+        "svc_dt": "20260102",
+        "work_desc": "UNKNOWN STATUS CODE",
+        "st_cd": "XYZ",
+        "repeat_fail": 0,
+        "tech_id": "T0019",
+        "hrs": 1.0,
+        "parts_used": []
+      },
+      {
+        "svc_id": 9003,
+        "eq_id": "E-2231",
+        "svc_dt": "bad-date",
+        "work_desc": "MALFORMED DATE",
+        "st_cd": "CMP",
+        "repeat_fail": 0,
+        "tech_id": "T0019",
+        "hrs": 1.0,
+        "parts_used": []
+      },
+      {
+        "svc_id": 9004,
+        "eq_id": "E-2231",
+        "work_desc": "MISSING svc_dt FIELD ENTIRELY",
+        "st_cd": "CMP",
+        "repeat_fail": 0,
+        "tech_id": "T0019",
+        "hrs": 1.0,
+        "parts_used": []
+      }
+    ],
+    "van_inventory": [
+      {
+        "van_id": "VAN-07",
+        "part_id": "CT-30",
+        "qty_on_hand": -1
+      }
+    ],
+    "empty_equipment_history": {
+      "eq_id": "E-9999",
+      "service_history": []
+    },
+    "system_unavailable": {
+      "status": 503,
+      "body": "Service Unavailable"
+    }
+  },
+  "expected_mapping_checks": [
+    "Service history for E-2231 is flagged 'recurring issue' on svc_id 8841 and 8310 (repeat_fail = 1), and merged newest-first with the shared-drive history.",
+    "Alert (warning): 'This equipment has failed twice in the past 12 months.'",
+    "Alert (warning): 'Discharge valve ZR72 (V-221) is not in your van (0 on hand).' with suggestion 'V-224 (2 on hand) was used as a substitute on 2026-09-18 (service 8702).'",
+    "Entity card for WO-4471 shows customer Northfield Grocers, Store 118, scheduled 2026-10-23 08:00, PO NG-PO-88217.",
+    "Customer C1180 fields ppe_req and access_note are present in the data but NOT used by the MVP. PPE/lockout steps come from SiteDocs and XOi instead.",
+    "Edge cases: null work_desc becomes the title '(no description)'; unknown status XYZ becomes 'unknown'; bad or missing dates are dropped and counted; qty -1 is clamped to 0; a simulated 503 (fault 'down') makes the dependent zone 'unavailable'."
+  ]
+}

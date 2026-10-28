@@ -1,5 +1,8 @@
 fastapi
 uvicorn[standard]
 pytest
+pytest-asyncio
+pytest-cov
 httpx
 psycopg[binary]
+pydantic>=2.7

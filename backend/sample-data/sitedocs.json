@@ -1,0 +1,215 @@
+{
+  "_meta": {
+    "system": "SiteDocs (FICTIONAL mock)",
+    "role": "Safety documentation: required forms per site, worker certifications, and hazards.",
+    "write_back": false,
+    "job_identifier": "None. Forms are keyed by siteName (free text) and worker. Dates are US style MM/DD/YYYY strings."
+  },
+  "required_documents": [
+    {
+      "docId": "SD-55021",
+      "title": "Job Safety Analysis (JSA)",
+      "siteName": "Store 118",
+      "status": "EXPIRED",
+      "lastCompleted": "04/12/2026",
+      "expiresOn": "10/12/2026",
+      "mustCompleteBy": "ON_ARRIVAL"
+    },
+    {
+      "docId": "SD-55022",
+      "title": "Lockout/Tagout Verification",
+      "siteName": "Store 118",
+      "status": "REQUIRED",
+      "lastCompleted": null,
+      "expiresOn": null,
+      "mustCompleteBy": "BEFORE_WORK"
+    },
+    {
+      "docId": "SD-55023",
+      "title": "Refrigerant Handling Log",
+      "siteName": "Store 118",
+      "status": "COMPLETED",
+      "lastCompleted": "10/01/2026",
+      "expiresOn": "12/31/2026",
+      "mustCompleteBy": "CLOSEOUT"
+    },
+    {
+      "docId": "SD-61001",
+      "title": "Job Safety Analysis (JSA)",
+      "siteName": "Building C Central Plant - Sublevel Mechanical Room",
+      "status": "COMPLETED",
+      "lastCompleted": "10/23/2026",
+      "expiresOn": "04/23/2027",
+      "mustCompleteBy": "ON_ARRIVAL"
+    },
+    {
+      "docId": "SD-61002",
+      "title": "Confined Space Entry Permit",
+      "siteName": "Building C Central Plant - Sublevel Mechanical Room",
+      "status": "EXPIRED",
+      "lastCompleted": "04/01/2026",
+      "expiresOn": "10/01/2026",
+      "mustCompleteBy": "ON_ARRIVAL"
+    },
+    {
+      "docId": "SD-61003",
+      "title": "Infection Control Risk Assessment (ICRA)",
+      "siteName": "Building C Central Plant - Sublevel Mechanical Room",
+      "status": "REQUIRED",
+      "lastCompleted": null,
+      "expiresOn": null,
+      "mustCompleteBy": "ON_ARRIVAL"
+    },
+    {
+      "docId": "SD-61004",
+      "title": "Lockout/Tagout Verification",
+      "siteName": "Building C Central Plant - Sublevel Mechanical Room",
+      "status": "COMPLETED",
+      "lastCompleted": "10/23/2026",
+      "expiresOn": "10/24/2026",
+      "mustCompleteBy": "BEFORE_WORK"
+    },
+    {
+      "docId": "SD-61005",
+      "title": "Hot Work Permit",
+      "siteName": "Building C Central Plant - Sublevel Mechanical Room",
+      "status": "EXPIRED",
+      "lastCompleted": "03/15/2026",
+      "expiresOn": "09/15/2026",
+      "mustCompleteBy": "BEFORE_WORK"
+    },
+    {
+      "docId": "SD-61006",
+      "title": "Refrigerant Handling Log",
+      "siteName": "Building C Central Plant - Sublevel Mechanical Room",
+      "status": "REQUIRED",
+      "lastCompleted": null,
+      "expiresOn": null,
+      "mustCompleteBy": "CLOSEOUT"
+    },
+    {
+      "docId": "SD-62001",
+      "title": "Refrigerant Handling Log",
+      "siteName": "Main Street",
+      "status": "COMPLETED",
+      "lastCompleted": "09/30/2026",
+      "expiresOn": "06/30/2027",
+      "mustCompleteBy": "CLOSEOUT"
+    }
+  ],
+  "worker_certifications": [
+    {
+      "workerId": "T0042",
+      "cert": "EPA 608 Universal",
+      "status": "VALID",
+      "expiresOn": "03/15/2028"
+    },
+    {
+      "workerId": "T0042",
+      "cert": "Lockout/Tagout Authorized",
+      "status": "VALID",
+      "expiresOn": "11/02/2026"
+    },
+    {
+      "workerId": "T0042",
+      "cert": "Confined Space Entry",
+      "status": "EXPIRED",
+      "expiresOn": "09/30/2026"
+    },
+    {
+      "workerId": "T0051",
+      "cert": "EPA 608 Universal",
+      "status": "VALID",
+      "expiresOn": "06/30/2029"
+    },
+    {
+      "workerId": "T0051",
+      "cert": "Lockout/Tagout Authorized",
+      "status": "VALID",
+      "expiresOn": "03/01/2028"
+    },
+    {
+      "workerId": "T0071",
+      "cert": "EPA 608 Universal",
+      "status": "VALID",
+      "expiresOn": "01/15/2028"
+    },
+    {
+      "workerId": "T0063",
+      "cert": "EPA 608 Universal",
+      "status": "VALID",
+      "expiresOn": "05/01/2029"
+    },
+    {
+      "workerId": "T0063",
+      "cert": "Lockout/Tagout Authorized",
+      "status": "VALID",
+      "expiresOn": "10/28/2026"
+    },
+    {
+      "workerId": "T0063",
+      "cert": "Confined Space Entry",
+      "status": "VALID",
+      "expiresOn": "11/01/2026"
+    },
+    {
+      "workerId": "T0063",
+      "cert": "High Voltage Safety",
+      "status": "VALID",
+      "expiresOn": "11/06/2026"
+    },
+    {
+      "workerId": "T0063",
+      "cert": "OSHA 30",
+      "status": "EXPIRED",
+      "expiresOn": "08/15/2026"
+    }
+  ],
+  "site_hazards": [
+    {
+      "siteName": "Store 118",
+      "hazard": "Slippery floor in walk-in cooler",
+      "severity": "MEDIUM"
+    },
+    {
+      "siteName": "Store 118",
+      "hazard": "Ammonia line near rooftop unit",
+      "severity": "HIGH"
+    }
+  ],
+  "edge_cases": {
+    "_note": "Awkward records.",
+    "bad_date": {
+      "docId": "SD-99001",
+      "title": "Broken record",
+      "siteName": "Store 118",
+      "status": "COMPLETED",
+      "lastCompleted": "13/45/2026",
+      "expiresOn": null,
+      "mustCompleteBy": "CLOSEOUT"
+    },
+    "unknown_status": {
+      "docId": "SD-99002",
+      "title": "Mystery form",
+      "siteName": "Store 118",
+      "status": "IN_REVIEW",
+      "lastCompleted": null,
+      "expiresOn": null,
+      "mustCompleteBy": null
+    },
+    "site_name_mismatch": {
+      "docId": "SD-99003",
+      "title": "JSA",
+      "siteName": "STORE #118",
+      "status": "REQUIRED",
+      "lastCompleted": null,
+      "expiresOn": null,
+      "mustCompleteBy": "ON_ARRIVAL"
+    },
+    "expiring_soon_note": "The Lockout/Tagout cert expires 11/02/2026, 10 days from 2026-10-23. Candidate for an info-level alert.",
+    "system_unavailable": {
+      "status": 504,
+      "body": "Gateway Timeout"
+    }
+  }
+}

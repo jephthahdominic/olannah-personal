@@ -1,0 +1,14 @@
+{
+  "type": "zone_data",
+  "session_id": "s_clear",
+  "zone_id": "history",
+  "seq": 1,
+  "state": "rendered",
+  "as_of": "2026-10-23T08:00:03-05:00",
+  "data": [],
+  "data_quality": {
+    "deduplicated": 0,
+    "dropped_undated": 0,
+    "unavailable_sources": []
+  }
+}
