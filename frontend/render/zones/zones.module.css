@@ -1,0 +1,27 @@
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.muted { color: var(--color-text-secondary); }
+
+/* Alerts: each one is its own tinted row, so there is no card inside a card. Severity is a shape AND a word, never colour alone. */
+.alert { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-brand-secondary); border-inline-start-width: 4px; background: var(--color-surface-card); }
+.alert[data-severity='critical'] { background: var(--color-surface-card); border-color: var(--color-semantic-error); }
+.alert[data-severity='warning'] { background: var(--color-surface-card); border-color: var(--color-semantic-warning); }
+.alertBody { display: flex; flex-direction: column; gap: var(--space-1); min-inline-size: 0; }
+.severity { margin: 0; }
+.message { margin: 0; }
+.suggestion { margin: 0; color: var(--color-text-secondary); }
+.alertHead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.source { text-align: end; }
+.source summary { cursor: pointer; color: var(--color-text-secondary); }
+.source p { margin: var(--space-1) 0 0; color: var(--color-text-secondary); }
+
+/* Work order: label over value, in two columns where there is room. */
+.fields { margin-block-start: var(--space-3); display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-3) var(--space-4); margin: 0; }
+.asOf { color: var(--color-text-secondary); margin-block-start: var(--space-3); }
+
+/* Actions */
+.actions { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+.action { display: flex; flex-direction: column; gap: var(--space-1); min-inline-size: 0; }
+@media (min-width: 481px) {
+  .actions { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+}
+.entityTitle { margin-block-end: var(--space-3); }

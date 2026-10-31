@@ -24,16 +24,6 @@
   --color-viz-3: #5B7FA6;
   --color-viz-4: #8A7A64;
   --color-viz-5: #4A7A8A;
-  --color-semantic-warning-surface: #FBF0E3;
-  --color-semantic-warning-text: #7B491E;
-  --color-semantic-error-surface: #F9E9E6;
-  --color-semantic-success-surface: #E7F2E8;
-  --color-semantic-checkpoint-surface: #F4EEE2;
-  --color-surface-disabled: #E3E1DB;
-  --color-border-subtle: #D7D5CE;
-  --color-border-strong: #B9B6AD;
-  --color-insight-accent: #5B7FA6;
-  --color-insight-border: #CFC5E5;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -154,16 +144,6 @@
   --dark-color-viz-3: initial;
   --dark-color-viz-4: initial;
   --dark-color-viz-5: initial;
-  --dark-color-semantic-warning-surface: initial;
-  --dark-color-semantic-warning-text: initial;
-  --dark-color-semantic-error-surface: initial;
-  --dark-color-semantic-success-surface: initial;
-  --dark-color-semantic-checkpoint-surface: initial;
-  --dark-color-surface-disabled: initial;
-  --dark-color-border-subtle: initial;
-  --dark-color-border-strong: initial;
-  --dark-color-insight-accent: initial;
-  --dark-color-insight-border: initial;
 }
 
 /* Type utility classes: one per type token, so components never mix size, weight and family ad hoc. */

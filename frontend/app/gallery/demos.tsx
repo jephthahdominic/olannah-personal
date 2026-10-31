@@ -5,7 +5,7 @@ import {
   Surface, SectionHeader, Label, Icon, Button, Link, KeyValue, DetailRow, StatTile, Avatar, RecordList, HistoryList, WorkflowStepper,
   TextInput, TextArea, PasswordInput, FormField, LookupField, PhotoCapture, ChoiceGroup, NumberInput, StatusPill, StatusIndicator,
   SyncDot, Skeleton, Toast, InlineError, DegradedBanner, EmptyState, NavItem, NavigationRail, TabBar, MoreMenu, AssistantPanel,
-  FeedbackForm, WidgetContainer, Select, DatePicker, HealthBadge, type AssistantTurnView, type NavItemModel, type CapturedPhoto, type SkeletonShape,
+  FeedbackForm, WidgetContainer, Select, DatePicker, HealthBadge, type AssistantTurnView, type AssistantLabels, type FeedbackLabels, type NavItemModel, type CapturedPhoto, type SkeletonShape,
 } from '@/components';
 import {
   AccountabilityStatement, AcknowledgmentControl, CheckpointInitializing, ConfirmationGesture, DecisionControls, DiffView,
@@ -16,7 +16,7 @@ import type { CheckpointChannel } from '@/clients/checkpoint/checkpointChannel';
 import { CheckpointView } from '@/render/checkpoint/CheckpointView';
 import { messages } from '@/render/messages';
 import { validDiff, validTrigger } from '@/contracts/fixtures/checkpoint';
-import { technicianDashboard } from '@/contracts/fixtures/zones';
+import { sampleInsightWidget } from './sampleData';
 import styles from './demos.module.css';
 
 // One live, interactive example per built component. Every value here is SAMPLE data: components render what they are given
@@ -32,12 +32,15 @@ export interface Demo {
 }
 
 const navItems: NavItemModel[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', active: true },
-  { id: 'work-orders', label: 'Work Orders', icon: 'clipboard-list' },
-  { id: 'assets', label: 'Assets', icon: 'box', unavailable: true, unavailableReason: 'Assets are unavailable while offline.' },
-  { id: 'settings', label: 'Settings', icon: 'settings', pinned: true },
+  { destinationId: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', active: true },
+  { destinationId: 'work-orders', label: 'Work Orders', icon: 'clipboard-list' },
+  { destinationId: 'assets', label: 'Assets', icon: 'box', unavailable: true, unavailableReason: 'Assets are unavailable while offline.' },
+  { destinationId: 'settings', label: 'Settings', icon: 'settings' },
 ];
-const tabItems: NavItemModel[] = [...navItems.filter((i) => !i.pinned), { id: 'more', label: 'More', icon: 'dots' }];
+const tabItems: NavItemModel[] = [...navItems.filter((i) => i.destinationId !== 'settings'), { destinationId: 'more', label: 'More', icon: 'menu' }];
+
+export const ASSISTANT_LABELS: AssistantLabels = { title: 'Ask Olannah', trigger: 'Ask Olannah', unreadTrigger: (n) => `Ask Olannah, ${n} new`, close: 'Close assistant', inputLabel: 'Your question', send: 'Send question', userName: 'You', assistantName: 'Olannah', proactive: 'Suggested', emptyTitle: 'Nothing asked yet', emptyBody: 'Questions you ask appear here.', loading: 'Loading conversation', reconnecting: 'Reconnecting to the assistant', disconnected: 'The assistant is not connected', retry: 'Retry connection' };
+export const FEEDBACK_LABELS: FeedbackLabels = { title: 'Send feedback', aboutLabel: 'About', fieldLabel: 'What would you like to tell us?', submit: 'Send feedback', submitting: 'Sending feedback', close: 'Close feedback', doneTitle: 'Feedback sent', doneBody: 'Thank you. The screen you were on was included.', doneClose: 'Close', failedTitle: 'Feedback was not sent', failedBody: 'Your words are still here. Try again.', retry: 'Retry sending' };
 
 function Stack({ children }: { children: ReactNode }) {
   return <div className={styles.stack}>{children}</div>;
@@ -193,7 +196,6 @@ function InlineErrorDemo() {
   return (
     <Stack>
       <InlineError title="The work order could not be saved" body="Your note is still here. Try saving again." retryLabel="Retry saving" onRetry={() => {}} />
-      <InlineError tone="degraded" title="Parts availability may be out of date" body="You can keep working. It updates when the connection returns." />
     </Stack>
   );
 }
@@ -224,7 +226,7 @@ function AssistantDemo() {
         draft={draft} onDraftChange={setDraft}
         onSubmit={(text) => { setTurns((t) => [...t, { id: `u${t.length}`, role: 'user', text }]); setDraft(''); }}
         onOpen={() => setOpen(true)} onClose={() => setOpen(false)} onRetryConnection={() => {}}
-        labels={{ title: 'Ask Olannah', trigger: 'Ask Olannah', unreadTrigger: (n) => `Ask Olannah, ${n} new`, close: 'Close assistant', inputLabel: 'Your question', send: 'Send question', userName: 'You', assistantName: 'Olannah', proactive: 'Suggested', emptyTitle: 'Nothing asked yet', emptyBody: 'Questions you ask appear here.', loading: 'Loading conversation', reconnecting: 'Reconnecting to the assistant', disconnected: 'The assistant is not connected', retry: 'Retry connection' }}
+        labels={ASSISTANT_LABELS}
       />
     </>
   );
@@ -240,14 +242,14 @@ function FeedbackDemo() {
         open={open} presentation="popover" screenSummary="Component library, Feedback and status" draft={draft} onDraftChange={setDraft} status={status} maxLength={500}
         onSubmit={() => { setStatus('submitting'); window.setTimeout(() => setStatus('succeeded'), 800); }}
         onDismiss={() => { setOpen(false); setDraft(''); }}
-        labels={{ title: 'Send feedback', aboutLabel: 'About', fieldLabel: 'What would you like to tell us?', submit: 'Send feedback', submitting: 'Sending feedback', close: 'Close feedback', doneTitle: 'Feedback sent', doneBody: 'Thank you. The screen you were on was included.', doneClose: 'Close', failedTitle: 'Feedback was not sent', failedBody: 'Your words are still here. Try again.', retry: 'Retry sending' }}
+        labels={FEEDBACK_LABELS}
       />
     </>
   );
 }
 function WidgetDemo() {
   const [kind, setKind] = useState<'insight' | 'unsupported'>('insight');
-  const widget = kind === 'insight' ? technicianDashboard.widgets?.[0] : { type: 'forecast', schemaVersion: '9.0', payload: {} };
+  const widget = kind === 'insight' ? sampleInsightWidget : { type: 'forecast', schemaVersion: '9.0', payload: {} };
   return (
     <Stack>
       <Row>
@@ -425,9 +427,9 @@ export const DEMOS: Readonly<Record<string, Demo>> = {
   Skeleton: { node: <Stack>{SKELETONS.map((s) => <div key={s} className={styles.skeletonRow}><span className="type-caption">{s}</span><Skeleton shape={s} /></div>)}</Stack> },
   Toast: { node: <ToastDemo /> },
   InlineError: { node: <InlineErrorDemo /> },
-  DegradedBanner: { node: <DegradedBanner message="Parts availability is read-only right now." actionLabel="Retry connection" onAction={() => {}} /> },
+  DegradedBanner: { node: <DegradedBanner message="Parts availability is read-only right now." dismissLabel="Dismiss" onDismiss={() => {}} /> },
   EmptyState: { node: <EmptyState title="Nothing queued" explanation="Jobs appear here as they are assigned to you." actionLabel="Refresh jobs" onAction={() => {}} /> },
-  NavItem: { stage: 'chrome', node: <Row><NavItem id="a" label="Dashboard" icon="layout-dashboard" layout="tab" active onActivate={() => {}} /><NavItem id="b" label="Work Orders" icon="clipboard-list" layout="tab" onActivate={() => {}} /><NavItem id="c" label="Assets" icon="box" layout="tab" unavailable unavailableReason="Assets are unavailable while offline." onActivate={() => {}} /></Row> },
+  NavItem: { stage: 'chrome', node: <Row><NavItem destinationId="a" label="Dashboard" icon="layout-dashboard" layout="tab" active onActivate={() => {}} /><NavItem destinationId="b" label="Work Orders" icon="clipboard-list" layout="tab" onActivate={() => {}} /><NavItem destinationId="c" label="Assets" icon="box" layout="tab" unavailable unavailableReason="Assets are unavailable while offline." onActivate={() => {}} /></Row> },
   NavigationRail: { stage: 'frame', node: <NavigationRail items={navItems} ariaLabel="Gallery navigation" onSelect={() => {}} /> },
   TabBar: { stage: 'chrome', node: <TabBar items={tabItems} ariaLabel="Gallery tabs" onSelect={() => {}} menuItemId="more" /> },
   MoreMenu: { node: <MoreMenuDemo /> },

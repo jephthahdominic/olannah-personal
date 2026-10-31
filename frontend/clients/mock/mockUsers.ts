@@ -1,12 +1,5 @@
 import type { SessionConfirmation } from '@/contracts';
-import type { ContextEnvelope } from '@/contracts';
 import { technicianSession, estimatorSession } from '@/contracts/fixtures/session';
-import {
-  technicianContext,
-  estimatorContext,
-  unmappedRoleContext,
-  undeterminedRoleContext,
-} from '@/contracts/fixtures/context';
 import type { MockPersona } from './mockIdp';
 
 // Mock accounts. Password for every account is "olannah". These exist only in mock mode.
@@ -39,20 +32,5 @@ export function sessionFor(persona: MockPersona): SessionConfirmation {
       return { ...technicianSession, userId: 'user-unmapped-001', resolvedRole: 'dispatcher', sessionToken: 'mock-token-unmapped' };
     case 'norole':
       return { ...technicianSession, userId: 'user-norole-001', resolvedRole: null, sessionToken: 'mock-token-norole' };
-  }
-}
-
-export function contextFor(persona: MockPersona): ContextEnvelope {
-  switch (persona) {
-    case 'technician':
-      return technicianContext;
-    case 'estimator':
-      return estimatorContext;
-    case 'multirole':
-      return { ...technicianContext, persona: { roles: ['technician', 'estimator'], primaryRole: 'technician' } };
-    case 'unmapped':
-      return unmappedRoleContext;
-    case 'norole':
-      return undeterminedRoleContext;
   }
 }

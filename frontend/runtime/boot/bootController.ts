@@ -1,7 +1,7 @@
 import type { AuthProvider } from '@/clients/auth/authProvider';
 import type { ContextChannel } from '@/clients/context/contextChannel';
 import type { SessionClient, SessionIdentity } from '@/clients/session/sessionClient';
-import { DEFAULT_RUNTIME_CONFIG, type RuntimeConfig } from '@/contracts';
+import { DEFAULT_RUNTIME_CONFIG, isDeliveryError, type RuntimeConfig } from '@/contracts';
 import { initialBootState, reduceBoot, type BootEvent, type BootState } from './bootMachine';
 import { purgeSession, registerPurgeHandler } from '../purgeSession';
 import { logEvent } from '../telemetry';
@@ -108,9 +108,16 @@ export class BootController {
         // Stage 2 will gate this on the first zone render. With no zones yet, assembled is settled.
         if (this.getState().phase === 'assembled') this.#dispatch({ type: 'CONTEXT_SETTLED' });
       },
-      // A rejected request leaves the worker in the waiting states, which end at the degraded and recovery
-      // screens. It never throws into the UI.
-      () => {},
+      // A failed delivery is a typed value. The ones with a screen of their own (401, 404, 504) go to the machine. Any other failure
+      // leaves the worker in the waiting states, which end at the degraded and recovery screens. Nothing throws into the UI.
+      (error: unknown) => {
+        if (this.#disposed || attempt !== this.#attempt || !isDeliveryError(error)) return;
+        const waiting = this.#state.phase === 'awaitingContext' || this.#state.phase === 'contextDegraded';
+        if (!waiting) return;
+        this.#dispatch({ type: 'CONTEXT_FAILED', kind: error.kind });
+        // A failure with a screen of its own ends the wait, so the timers must not fire into it.
+        if (this.#state.phase !== 'awaitingContext' && this.#state.phase !== 'contextDegraded') this.#clearTimers();
+      },
     );
   }
 

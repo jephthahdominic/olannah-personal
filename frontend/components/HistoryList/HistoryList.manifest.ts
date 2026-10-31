@@ -1,0 +1,50 @@
+import { defineComponent, NA } from '../manifest';
+
+export const manifest = defineComponent({
+  name: 'HistoryList',
+  category: 'data-display',
+  priority: 'P0',
+  personas: ['technician', 'estimator'],
+  lifecycle: 'ephemeral',
+  job: 'Shows a worker what has happened on this job or asset before, and loads more on request.',
+  jobs: [
+    'Shows past visits and records, such as service history. It is never blank while history is on its way, and it loads more as the worker scrolls.',
+    'History arrives in a second pass after the workspace, so the list shows its own loading state first, then the records, or a clear empty, partial or unavailable message.',
+  ],
+  contract: {
+    kind: 'fields',
+    fields: [
+      { field: 'status', type: 'loading, ready, empty, degraded or error', required: true, meaning: 'The condition of the history as the canvas supplied it. The list never works it out from the records.', freshness: 'As delivered. Old or partial history is shown as degraded, never as current.', whenAbsent: 'Shows the loading state. It is never blank between the first render and delivery.' },
+      { field: 'records', type: 'list of history records', required: true, meaning: 'Past visits in the order the canvas wants them shown.', freshness: 'As delivered. Delivered separately from the workspace.', whenAbsent: 'Shows the empty state with a supplied explanation.' },
+      { field: 'records[].id', type: 'text', required: true, meaning: 'A stable identifier for the record.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'The record is not shown.' },
+      { field: 'records[].occurredOn', type: 'site-local date, YYYY-MM-DD', required: true, meaning: 'The date the visit took place at the site. It is formatted and never converted to the viewer\'s time zone.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'The record is not shown.' },
+      { field: 'records[].title', type: 'text', required: true, meaning: 'What the record says, exactly as supplied.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'The record is not shown.' },
+      { field: 'records[].summary', type: 'text', required: false, meaning: 'A supporting line, exactly as supplied.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'No second line is shown.' },
+      { field: 'records[].status', type: 'text', required: false, meaning: 'The record\'s status, in the words the canvas supplied.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'No status line is shown.' },
+      { field: 'records[].flags', type: 'list of text', required: false, meaning: 'Short flags the canvas attached to the record, such as \'recurring issue\', shown as given.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'No flags are shown.' },
+      { field: 'records[].sources', type: 'list of text', required: false, meaning: 'The names of the places the record came from, shown as given.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'No sources line is shown.' },
+      { field: 'hasMore', type: 'true or false', required: true, meaning: 'Whether more records can be asked for. Supplied. The list never decides it.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'Treated as false: no more are requested.' },
+      { field: 'degradedMessage', type: 'text', required: false, meaning: 'Why the history may be incomplete. Supplied by upstream, never inferred.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'No banner is shown. The list is not treated as degraded.' },
+      { field: 'emptyTitle, emptyExplanation, errorTitle, errorExplanation', type: 'text', required: true, meaning: 'The words for the empty and unavailable states. Supplied text, never generated from a code.', freshness: 'As delivered. The component shows no age; where age matters the composing layer shows it.', whenAbsent: 'These are the content of those states.' },
+    ],
+  },
+  governance: [
+    { rule: 'It renders its loading state on the first render and shows resolved history when the aggregator delivers it. It is never blank in between.', source: 'BRD 1.2 5.6.1 Feature 3A' },
+    { rule: 'It asks for more records through a request-more event and the canvas supplies them. It never fetches records itself.', source: 'BRD 1.2 5.6.1 Feature 3B' },
+    { rule: 'It never resolves the history pointer and never requests history directly.', source: 'BRD 1.2 5.6 (HistoryList, prohibited)' },
+    { rule: 'Records appear in the order supplied and are never reordered or hidden for correctness.', source: 'BRD 1.2 5.6.1 Feature 2A and 2B' },
+    { rule: 'It never derives a trend or a summary from the records.', source: 'BRD 1.2 5.6 (HistoryList, prohibited)' },
+    { rule: 'A stale or partial history is shown as degraded, only when that is supplied, and never as current.', source: 'BRD 1.2 5.6.1 Feature 5B; BRD 1.2 5.13 (Degraded)' },
+    { rule: 'Every visual value comes from a design token. No colour, spacing, type size or elevation is hardcoded.', source: 'BRD 1.2 5.2 Feature 5A' },
+  ],
+  dimensions: { data: ['loading', 'ready', 'empty', 'degraded', 'error'], interaction: ['default', 'focus'], runtime: NA },
+  events: ['row-select', 'request-more'],
+  a11y: {
+    contrast: 'text 4.5:1',
+    touchTarget: '44px actions',
+    focus: 'visible keyboard focus ring; a button replaces scroll loading where the observer is missing',
+    announcement: 'labelled list; loading is role=status and aria-busy',
+    reducedMotion: 'shimmer stops',
+  },
+  prohibited: ['resolve-history-pointer', 'request-history-directly', 'derive-trend-or-summary', 'render-blank-between-render-and-delivery', 'infer-degraded'],
+});

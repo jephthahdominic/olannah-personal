@@ -1,8 +1,8 @@
-import { BusEventSchema, type ZonePayload } from '@/contracts';
+import { BusEventSchema, type Wire } from '@/contracts';
 import { startDeadline } from '../timers/deadline';
 import { logEvent } from '../telemetry';
 import { isKnownZoneKey } from '../zones/zoneKeys';
-import { validateZonePayload, type ZoneStore } from '../zones/zoneStore';
+import { validateZoneUpdate, type ZoneStore } from '../zones/zoneStore';
 
 // Every bus event passes through the same pipeline (SDD 7.5), which is where the 400ms zone re-render target is won
 // or lost. Steps:
@@ -34,7 +34,7 @@ export class UpdatePipeline {
   #store: ZoneStore;
   #opts: PipelineDeps;
   #lastSeq = new Map<string, number>();
-  #pending = new Map<string, ZonePayload>();
+  #pending = new Map<string, Wire.WireZone>();
   #queued: { key: string; payload: unknown }[] = [];
   #flushScheduled = false;
   #warnTimers = new Map<string, () => void>();
@@ -89,7 +89,7 @@ export class UpdatePipeline {
       this.#queued.push({ key, payload }); // the checkpoint surface and its diff never change underneath the worker
       return;
     }
-    const validated = validateZonePayload(payload);
+    const validated = validateZoneUpdate(key, payload);
     if (!validated.ok) {
       // A malformed zone payload degrades THAT zone only (BRD 1.0 SR21A).
       logEvent('zone.payload_malformed', 'error', 'malformed');
@@ -99,7 +99,7 @@ export class UpdatePipeline {
     }
     this.beginRefresh(key);
     this.#receivedAt.set(key, this.#now());
-    this.#pending.set(key, validated.payload); // coalesce: the latest payload for a zone within the window wins
+    this.#pending.set(key, validated.zone); // coalesce: the latest payload for a zone within the window wins
     this.#scheduleFlush();
   }
 

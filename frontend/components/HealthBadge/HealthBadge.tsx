@@ -25,7 +25,7 @@ export function HealthBadge({ availability, connection = 'connected', label, tex
   // Freshness of the answer is separate from the answer: a lost feed overrides the shape rather than disguising itself as one.
   const state: StatusState = connection === 'reconnecting' ? 'loading' : connection === 'disconnected' ? 'inactive' : SHAPE[availability];
   return (
-    <span className={`${styles.badge} type-caption`} data-availability={availability} data-connection={connection}>
+    <span className={`${styles.badge} type-data`} data-availability={availability} data-connection={connection}>
       <StatusIndicator state={state} label={label} size="sm" />
       {text && <span>{text}</span>}
     </span>

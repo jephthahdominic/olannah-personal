@@ -6,6 +6,7 @@ import { EmptyState } from '../EmptyState/EmptyState';
 import { InlineError } from '../InlineError/InlineError';
 import { Skeleton } from '../Skeleton/Skeleton';
 import { Button } from '../Button/Button';
+import { StatusPill } from '../StatusPill/StatusPill';
 import { formatSiteLocalDate } from '../utils/formatSiteLocal';
 import styles from './HistoryList.module.css';
 
@@ -15,28 +16,48 @@ export interface HistoryItem {
   occurredOn: string;
   title: string;
   summary?: string;
+  /** SUPPLIED status text, shown as given. Never derived. */
+  status?: string;
+  /** SUPPLIED flags (for example "recurring issue"), shown as given. */
+  flags?: readonly string[];
+  /** SUPPLIED names of the systems this record came from, shown as given. */
+  sources?: readonly string[];
 }
 
 export type HistoryListStatus = 'loading' | 'ready' | 'empty' | 'degraded' | 'error';
 
 export interface HistoryListProps {
+  /** The condition of the history as supplied: loading, ready, empty, degraded or error. The list never works it out. */
   status: HistoryListStatus;
+  /** The past records, in the order supplied. */
   records: readonly HistoryItem[];
   /** True while a further page is being fetched. */
   loadingMore: boolean;
   /** True when more records exist. The list never decides this: it is supplied. */
   hasMore: boolean;
+  /** The accessible name of the list. */
   ariaLabel: string;
   /** Supplied by upstream when the history is partial. Never inferred. */
   degradedMessage?: string;
   /** Supplied explanations for the empty and error states. */
   emptyTitle: string;
+  /** Why there is no history. Supplied text, never blank. */
   emptyExplanation: string;
+  /** The heading shown when history could not be loaded. Supplied text. */
   errorTitle: string;
+  /** What went wrong and what the worker can do, in plain words. Supplied text. */
   errorExplanation: string;
+  /** The label of the retry action in the error state. */
   retryLabel: string;
+  /** The label of the control that asks for more records. */
   loadMoreLabel: string;
+  /** Visible lead-ins for the optional status and sources lines. Required only when records carry them. */
+  statusLabel?: string;
+  /** The heading above a record's sources, such as "From". */
+  sourcesLabel?: string;
+  /** The accessible message announced while history loads. */
   loadingLabel: string;
+  /** Called when the worker asks to try loading history again. */
   onRetry: () => void;
   /** `request-more`: asked for as the end of the list scrolls into view. The canvas relays it; the list fetches nothing. */
   onRequestMore: () => void;
@@ -85,6 +106,19 @@ export function HistoryList(p: HistoryListProps) {
             <span className="type-label">{formatSiteLocalDate(r.occurredOn)}</span>
             <span className="type-heading-sm">{r.title}</span>
             {r.summary && <span className={`${styles.summary} type-body-sm`}>{r.summary}</span>}
+            {r.flags && r.flags.length > 0 && (
+              <span className={styles.flags}>
+                {r.flags.map((flag) => (
+                  <StatusPill key={flag} label={flag} tone="neutral" />
+                ))}
+              </span>
+            )}
+            {(r.status || (r.sources && r.sources.length > 0)) && (
+              <span className={`${styles.meta} type-body-sm`}>
+                {r.status && <span>{p.statusLabel ? `${p.statusLabel}: ${r.status}` : r.status}</span>}
+                {r.sources && r.sources.length > 0 && <span>{p.sourcesLabel ? `${p.sourcesLabel}: ${r.sources.join(', ')}` : r.sources.join(', ')}</span>}
+              </span>
+            )}
           </li>
         ))}
         {p.hasMore && <li ref={sentinel} className={styles.sentinel} aria-hidden="true" />}

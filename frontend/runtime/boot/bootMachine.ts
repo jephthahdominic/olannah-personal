@@ -1,4 +1,4 @@
-import { validateContext, type ContextEnvelope } from '@/contracts';
+import { validateWireContext, type DeliveryFailureKind, type Wire } from '@/contracts';
 import type { SessionIdentity } from '@/clients/session/sessionClient';
 import { deepFreeze, type DeepReadonly } from '../freeze';
 import { resolveLayout, type ResolvedLayout } from './layoutRegistry';
@@ -13,8 +13,8 @@ export type BootState =
   | { phase: 'awaitingContext'; session: SessionIdentity }
   | { phase: 'contextDegraded'; session: SessionIdentity }
   | { phase: 'contextHardTimeout'; session: SessionIdentity }
-  | { phase: 'assembled'; session: SessionIdentity; context: DeepReadonly<ContextEnvelope>; layout: ResolvedLayout }
-  | { phase: 'settled'; session: SessionIdentity; context: DeepReadonly<ContextEnvelope>; layout: ResolvedLayout }
+  | { phase: 'assembled'; session: SessionIdentity; context: DeepReadonly<Wire.ValidatedContext>; layout: ResolvedLayout }
+  | { phase: 'settled'; session: SessionIdentity; context: DeepReadonly<Wire.ValidatedContext>; layout: ResolvedLayout }
   | { phase: 'fallbackUnknownRole'; session: SessionIdentity }
   | { phase: 'fallbackSchema'; session: SessionIdentity }
   | { phase: 'fallbackMalformed'; session: SessionIdentity }
@@ -27,6 +27,8 @@ export type BootEvent =
   | { type: 'SESSION_CONFIRMED'; session: SessionIdentity }
   | { type: 'NO_SESSION' }
   | { type: 'CONTEXT_RECEIVED'; raw: unknown }
+  /** The delivery failed in a way that has its own screen (BRD section 6). Failures with no screen of their own are simply not sent. */
+  | { type: 'CONTEXT_FAILED'; kind: DeliveryFailureKind }
   | { type: 'DELIVERY_BUDGET_EXCEEDED' }
   | { type: 'HARD_TIMEOUT' }
   | { type: 'CONTEXT_SETTLED' }
@@ -49,7 +51,7 @@ export const initialBootState: BootState = { phase: 'awaitingSession', slow: fal
 const stay = (state: BootState): Transition => ({ state, log: [] });
 
 function receiveContext(session: SessionIdentity, raw: unknown): Transition {
-  const result = validateContext(raw);
+  const result = validateWireContext(raw);
 
   if (result.kind === 'schema_mismatch') {
     return {
@@ -66,18 +68,15 @@ function receiveContext(session: SessionIdentity, raw: unknown): Transition {
 
   // Validated, then deep-frozen at ingestion so mutation is impossible (BRD 1.0 SR16C).
   const context = deepFreeze(result.context);
-  const resolution = resolveLayout(context);
-
-  if (resolution.kind === 'role_undetermined') {
-    return {
-      state: { phase: 'fallbackUnknownRole', session },
-      log: [{ event: 'layout.role_undetermined', severity: 'warn' }],
-    };
-  }
-  return {
-    state: { phase: 'assembled', session, context, layout: resolution.layout },
-    log: resolution.layout.unmappedRole ? [{ event: 'layout.unmapped_role', severity: 'warn' }] : [],
-  };
+  const layout = resolveLayout(context);
+  const log: LogRequest[] = [];
+  // One structured error event per malformed zone. Each of those zones degrades alone (SR21A).
+  for (let i = 0; i < result.malformedZones.length; i++) log.push({ event: 'zone.payload_malformed', severity: 'error', detail: 'malformed' });
+  // The PCR says delivery ran over budget but did arrive: record the degraded delivery (UR10B).
+  if (context.degraded_fields.some((f) => f.field === 'delivery')) log.push({ event: 'context.delivery_degraded', severity: 'warn' });
+  if (layout.unmappedRole) log.push({ event: 'layout.unmapped_role', severity: 'warn' });
+  if (layout.unknownTemplate) log.push({ event: 'layout.unknown_template', severity: 'warn' });
+  return { state: { phase: 'assembled', session, context, layout }, log };
 }
 
 export function reduceBoot(state: BootState, event: BootEvent): Transition {
@@ -105,11 +104,13 @@ export function reduceBoot(state: BootState, event: BootEvent): Transition {
         };
       }
       if (event.type === 'HARD_TIMEOUT') return hardTimeout(state.session);
+      if (event.type === 'CONTEXT_FAILED') return contextFailed(state.session, event.kind, state);
       return stay(state);
 
     case 'contextDegraded':
       if (event.type === 'CONTEXT_RECEIVED') return receiveContext(state.session, event.raw);
       if (event.type === 'HARD_TIMEOUT') return hardTimeout(state.session);
+      if (event.type === 'CONTEXT_FAILED') return contextFailed(state.session, event.kind, state);
       return stay(state);
 
     case 'assembled':
@@ -135,4 +136,22 @@ function hardTimeout(session: SessionIdentity): Transition {
     state: { phase: 'contextHardTimeout', session },
     log: [{ event: 'context.hard_timeout', severity: 'error' }],
   };
+}
+
+/** What each delivery failure means for the screen (contracts/delivery.ts). Kinds with no screen of their own leave the waiting state alone. */
+function contextFailed(session: SessionIdentity, kind: DeliveryFailureKind, current: BootState): Transition {
+  switch (kind) {
+    // The session is not confirmed: stay on the loading screen. Never render the workspace before login is confirmed (UR1).
+    case 'unauthorized':
+      return { state: { phase: 'awaitingSession', slow: true }, log: [{ event: 'context.unauthorized', severity: 'warn' }] };
+    // The role cannot be determined: the fallback screen, with no layout template (UR3D).
+    case 'role_undetermined':
+      return { state: { phase: 'fallbackUnknownRole', session }, log: [{ event: 'layout.role_undetermined', severity: 'warn' }] };
+    // The server gave up at the hard timeout (10,000 ms): the recovery screen.
+    case 'timeout':
+      return hardTimeout(session);
+    // Unreachable and server errors have no screen of their own: the budget and hard-timeout timers end the wait.
+    default:
+      return stay(current);
+  }
 }

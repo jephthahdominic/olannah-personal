@@ -1,27 +1,27 @@
-import { HistoryPayloadSchema, type HistoryRecord } from '@/contracts';
+import { validateWireHistory, type Wire } from '@/contracts';
 import type { HistoryChannel } from '@/clients/history/historyChannel';
 import { logEvent } from '../telemetry';
 
 // History arrives in a SUBSEQUENT pass after the main workspace renders (BRD 1.0 UR9, PT8). The list shows its loading
 // state immediately and is NEVER blank between the first render and delivery (BRD 1.2 5.6 Feature 3). The canvas never
-// resolves the pointer: it asks the approved channel and renders what comes back.
+// resolves the pointer: it hands the opaque pointer to the approved channel and renders what comes back.
 export type HistoryStatus = 'loading' | 'ready' | 'empty' | 'degraded' | 'error';
 
 export interface HistoryState {
   readonly status: HistoryStatus;
-  readonly records: readonly HistoryRecord[];
-  readonly nextCursor: string | null;
-  readonly loadingMore: boolean;
-  /** Supplied by upstream when the history is partial. Never inferred. */
-  readonly degradedMessage?: string;
+  readonly records: readonly Wire.HistoryRecord[];
+  /** Sources the aggregator could not read, so the history may be partial. Supplied, never inferred. */
+  readonly unavailableSources: readonly string[];
+  /** How old the history is, as delivered. Shown, never judged. */
+  readonly asOf: string | null;
 }
 
-const INITIAL: HistoryState = { status: 'loading', records: [], nextCursor: null, loadingMore: false };
+const INITIAL: HistoryState = { status: 'loading', records: [], unavailableSources: [], asOf: null };
 
 export class HistoryHydrator {
   #state: HistoryState = INITIAL;
   #listeners = new Set<() => void>();
-  #ref: string | null = null;
+  #pointer: string | null = null;
   #generation = 0;
   #disposed = false;
 
@@ -33,26 +33,18 @@ export class HistoryHydrator {
   };
   getSnapshot = (): HistoryState => this.#state;
 
-  /** Starts the second pass. With no pointer there is no history to deliver, which is not an error. */
-  start(historyRef: string | undefined): void {
+  /** Starts the second pass. With no pointer there is no history to deliver (no active job), which is not an error. */
+  start(pointer: string | null | undefined): void {
     this.#disposed = false; // a remount (React StrictMode) restarts the same hydrator
-    this.#ref = historyRef ?? null;
-    if (!this.#ref) return this.#set({ ...INITIAL, status: 'empty' });
-    void this.#load(null, false);
-  }
-
-  /** `request-more` from HistoryList: progressive load on scroll. Ignored while loading or when there is no more. */
-  requestMore(): void {
-    const s = this.#state;
-    if (!this.#ref || s.loadingMore || s.nextCursor === null || (s.status !== 'ready' && s.status !== 'degraded')) return;
-    this.#set({ ...s, loadingMore: true });
-    void this.#load(s.nextCursor, true);
+    this.#pointer = pointer ?? null;
+    if (!this.#pointer) return this.#set({ ...INITIAL, status: 'empty' });
+    void this.#load();
   }
 
   retry(): void {
-    if (!this.#ref) return;
+    if (!this.#pointer) return;
     this.#set(INITIAL);
-    void this.#load(null, false);
+    void this.#load();
   }
 
   dispose(): void {
@@ -60,37 +52,33 @@ export class HistoryHydrator {
     this.#generation++;
   }
 
-  async #load(cursor: string | null, append: boolean): Promise<void> {
+  async #load(): Promise<void> {
     const generation = ++this.#generation;
     let raw: unknown;
     try {
-      raw = await this.channel.request(this.#ref as string, cursor);
+      raw = await this.channel.request(this.#pointer as string);
     } catch {
-      return this.#fail(generation, append);
+      return this.#fail(generation);
     }
     if (this.#stale(generation)) return;
-    const parsed = HistoryPayloadSchema.safeParse(raw);
-    if (!parsed.success) return this.#fail(generation, append);
-
-    const prior = append ? this.#state.records : [];
-    const seen = new Set(prior.map((r) => r.id));
-    const records = [...prior, ...parsed.data.records.filter((r) => !seen.has(r.id))];
-    const degradedMessage = parsed.data.degradedMessage;
+    const result = validateWireHistory(raw);
+    // A malformed history payload degrades the history zone only.
+    if (result.kind !== 'ok') return this.#fail(generation);
+    const { message } = result;
+    if (message.state === 'unavailable') return this.#fail(generation);
     this.#set({
-      status: records.length === 0 ? 'empty' : degradedMessage ? 'degraded' : 'ready',
-      records,
-      nextCursor: parsed.data.nextCursor,
-      loadingMore: false,
-      ...(degradedMessage ? { degradedMessage } : {}),
+      // Rendered with no records is a valid empty history, never an error.
+      status: message.data.length === 0 ? 'empty' : message.data_quality.unavailable_sources.length > 0 ? 'degraded' : 'ready',
+      records: message.data,
+      unavailableSources: message.data_quality.unavailable_sources,
+      asOf: message.as_of,
     });
   }
 
-  #fail(generation: number, append: boolean): void {
+  #fail(generation: number): void {
     if (this.#stale(generation)) return;
     logEvent('history.unavailable', 'warn', 'unavailable');
-    // A failed "load more" keeps the records already shown. Only a failed first load shows the unavailable state.
-    if (append) this.#set({ ...this.#state, loadingMore: false });
-    else this.#set({ status: 'error', records: [], nextCursor: null, loadingMore: false });
+    this.#set({ ...INITIAL, status: 'error' });
   }
 
   #stale(generation: number): boolean {

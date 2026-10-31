@@ -1,6 +1,7 @@
 import styles from './Label.module.css';
 
 export interface LabelProps {
+  /** The text of the label. It is shown in capitals by the type token. */
   text: string;
   /** Renders as a <span>; use FormField for a real form label. A Label never substitutes for one. */
   as?: 'span' | 'p';

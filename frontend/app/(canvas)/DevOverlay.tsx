@@ -6,51 +6,91 @@ import { mockBusControl } from '@/clients/mock/mockBus';
 import { mockCheckpointControl, type MockDiffMode, type MockSubmitMode } from '@/clients/mock/mockCheckpointChannel';
 import { malformedTrigger, unknownVersionTrigger } from '@/contracts/fixtures/checkpoint';
 import { mockControls, resetMockControls, type HistoryMode } from '@/clients/mock/mockControls';
-import { getIdpPersona } from '@/clients/mock/mockIdp';
-import { estimatorDashboard, technicianDashboard, technicianDashboardWithNote } from '@/contracts/fixtures/zones';
+import { getUpstream, upstreamMode } from '@/clients/upstream';
+import { dashboardZone } from '@/contracts/fixtures/dashboard';
+import { workOrdersZone } from '@/contracts/fixtures/workOrders';
 import type { CanvasRuntime } from '@/runtime/canvas/canvasRuntime';
 import styles from './DevOverlay.module.css';
 
-// DEVELOPMENT ONLY: shown only in mock mode. Fault injection for every failure the BRDs describe (SDD 12.5), so each
-// acceptance criterion can be seen and tested by hand without a backend. Worker-facing text is NOT used here.
+// DEVELOPMENT ONLY: shown in mock and practice modes. Fault injection for every failure the BRDs describe (SDD 12.5), so each
+// acceptance criterion can be seen and tested by hand. Worker-facing text is NOT used here.
+//
+// Live updates go through the mock bus, with zone payloads in the DELIVERED shape (state, as_of, data), because the practice API has no
+// bus yet. In practice mode the server's own fault switches are also here.
+const NOW = '2026-10-23T08:05:00-05:00';
 const send = (zoneId: string, payload: unknown) => mockBusControl.emit({ type: 'zone.update', zoneId, payload });
-const pushWidget = (widget: unknown) => {
-  const base = getIdpPersona() === 'estimator' ? estimatorDashboard : technicianDashboard;
-  send('primary:dashboard', { status: 'ready', data: { ...base, widgets: [widget] } });
-};
+const NEW_ALERT = { id: 'a-live', severity: 'critical', message: 'The store manager added access instructions: use the south receiving entrance.', suggestion: 'Call on arrival.', evidence: [{ system: 'xoi', ref: 'note 1' }] };
+
+const SOURCE_FAULTS = [
+  ['One system down (sitedocs)', { sitedocs: 'down' }],
+  ['Two systems down (sitedocs, xoi)', { sitedocs: 'down', xoi: 'down' }],
+  ['Portal login wall', { client_portal: 'login_wall' }],
+  ['System of record down (sampro)', { sampro: 'down' }],
+] as const;
+const DELIVERY_FAULTS = [
+  ['Slow delivery (2 s, flagged)', { delay_seconds: 2 }],
+  ['Too slow (12 s, 504 recovery screen)', { delay_seconds: 12 }],
+  ['Unknown schema version', { payload: 'bad_schema' }],
+  ['One broken zone', { payload: 'malformed_zone' }],
+  ['Whole payload broken', { payload: 'malformed_envelope' }],
+] as const;
+const SCENARIOS = ['s_8f2', 's_clear', 's_busy', 's_nojob', 's_unmapped'] as const;
 
 export function DevOverlay({ runtime }: { runtime: CanvasRuntime }) {
   const [historyMode, setHistoryMode] = useState<HistoryMode>(mockControls.historyMode);
   const [slowRefresh, setSlowRefresh] = useState(mockControls.refreshDelayMs > 0);
   const [failRefresh, setFailRefresh] = useState(mockControls.refreshFails);
   const [feedbackFails, setFeedbackFails] = useState(mockControls.feedbackFails);
-
-  const dashboardWithNote = () => {
-    const persona = getIdpPersona();
-    return persona === 'estimator'
-      ? { ...estimatorDashboard, notice: { title: 'Quote Q-2291 was updated', body: 'A field review was attached to Northgate Grocers #4830.', tone: 'success' as const } }
-      : technicianDashboardWithNote;
-  };
+  const [practiceNote, setPracticeNote] = useState('');
+  const upstream = getUpstream();
+  const faults = upstream.devFaults;
+  const practice = upstream.practice;
+  const run = (job: Promise<void> | undefined) => job?.then(() => setPracticeNote('Applied. Use Refresh now, or reload the page, to see it.'), (e: unknown) => setPracticeNote(String((e as Error).message)));
 
   return (
     <details className={styles.overlay}>
-      <summary>Dev: mock upstream</summary>
+      <summary title={upstreamMode === 'practice' ? 'Dev tools: practice API' : 'Dev tools: mock upstream'}>Dev</summary>
       <div className={styles.body}>
+        {upstreamMode === 'practice' && faults && practice && (
+          <>
+            <p className={styles.group}>Practice API</p>
+            <label>
+              Scenario (applies on reload)
+              <select aria-label="Practice scenario" defaultValue={practice.getSession()} onChange={(e) => practice.setSession(e.target.value as (typeof SCENARIOS)[number])}>
+                {SCENARIOS.map((id) => <option key={id} value={id}>{id}</option>)}
+              </select>
+            </label>
+            {SOURCE_FAULTS.map(([label, body]) => <button key={label} onClick={() => run(faults.setSourceFaults(body))}>{label}</button>)}
+            <button onClick={() => run(faults.resetSourceFaults())}>Reset system faults</button>
+            {DELIVERY_FAULTS.map(([label, body]) => <button key={label} onClick={() => run(faults.setDeliveryFault(body))}>{label}</button>)}
+            <button onClick={() => run(faults.resetDeliveryFault())}>Reset delivery</button>
+            {practiceNote && <p role="status">{practiceNote}</p>}
+          </>
+        )}
+
+        <p className={styles.group}>Dashboard</p>
+        <button onClick={() => send('dashboard', dashboardZone('client-update'))}>Push a client note onto the next job</button>
+        <button onClick={() => send('dashboard', dashboardZone('insight'))}>Push an insight onto the next job</button>
+        <button onClick={() => send('dashboard', dashboardZone('no-jobs'))}>Push the no-jobs dashboard</button>
+        <button onClick={() => send('dashboard', dashboardZone('ready'))}>Push the ready dashboard</button>
+        <button onClick={() => mockBusControl.emit({ type: 'access.revoked', message: 'You no longer have access to the previous screen.' })}>Revoke access to this screen</button>
+
+        <p className={styles.group}>Work orders</p>
+        <button onClick={() => send('work_orders', workOrdersZone('assigned'))}>Push the assigned jobs</button>
+        <button onClick={() => send('work_orders', workOrdersZone('empty'))}>Push the empty list</button>
+        <label>
+          <input type="checkbox" defaultChecked={mockControls.moreFails} onChange={(e) => (mockControls.moreFails = e.target.checked)} />
+          Show more jobs fails
+        </label>
+
         <p className={styles.group}>Live updates</p>
-        <button onClick={() => send('primary:dashboard', { status: 'ready', data: dashboardWithNote() })}>Push update (note)</button>
-        <button onClick={() => send('primary:dashboard', { status: 'ready', data: getIdpPersona() === 'estimator' ? estimatorDashboard : technicianDashboard })}>Push update (reset)</button>
-        <button onClick={() => send('context', { status: 'nonsense' })}>Push malformed zone payload</button>
-        <button onClick={() => send('primary:dashboard', { status: 'unavailable', message: 'The dashboard is temporarily unavailable.' })}>Push unavailable zone</button>
-        <button onClick={() => send('primary:dashboard', { status: 'ready', data: { kind: 'brand-new-widget' } })}>Push unknown data shape</button>
+        <button onClick={() => send('alerts', { state: 'rendered', as_of: NOW, data: [NEW_ALERT] })}>Push update (new alert)</button>
+        <button onClick={() => send('alerts', { state: 'rendered', as_of: NOW, data: [] })}>Push update (alerts cleared)</button>
+        <button onClick={() => send('steps', { state: 'unavailable', as_of: null, data: [] })}>Push unavailable zone (steps)</button>
+        <button onClick={() => send('alerts', { state: 'stale', as_of: NOW, data: [] })}>Push zone with state stale (malformed)</button>
+        <button onClick={() => send('actions', { state: 'rendered', as_of: NOW, data: 'nope' })}>Push malformed zone payload</button>
         <button onClick={() => mockBusControl.emit({ type: 'zone.update', zoneId: '../../x', payload: {} })}>Push unknown zone id</button>
         <button onClick={() => mockBusControl.emit('not json {')}>Push garbage</button>
-
-        <p className={styles.group}>Insight widgets</p>
-        <button onClick={() => pushWidget({ type: 'insight', schemaVersion: '1.0', payload: { title: 'Check the door gasket', body: 'Two earlier visits replaced the gasket within 90 days.', label: 'Evidence-backed' } })}>Push valid insight</button>
-        <button onClick={() => pushWidget({ type: 'insight', schemaVersion: '9.9', payload: { title: 'x', body: 'y' } })}>Push newer version (unsupported)</button>
-        <button onClick={() => pushWidget({ type: 'hologram', schemaVersion: '1.0', payload: {} })}>Push unknown type</button>
-        <button onClick={() => pushWidget({ type: 'insight', schemaVersion: '1.0', payload: { title: 42 } })}>Push invalid payload</button>
-        <button onClick={() => pushWidget({ type: 'insight', schemaVersion: '1.0', condition: 'degraded', degradedMessage: 'Built from partial service history.', payload: { title: 'Likely intermittent defrost fault', body: 'The pattern matches repeated door-open events.' } })}>Push supplied-degraded insight</button>
 
         <p className={styles.group}>Assistant</p>
         <button onClick={() => mockAssistantControl.speak('A new note from the store manager changes your arrival instructions.')}>Assistant speaks first (proactive)</button>

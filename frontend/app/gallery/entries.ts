@@ -1,4 +1,4 @@
-import { manifests, type Category } from '@/components/manifests';
+import { manifests, proposedManifests, type Category, type ComponentManifest } from '@/components/manifests';
 import { PLANNED } from './planned';
 import { PURPOSES } from './purposes';
 
@@ -11,6 +11,8 @@ export interface GalleryEntry {
   /** Events the component emits upward (BRD 1.2 5.2 Feature 2C). Built components only. */
   events: readonly string[];
   persistenceCapable: boolean;
+  /** The component's full manifest. Built components only. */
+  manifest?: ComponentManifest;
   /** Why a component is not built yet. Planned components only. */
   note?: string;
 }
@@ -26,7 +28,22 @@ export function buildEntries(): GalleryEntry[] {
     built: true,
     events: m.events,
     persistenceCapable: m.lifecycle === 'persistence-capable',
+    manifest: m,
   }));
   const planned: GalleryEntry[] = PLANNED.map((p) => ({ name: p.name, category: p.category, priority: p.priority, purpose: p.purpose, built: false, events: [], persistenceCapable: false, note: p.note }));
   return [...built, ...planned];
+}
+
+// Components built outside BRD 1.2, held out of the library and shown on /proposed for the spec team.
+export function buildProposedEntries(): GalleryEntry[] {
+  return Object.values(proposedManifests).map((m) => ({
+    name: m.name,
+    category: m.category,
+    priority: m.priority,
+    purpose: PURPOSES[m.name] ?? '',
+    built: true,
+    events: m.events,
+    persistenceCapable: m.lifecycle === 'persistence-capable',
+    manifest: m,
+  }));
 }

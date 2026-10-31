@@ -8,10 +8,13 @@ import styles from './Toast.module.css';
 export interface ToastProps {
   /** Supplied text. A toast never builds its message from a code. */
   message: string;
+  /** Success or info. The message always says it in words too. */
   tone?: 'success' | 'info';
   /** Default 7 seconds (BRD 1.2 5.8 Feature 8). The shell passes the configured value. */
   durationMs?: number;
+  /** The accessible name of the dismiss control. */
   dismissLabel: string;
+  /** Called when the toast should go, after its supplied duration or when the worker dismisses it. */
   onDismiss: () => void;
 }
 

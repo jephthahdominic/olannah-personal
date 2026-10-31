@@ -24,13 +24,17 @@ export type ChartStatus = 'loading' | 'ready' | 'degraded';
 
 /** The props every chart shares. Every one is SUPPLIED: a chart renders, it never computes a business value. */
 export interface ChartFrameProps {
+  /** The chart title, shown above the chart and used as its accessible name. */
   title: string;
   /** The key value in plain text. A worker who cannot read the chart for any reason must still be able to read the truth it shows. */
   textAlternative: string;
+  /** The condition of the data as supplied: loading, ready or degraded. An empty series shows the empty explanation. */
   status?: ChartStatus;
   /** Supplied when the data is partial. Never inferred from the data. */
   degradedMessage?: string;
+  /** The heading shown when the chart has no data. Supplied text. */
   emptyTitle: string;
+  /** Why the chart is empty and what would cause data to appear. Supplied text, never blank. */
   emptyExplanation: string;
 }
 
@@ -107,7 +111,7 @@ export function Legend({ items, kind, selectedId, onSelect, ariaLabel }: { items
           <>
             {key}
             <span className="type-caption">{item.name}</span>
-            {item.value !== undefined && <span className={`${styles.legendValue} type-caption`}>{item.value}</span>}
+            {item.value !== undefined && <span className={`${styles.legendValue} type-data`}>{item.value}</span>}
           </>
         );
         return (

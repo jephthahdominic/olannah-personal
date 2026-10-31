@@ -29,6 +29,7 @@ export interface WidgetContainerProps {
   headerLabel: string;
   /** Supplied worker-facing fallback text for anything that cannot be rendered. No schema, type or code. */
   fallbackTitle: string;
+  /** What the worker sees when the payload is unsupported or invalid. Plain words, no version or type name. */
   fallbackMessage: string;
   /** Receives WHY a widget could not render, so unsupported (a version problem) and invalid (an upstream defect) stay
    *  distinguishable in diagnostics even though the worker sees the same fallback. Not an interaction event. */
@@ -76,7 +77,7 @@ function Header({ headerLabel, children }: { headerLabel: string; children?: Rea
 
 function InsightCard({ insight, headerLabel, degradedMessage }: { insight: InsightPayload; headerLabel: string; degradedMessage?: string }) {
   return (
-    <Surface role="panel" padding={4} className={styles.card}>
+    <Surface role="panel" padding={4} className={`${styles.card}`}>
       <Header headerLabel={headerLabel}>{insight.label && <StatusPill label={insight.label} tone="neutral" />}</Header>
       {/* Degraded renders ONLY when it was supplied with the widget. It is never inferred from a missing field. */}
       {degradedMessage && <DegradedBanner message={degradedMessage} />}

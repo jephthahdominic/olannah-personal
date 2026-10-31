@@ -19,10 +19,13 @@ export interface PhotoCaptureProps {
   captureLabel: string;
   /** Supplied text shown when the photo is required (for example "Required"). Shown only when `required` is true. */
   requiredLabel: string;
+  /** Whether a photo must be attached. Shows the required marker. */
   required?: boolean;
   /** SUPPLIED references to photos already captured. The prompt renders them and owns no capture or upload session. */
   captured: readonly CapturedPhoto[];
+  /** The prompt shown before a photo is attached. Supplied text. */
   emptyMessage: string;
+  /** Makes the control unavailable. It stays visible at reduced opacity. */
   disabled?: boolean;
   /** `capture-request`: the worker asked to capture. */
   onCaptureRequest?: () => void;
@@ -39,7 +42,7 @@ export function PhotoCapture({ prompt, captureLabel, requiredLabel, required = f
       <div className={styles.heading}>
         <Icon name="camera" size="md" />
         <p className="type-heading-sm">{prompt}</p>
-        {required && <span className={`${styles.required} type-caption`}>{requiredLabel}</span>}
+        {required && <span className={`${styles.required} type-body-sm`}>{requiredLabel}</span>}
       </div>
       {captured.length === 0 ? (
         <p className={`${styles.empty} type-body-sm`}>{emptyMessage}</p>

@@ -10,21 +10,28 @@ export interface SelectOption {
 export interface SelectProps {
   /** id of the visible label, set by FormField. A placeholder is never the label. */
   id: string;
+  /** The form field name used when the value is submitted. */
   name?: string;
   /** SUPPLIED. The select renders these options and fetches none. It never decides which options are valid: that is the source
    *  system's business (BRD 1.2 5.7.1 Feature 2C). */
   options: readonly SelectOption[];
   /** Controlled: the composing layer owns the selection. `null` is "nothing chosen yet". Nothing is held as authoritative. */
   selection: string | null;
+  /** Called with the value of the option the worker chose. */
   onChange: (value: string) => void;
   /** Supplied text for the unselected state, for example "Choose a failure condition". Shown as a disabled first option. */
   placeholder: string;
   /** Supplied text shown instead of an empty list. Never blank. */
   emptyLabel: string;
+  /** Makes the field unavailable. It stays visible at reduced opacity. */
   disabled?: boolean;
+  /** Marks the value as failing validation, so the field shows its error treatment. */
   invalid?: boolean;
+  /** The id of the element that describes the field, such as its help or error text. */
   describedBy?: string;
+  /** Called when the field receives focus. */
   onFocus?: () => void;
+  /** Called when the field loses focus. */
   onBlur?: () => void;
 }
 

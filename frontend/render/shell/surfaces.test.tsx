@@ -12,14 +12,15 @@ import { resetNavigationMemory } from '../navigation/navigationMemory';
 import { toastStore } from '@/runtime/toasts';
 import { liveRegion } from '@/runtime/liveRegion';
 import { clearTelemetryBuffer, getBufferedEvents } from '@/runtime/telemetry';
-import { technicianContext } from '@/contracts/fixtures/context';
-import { technicianDashboard } from '@/contracts/fixtures/zones';
+import { rawTechnician, validated } from '@/tests/wireFixtures';
+import { resolveLayout } from '@/runtime/boot/layoutRegistry';
 import { messages } from '../messages';
 
 const setWidth = (w: number) => Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: w });
-const ui = (h: RuntimeHarness) => <Shell context={technicianContext} layout={{ layoutId: 'technician', unmappedRole: false }} runtime={h.runtime} signOut={() => {}} supportHref="mailto:help@example.test" />;
+const context = validated(rawTechnician());
+const ui = (h: RuntimeHarness) => <Shell context={context} layout={resolveLayout(context)} runtime={h.runtime} signOut={() => {}} supportHref="mailto:help@example.test" />;
 function mount(over: Parameters<typeof makeRuntime>[1] = {}) {
-  const h = makeRuntime(technicianContext, over);
+  const h = makeRuntime(rawTechnician(), over);
   const utils = render(ui(h));
   return { ...h, ...utils, remount: () => utils.rerender(ui(h)) };
 }
@@ -31,7 +32,6 @@ const start = async (h: RuntimeHarness) =>
   });
 const turn = (id: string, extra: Record<string, unknown> = {}) => ({ type: 'message', turn: { id, role: 'assistant', text: `Hello ${id}`, ...extra } });
 const trigger = () => screen.getByRole('button', { name: /^Ask Olannah/ });
-const dashboardEvent = (widgets: unknown[]) => ({ type: 'zone.update', zoneId: 'primary:dashboard', payload: { status: 'ready', data: { ...technicianDashboard, widgets } } });
 
 beforeEach(() => {
   setWidth(1280);
@@ -48,11 +48,11 @@ afterEach(() => {
 });
 
 describe('Assistant: a secondary surface (BRD 1.3 sections 6.6 and 7.1)', () => {
-  it('is closed by default on desktop: only the floating trigger shows, and the widget output leads', () => {
+  it('is closed by default on desktop: only the floating trigger shows, and the workspace leads', () => {
     mount();
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(trigger()).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Good morning, Marcus' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: messages.zones.alerts.title })).toBeInTheDocument();
   });
 
   it('opens from the trigger as a dialog that does NOT sit inside the primary content, and displaces nothing', () => {
@@ -61,7 +61,7 @@ describe('Assistant: a secondary surface (BRD 1.3 sections 6.6 and 7.1)', () => 
     const dialog = screen.getByRole('dialog', { name: messages.assistant.title });
     expect(screen.getByRole('main').contains(dialog)).toBe(false);
     expect(document.querySelector('[data-portal="drawer"]')!.contains(dialog)).toBe(true);
-    expect(screen.getByRole('heading', { name: 'Good morning, Marcus' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: messages.zones.alerts.title })).toBeInTheDocument();
     expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
 
@@ -137,7 +137,7 @@ describe('Persistence is a SHELL decision, not the component\'s (BRD 1.0 SR17, B
     const h = mount({ persistenceElected: ['AssistantPanel'] });
     fireEvent.click(trigger());
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    nav.pathname = '/work-orders';
+    nav.pathname = '/jobs';
     h.remount();
     expect(screen.getByRole('dialog', { name: messages.assistant.title })).toBeInTheDocument();
   });
@@ -146,7 +146,7 @@ describe('Persistence is a SHELL decision, not the component\'s (BRD 1.0 SR17, B
     const h = mount({ persistenceElected: [] });
     fireEvent.click(trigger());
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    nav.pathname = '/work-orders';
+    nav.pathname = '/jobs';
     h.remount();
     expect(screen.queryByRole('dialog')).toBeNull();
   });
@@ -155,7 +155,7 @@ describe('Persistence is a SHELL decision, not the component\'s (BRD 1.0 SR17, B
     const elected = mount({ persistenceElected: ['AssistantPanel'] });
     fireEvent.click(trigger());
     fireEvent.change(screen.getByLabelText(messages.assistant.inputLabel), { target: { value: 'half a thought' } });
-    nav.pathname = '/assets';
+    nav.pathname = '/inventory';
     elected.remount();
     expect(screen.getByLabelText(messages.assistant.inputLabel)).toHaveValue('half a thought');
     elected.unmount();
@@ -164,7 +164,7 @@ describe('Persistence is a SHELL decision, not the component\'s (BRD 1.0 SR17, B
     const ephemeral = mount({ persistenceElected: [] });
     fireEvent.click(trigger());
     fireEvent.change(screen.getByLabelText(messages.assistant.inputLabel), { target: { value: 'half a thought' } });
-    nav.pathname = '/assets';
+    nav.pathname = '/inventory';
     ephemeral.remount();
     fireEvent.click(trigger());
     expect(screen.getByLabelText(messages.assistant.inputLabel)).toHaveValue('');
@@ -220,8 +220,8 @@ describe('Feedback (BRD 1.3 section 6.7)', () => {
     const sent = (h.feedbackSubmit.mock.calls[0] as unknown[])[0] as { text: string; idempotencyKey: string; screen: { destinationId: string; layoutId: string; viewport: string; zones: { zone: string; condition: string }[] } };
     expect(sent.text).toBe('The next job time looks wrong');
     expect(sent.screen).toMatchObject({ destinationId: 'dashboard', layoutId: 'technician', viewport: 'desktop' });
-    expect(sent.screen.zones.map((z) => z.zone)).toEqual(['primary:dashboard', 'context']);
-    expect(JSON.stringify(sent.screen)).not.toMatch(/Northgate|Marcus|WO-48213/); // no screen content is captured
+    expect(sent.screen.zones.map((z) => z.zone)).toEqual(['alerts', 'work_order', 'steps', 'actions', 'history']);
+    expect(JSON.stringify(sent.screen)).not.toMatch(/Northfield|Marcus|WO-4471|Store 118/); // no screen content is captured
     expect(sent.idempotencyKey).toMatch(/^fb-/);
     expect(await screen.findByText(messages.feedback.doneTitle)).toBeInTheDocument();
   });
@@ -263,38 +263,5 @@ describe('Feedback (BRD 1.3 section 6.7)', () => {
     await screen.findByText(messages.feedback.doneTitle);
     expect(JSON.stringify(getBufferedEvents())).not.toContain('Private remark');
     expect(getBufferedEvents().map((e) => e.event)).toContain('feedback.submitted');
-  });
-});
-
-describe('Insight widgets on the Dashboard (BRD 1.2 5.11)', () => {
-  it('renders the supplied insight through the container, display-only', () => {
-    mount();
-    expect(screen.getByText('Bring a defrost control kit')).toBeInTheDocument();
-    expect(screen.getByText('Evidence-backed')).toBeInTheDocument();
-    expect(screen.getByText(messages.widget.headerLabel)).toBeInTheDocument();
-  });
-
-  it.each([
-    ['an unsupported newer version', { type: 'insight', schemaVersion: '9.9', payload: { title: 'x', body: 'y' } }, 'widget.unsupported'],
-    ['an unknown type', { type: 'hologram', schemaVersion: '1.0', payload: {} }, 'widget.unsupported'],
-    ['an invalid payload', { type: 'insight', schemaVersion: '1.0', payload: { title: 42 } }, 'widget.invalid'],
-  ])('shows the safe fallback for %s, logs the real reason, and leaves the rest of the Dashboard working', async (_n, widget, event) => {
-    const h = mount();
-    await start(h);
-    await act(async () => void h.latest().send(dashboardEvent([widget])));
-    expect(screen.getByText(messages.widget.fallbackTitle)).toBeInTheDocument();
-    expect(screen.getByText(messages.widget.fallbackMessage)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Good morning, Marcus' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Open work order' })).toBeInTheDocument();
-    expect(getBufferedEvents().map((e) => e.event)).toContain(event);
-    expect(document.body.textContent).not.toMatch(/9\.9|hologram/);
-  });
-
-  it('shows a degraded insight only when degradation was supplied', async () => {
-    const h = mount();
-    await start(h);
-    await act(async () => void h.latest().send(dashboardEvent([{ type: 'insight', schemaVersion: '1.0', condition: 'degraded', degradedMessage: 'Built from partial service history.', payload: { title: 'Likely defrost fault', body: 'Matches repeated door-open events.' } }])));
-    expect(screen.getByText('Built from partial service history.')).toBeInTheDocument();
-    expect(screen.getByText('Likely defrost fault')).toBeInTheDocument();
   });
 });

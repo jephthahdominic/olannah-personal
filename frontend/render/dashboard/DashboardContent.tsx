@@ -1,89 +1,68 @@
 'use client';
 
-import { Button, Label, WidgetContainer, RecordList, SectionHeader, StatTile, StatusIndicator, StatusPill, Surface, formatSiteLocalTime } from '@/components';
-import type { DashboardData } from '@/contracts';
-import { logEvent } from '@/runtime/telemetry';
+import type { Wire } from '@/contracts';
+import { DegradedBanner, EmptyState, StatTile, StatusIndicator, Surface } from '@/components';
 import { useShell } from '../layout/ShellContext';
+import type { ZoneContentProps } from '../layout/registry';
 import { messages } from '../messages';
-import styles from './DashboardContent.module.css';
+import { NextJobCard } from './NextJobCard';
+import { ScheduleGroup } from './ScheduleGroup';
+import styles from './Dashboard.module.css';
 
-// The Dashboard (BRD 1.1: the universal landing destination). Everything shown is SUPPLIED in the zone payload: the
-// headline, the figures, the labels, the status text. The canvas formats site-local times and arranges components; it
-// computes no count, no greeting and no status (BRD 1.2 5.2 Feature 7). The layout follows the approved designs.
-export function DashboardContent({ data }: { data: DashboardData }) {
-  const { navigate } = useShell();
-  const featured = data.featured ?? null;
+// The Dashboard (approved design 03). Everything it shows is SUPPLIED with the zone: the greeting, the date, the counts and their shapes, the
+// next job, the schedule, the headings and the button label. The canvas formats site-local times and arranges components. It computes no
+// greeting, no count and no status (BRD 1.2 5.2 Feature 7).
+//
+// States, each from the design:
+//   ready          the greeting, three counts, the next job, today and tomorrow.
+//   no jobs        the same counts (zeros, with no shapes), and one empty card in place of the job and the lists.
+//   refreshing     "Your jobs" with "Updating" beside it. The rows already loaded stay where they are.
+//   30 seconds     "Your jobs", and a plain warning that they may not be current. It does not claim the data is stale: it says freshness cannot be
+//                  guaranteed (BRD 1.0 UR7B).
+// The lost connection and a revoked screen are the shell's banners above this content, not this component's.
+export function DashboardContent({ state }: ZoneContentProps) {
+  const data = state.data as Wire.DashboardData | undefined;
+  const { openWorkOrder } = useShell();
+  if (!data) return null;
+  const hasSchedule = data.today !== null || data.tomorrow !== null;
+  const empty = data.next_job === null && !hasSchedule;
 
   return (
     <div className={styles.dashboard}>
-      <SectionHeader text={data.headline} level={2} size="lg" />
+      <header className={styles.greeting}>
+        <h1 className="type-heading-lg">{data.greeting}</h1>
+        <p className={`${styles.date} type-body-sm`}>{data.date}</p>
+      </header>
 
-      {data.notice && (
-        <div className={`${styles.notice} ${styles[data.notice.tone]}`} role="status">
-          <StatusIndicator state={data.notice.tone === 'success' ? 'success' : 'inactive'} label={data.notice.title} decorative size="lg" />
-          <div>
-            <p className="type-heading-sm">{data.notice.title}</p>
-            <p className={`${styles.muted} type-body-sm`}>{data.notice.body}</p>
-          </div>
-        </div>
-      )}
-
-      <section className={styles.section} aria-labelledby="summary-title">
-        <SectionHeader id="summary-title" text={data.summaryTitle} level={3} size="md" />
-        <div className={styles.tiles}>
-          {data.summary.map((tile) => (
-            <StatTile key={tile.id} label={tile.label} value={tile.value} caption={tile.caption} tone={tile.tone} />
-          ))}
-        </div>
-      </section>
-
-      {featured && (
-        <Surface role="card" padding={4} className={styles.featured}>
-          <div className={styles.featuredHead}>
-            <div>
-              <Label text={featured.eyebrow} as="p" />
-              <p className={`${styles.reference} type-data`}>
-                {featured.reference}
-                {featured.timeLocal && <> · {formatSiteLocalTime(featured.timeLocal)}</>}
-              </p>
-            </div>
-            {featured.status && <StatusPill label={featured.status.label} tone={featured.status.tone} />}
-          </div>
-          <p className="type-heading-lg">{featured.title}</p>
-          {featured.subtitle && <p className="type-body">{featured.subtitle}</p>}
-          {featured.location && <p className={`${styles.muted} type-body-sm`}>{featured.location}</p>}
-          {featured.note && (
-            <p className={`${styles.note} type-body-sm`}>
-              <strong>{messages.dashboard.noteBy(featured.note.author)}</strong> {featured.note.text}
+      {(state.refreshing || state.refreshDelayed) && (
+        <div className={styles.jobsRow}>
+          <h2 className="type-heading-md">{data.jobs_heading}</h2>
+          {state.refreshing && !state.refreshDelayed && (
+            <p className={`${styles.updating} type-body-sm`} role="status">
+              <StatusIndicator state="loading" label={messages.dashboard.updating} decorative size="sm" />
+              {messages.dashboard.updating}
             </p>
           )}
-          <Button label={featured.actionLabel} fullWidth onActivate={() => navigate('work-orders')} />
+        </div>
+      )}
+      {state.refreshing && state.refreshDelayed && <DegradedBanner message={messages.dashboard.freshnessWarning} />}
+
+      <div className={styles.counts} role="group" aria-label={data.jobs_heading}>
+        {data.counts.map((count) => (
+          <StatTile key={count.id} label={count.label} value={count.value} status={count.status} />
+        ))}
+      </div>
+
+      {data.next_job && <NextJobCard job={data.next_job} onOpen={() => openWorkOrder(data.next_job!.reference)} />}
+
+      {empty && (
+        <Surface role="card" padding={5}>
+          <EmptyState title={messages.dashboard.emptyTitle} explanation={messages.dashboard.emptyBody} />
         </Surface>
       )}
 
-      {/* Insight-layer output appears ONLY through the WidgetContainer, which validates it and falls back safely. */}
-      {data.widgets?.map((widget, i) => (
-        <WidgetContainer
-          key={`${widget.type}-${i}`}
-          widget={widget}
-          headerLabel={messages.widget.headerLabel}
-          fallbackTitle={messages.widget.fallbackTitle}
-          fallbackMessage={messages.widget.fallbackMessage}
-          onDiagnostic={(reason) => logEvent(reason === 'unsupported' ? 'widget.unsupported' : reason === 'invalid' ? 'widget.invalid' : 'widget.render_error', 'warn')}
-        />
-      ))}
-
-      <section className={styles.section} aria-labelledby="queue-title">
-        <SectionHeader id="queue-title" text={data.queueTitle} level={3} size="md" trailing={data.queueCaption && <span className={`${styles.muted} type-body-sm`}>{data.queueCaption}</span>} />
-        <Surface role="card" padding={3} className={styles.queue}>
-          <RecordList
-            records={data.queue}
-            ariaLabel={data.queueTitle}
-            emptyTitle={messages.dashboard.queueEmptyTitle}
-            emptyExplanation={messages.dashboard.queueEmptyBody}
-          />
-        </Surface>
-      </section>
+      {data.today && <ScheduleGroup group={data.today} onSelect={openWorkOrder} />}
+      {data.tomorrow && <ScheduleGroup group={data.tomorrow} onSelect={openWorkOrder} />}
     </div>
   );
 }

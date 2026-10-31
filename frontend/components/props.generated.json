@@ -1,0 +1,2506 @@
+{
+  "AccountabilityStatement": {
+    "file": "components/checkpoint/AccountabilityStatement/AccountabilityStatement.tsx",
+    "props": [
+      {
+        "name": "statement",
+        "type": "string",
+        "required": true,
+        "description": "SUPPLIED text. It renders identically for every persona, workflow and target system (BRD 1.2 5.10 Feature 4)."
+      },
+      {
+        "name": "heading",
+        "type": "string",
+        "required": false,
+        "description": "Optional supplied lead-in, for example \"Before you decide\"."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "required": false,
+        "description": "The element id, so a decision control can reference the statement as its accessible description."
+      }
+    ]
+  },
+  "AcknowledgmentControl": {
+    "file": "components/checkpoint/AcknowledgmentControl/AcknowledgmentControl.tsx",
+    "props": [
+      {
+        "name": "statement",
+        "type": "string",
+        "required": true,
+        "description": "The fixed confirmation statement, SUPPLIED. It is identical for every checkpoint and persona. This control never authors it."
+      },
+      {
+        "name": "checkpointId",
+        "type": "string",
+        "required": true,
+        "description": "The checkpoint instance this acknowledgment belongs to. A new id is a new control: acknowledgment never carries over."
+      },
+      {
+        "name": "acknowledged",
+        "type": "boolean",
+        "required": true,
+        "description": "Supplied. This control does not compute eligibility or decide whether the diff was viewed."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Supplied for the revalidation window, when no action should be possible."
+      },
+      {
+        "name": "onAcknowledge",
+        "type": "() => void",
+        "required": true,
+        "description": "`acknowledge`: the worker completed the explicit action. It resolves the checkpoint's acknowledgment state, which the canvas turns into approveEnabled. This control never enables approval directly."
+      }
+    ]
+  },
+  "AssistantPanel": {
+    "file": "components/AssistantPanel/AssistantPanel.tsx",
+    "props": [
+      {
+        "name": "open",
+        "type": "boolean",
+        "required": true,
+        "description": "The composing layer owns the open state; the panel renders it and asks to change it (BRD 1.2 5.10)."
+      },
+      {
+        "name": "presentation",
+        "type": "\"floating\" | \"sheet\"",
+        "required": true,
+        "description": "Floating panel on tablet and desktop, bottom sheet on mobile (BRD 1.3 sections 6.6 and 7.1)."
+      },
+      {
+        "name": "showTrigger",
+        "type": "boolean",
+        "required": true,
+        "description": "The floating trigger shows on tablet and desktop. On mobile the panel is opened from the More menu instead."
+      },
+      {
+        "name": "turns",
+        "type": "readonly AssistantTurnView[]",
+        "required": true,
+        "description": "SUPPLIED render-only cache of turns. The panel renders them and never stores them as authoritative."
+      },
+      {
+        "name": "data",
+        "type": "\"loading\" | \"ready\" | \"empty\"",
+        "required": true,
+        "description": "Data dimension: loading before the first delivery, empty when there are no turns yet."
+      },
+      {
+        "name": "connection",
+        "type": "\"connected\" | \"reconnecting\" | \"disconnected\"",
+        "required": true,
+        "description": "Runtime dimension (a live relationship): supplied, never inferred."
+      },
+      {
+        "name": "unread",
+        "type": "number",
+        "required": true,
+        "description": "Proactive messages that arrived while closed."
+      },
+      {
+        "name": "draft",
+        "type": "string",
+        "required": true,
+        "description": "Controlled draft, owned by the composing layer."
+      },
+      {
+        "name": "onDraftChange",
+        "type": "(draft: string) => void",
+        "required": true,
+        "description": "Called with the draft text on every edit. The composing layer owns the draft; the panel never stores it."
+      },
+      {
+        "name": "onSubmit",
+        "type": "(text: string) => void",
+        "required": true,
+        "description": "`message-submit`: the worker's own words, emitted upward. The panel never calls the intelligence layer."
+      },
+      {
+        "name": "onOpen",
+        "type": "() => void",
+        "required": true,
+        "description": "Called when the worker asks to open the panel. The composing layer owns the open state."
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "required": true,
+        "description": "Called when the worker closes the panel. The composing layer owns the open state."
+      },
+      {
+        "name": "onRetryConnection",
+        "type": "() => void",
+        "required": true,
+        "description": "Called when the worker asks to try the assistant connection again."
+      },
+      {
+        "name": "labels",
+        "type": "AssistantLabels",
+        "required": true,
+        "description": "Every visible word and accessible name the panel shows, supplied so it generates no text of its own."
+      },
+      {
+        "name": "initialScrollTop",
+        "type": "number",
+        "required": false,
+        "description": "Scroll continuity, handed in and out by the shell's persistence manager (continuity only, never data)."
+      },
+      {
+        "name": "onContinuity",
+        "type": "(c: { scrollTop: number; }) => void",
+        "required": false,
+        "description": "Called with the scroll position so the shell can restore it if the panel is preserved across a layout change."
+      },
+      {
+        "name": "portalTarget",
+        "type": "HTMLElement",
+        "required": false,
+        "description": "Drawer layer host (z-300). If absent the panel renders in place."
+      }
+    ]
+  },
+  "Avatar": {
+    "file": "components/Avatar/Avatar.tsx",
+    "props": [
+      {
+        "name": "initials",
+        "type": "string",
+        "required": false,
+        "description": "Initials, only when they are SUPPLIED. The component never derives them from a name: with none, a person glyph is shown."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "Accessible full name, supplied."
+      }
+    ]
+  },
+  "BarChart": {
+    "file": "components/visualization/BarChart.tsx",
+    "props": [
+      {
+        "name": "categories",
+        "type": "readonly string[]",
+        "required": true,
+        "description": "One label per category, in order. Supplied."
+      },
+      {
+        "name": "series",
+        "type": "readonly ChartSeries[]",
+        "required": true,
+        "description": "At most FIVE series. More is presented as a table, because beyond five the chart is harder to read than the data (BRD 1.3 section 10.5)."
+      },
+      {
+        "name": "orientation",
+        "type": "\"vertical\" | \"horizontal\"",
+        "required": false,
+        "description": "Whether bars run vertically or horizontally. Vertical by default."
+      },
+      {
+        "name": "valueFormat",
+        "type": "(n: number) => string",
+        "required": false,
+        "description": "How a value is shown. Defaults to a plain number. Formatting is not deriving."
+      },
+      {
+        "name": "selectedSeriesId",
+        "type": "string",
+        "required": false,
+        "description": "Controlled selection from the composing layer, for `series-select`."
+      },
+      {
+        "name": "onSeriesSelect",
+        "type": "(seriesId: string) => void",
+        "required": false,
+        "description": "Called with the series id when the worker selects a bar series."
+      },
+      {
+        "name": "legendLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the legend."
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "description": "The chart title, shown above the chart and used as its accessible name."
+      },
+      {
+        "name": "textAlternative",
+        "type": "string",
+        "required": true,
+        "description": "The key value in plain text. A worker who cannot read the chart for any reason must still be able to read the truth it shows."
+      },
+      {
+        "name": "status",
+        "type": "ChartStatus",
+        "required": false,
+        "description": "The condition of the data as supplied: loading, ready or degraded. An empty series shows the empty explanation."
+      },
+      {
+        "name": "degradedMessage",
+        "type": "string",
+        "required": false,
+        "description": "Supplied when the data is partial. Never inferred from the data."
+      },
+      {
+        "name": "emptyTitle",
+        "type": "string",
+        "required": true,
+        "description": "The heading shown when the chart has no data. Supplied text."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Why the chart is empty and what would cause data to appear. Supplied text, never blank."
+      }
+    ]
+  },
+  "Button": {
+    "file": "components/Button/Button.tsx",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "Name the outcome, not the mechanism (\"Sign in\", never \"Submit\" or \"OK\"). BRD 1.2 5.5.1 Feature 4."
+      },
+      {
+        "name": "variant",
+        "type": "ButtonVariant",
+        "required": false,
+        "description": "The visual weight: primary, accent or ghost. It never changes what the action means."
+      },
+      {
+        "name": "type",
+        "type": "\"button\" | \"submit\"",
+        "required": false,
+        "description": "The native button type. Button by default; submit only inside a form."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the action unavailable. It stays visible at reduced opacity so the worker knows it exists."
+      },
+      {
+        "name": "processing",
+        "type": "boolean",
+        "required": false,
+        "description": "Awaiting an async result. Stays in place, keeps its label, shows inline progress, ignores repeat activation."
+      },
+      {
+        "name": "processingLabel",
+        "type": "string",
+        "required": false,
+        "description": "Accessible text announced while processing, supplied by the caller."
+      },
+      {
+        "name": "fullWidth",
+        "type": "boolean",
+        "required": false,
+        "description": "Stretches the button to the width of its container."
+      },
+      {
+        "name": "leading",
+        "type": "ReactNode",
+        "required": false,
+        "description": "An icon shown before the label. It is replaced by the progress indicator while processing."
+      },
+      {
+        "name": "onActivate",
+        "type": "() => void",
+        "required": false,
+        "description": "Emits upward. A Button executes no business consequence itself."
+      }
+    ]
+  },
+  "ChartFrame": {
+    "file": "components/visualization/vizShared.tsx",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "description": "The chart title, shown above the chart and used as its accessible name."
+      },
+      {
+        "name": "textAlternative",
+        "type": "string",
+        "required": true,
+        "description": "The key value in plain text. A worker who cannot read the chart for any reason must still be able to read the truth it shows."
+      },
+      {
+        "name": "status",
+        "type": "ChartStatus",
+        "required": false,
+        "description": "The condition of the data as supplied: loading, ready or degraded. An empty series shows the empty explanation."
+      },
+      {
+        "name": "degradedMessage",
+        "type": "string",
+        "required": false,
+        "description": "Supplied when the data is partial. Never inferred from the data."
+      },
+      {
+        "name": "emptyTitle",
+        "type": "string",
+        "required": true,
+        "description": "The heading shown when the chart has no data. Supplied text."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Why the chart is empty and what would cause data to appear. Supplied text, never blank."
+      }
+    ]
+  },
+  "CheckpointInitializing": {
+    "file": "components/checkpoint/CheckpointInitializing/CheckpointInitializing.tsx",
+    "props": [
+      {
+        "name": "statusMessage",
+        "type": "string",
+        "required": true,
+        "description": "Supplied plain-language status, announced politely. For example \"Preparing the changes for your review\"."
+      },
+      {
+        "name": "timeoutMs",
+        "type": "number",
+        "required": false,
+        "description": "The supplied window. If given, `timeout` is emitted once it elapses, so the wait is never indefinite (BRD 1.2 5.10 Feature 3). The controller owns the authoritative window; this is the component's own guarantee."
+      },
+      {
+        "name": "onTimeout",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the supplied window ends without a diff, so the canvas can show the error state."
+      }
+    ]
+  },
+  "CheckpointOverlay": {
+    "file": "components/checkpoint/CheckpointOverlay/CheckpointOverlay.tsx",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "description": "Supplied heading, for example \"A decision is needed\"."
+      },
+      {
+        "name": "blockingNote",
+        "type": "string",
+        "required": true,
+        "description": "Supplied visible text that says the rest of the canvas is paused. The blocking condition is never shown by dimming alone."
+      },
+      {
+        "name": "triggeredByLabel",
+        "type": "string",
+        "required": true,
+        "description": "What raised the checkpoint, shown BEFORE any diff (BRD 1.2 5.10). SUPPLIED."
+      },
+      {
+        "name": "triggeredBy",
+        "type": "string",
+        "required": true,
+        "description": "The system or workflow that triggered the checkpoint, shown as supplied."
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "required": true,
+        "description": "A plain-language account of what the checkpoint is for, shown as supplied."
+      },
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": true,
+        "description": "The fixed card sequence: diff, accountability statement, acknowledgment, decision controls. Nothing else belongs between them."
+      }
+    ]
+  },
+  "ChoiceGroup": {
+    "file": "components/ChoiceGroup/ChoiceGroup.tsx",
+    "props": [
+      {
+        "name": "legend",
+        "type": "string",
+        "required": true,
+        "description": "Visible group label, exposed as the radio group's name."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": true,
+        "description": "Shared by the radios. Unique per group on the page."
+      },
+      {
+        "name": "options",
+        "type": "readonly ChoiceOption[]",
+        "required": true,
+        "description": "SUPPLIED. The component never hardcodes options or decides which are valid (BRD 1.2 5.7.1 Feature 2C)."
+      },
+      {
+        "name": "selection",
+        "type": "string",
+        "required": true,
+        "description": "Controlled: the composing layer owns the selection. Nothing is held as authoritative (BRD 1.2 5.7)."
+      },
+      {
+        "name": "onChange",
+        "type": "(value: string) => void",
+        "required": true,
+        "description": "Called with the value of the option the worker chose. The composing layer owns the selection."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the whole group unavailable. The options stay visible at reduced opacity."
+      },
+      {
+        "name": "emptyTitle",
+        "type": "string",
+        "required": true,
+        "description": "Supplied explanation when there are no options. Never blank."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Why there are no options and what would cause some to appear. Supplied text."
+      },
+      {
+        "name": "onFocus",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when focus enters the group."
+      },
+      {
+        "name": "onBlur",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when focus leaves the group."
+      }
+    ]
+  },
+  "ConfirmationGesture": {
+    "file": "components/checkpoint/ConfirmationGesture/ConfirmationGesture.tsx",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "The approve label, outcome-named, for example \"Approve changes\"."
+      },
+      {
+        "name": "armedLabel",
+        "type": "string",
+        "required": true,
+        "description": "The label while armed, for example \"Tap again to approve\". Supplied."
+      },
+      {
+        "name": "armedAnnouncement",
+        "type": "string",
+        "required": true,
+        "description": "Supplied, announced politely when the gesture is armed and when it times out."
+      },
+      {
+        "name": "disarmedAnnouncement",
+        "type": "string",
+        "required": true,
+        "description": "The message announced to assistive technology when the first interaction expires without a second."
+      },
+      {
+        "name": "enabled",
+        "type": "boolean",
+        "required": true,
+        "description": "Supplied by the canvas. The gesture does not decide that approval is valid."
+      },
+      {
+        "name": "processing",
+        "type": "boolean",
+        "required": false,
+        "description": "The approval was submitted and is awaiting its acknowledgment."
+      },
+      {
+        "name": "processingLabel",
+        "type": "string",
+        "required": true,
+        "description": "The label shown while the confirmed action is being carried out."
+      },
+      {
+        "name": "windowMs",
+        "type": "number",
+        "required": true,
+        "description": "How long the armed state waits for the confirming action. Supplied (a configurable window)."
+      },
+      {
+        "name": "onComplete",
+        "type": "() => void",
+        "required": true,
+        "description": "`gesture-complete`: emitted only by the SECOND deliberate action. A single tap never emits it."
+      }
+    ]
+  },
+  "DatePicker": {
+    "file": "components/DatePicker/DatePicker.tsx",
+    "props": [
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": "id of the visible label, set by FormField. A placeholder is never the label."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": false,
+        "description": "The form field name used when the value is submitted."
+      },
+      {
+        "name": "meaning",
+        "type": "string",
+        "required": true,
+        "description": "What this date MEANS, named specifically (for example `departure-date`, `valid-through`), never a generic \"date\" (BRD 1.2 5.7.1 Feature 5). Field services is a locality problem from week one: two dates with different meanings must never be collapsed into one field."
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "required": true,
+        "description": "Controlled: site-local \"YYYY-MM-DD\" or null for empty. The composing layer owns it. The picker holds no authoritative copy."
+      },
+      {
+        "name": "onChange",
+        "type": "(value: string | null) => void",
+        "required": true,
+        "description": "Emits a real calendar date inside the supplied bounds, or null when cleared. Anything else is ignored."
+      },
+      {
+        "name": "min",
+        "type": "string",
+        "required": false,
+        "description": "SUPPLIED bounds, \"YYYY-MM-DD\". The picker enforces them but never derives them (BRD 1.2 5.7.1 Feature 6)."
+      },
+      {
+        "name": "max",
+        "type": "string",
+        "required": false,
+        "description": "The latest date that can be chosen, as a site-local YYYY-MM-DD date."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the field unavailable. It stays visible at reduced opacity."
+      },
+      {
+        "name": "invalid",
+        "type": "boolean",
+        "required": false,
+        "description": "Marks the value as failing validation, so the field shows its error treatment."
+      },
+      {
+        "name": "describedBy",
+        "type": "string",
+        "required": false,
+        "description": "The id of the element that describes the field, such as its help or error text."
+      },
+      {
+        "name": "onFocus",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the field receives focus."
+      },
+      {
+        "name": "onBlur",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the field loses focus."
+      }
+    ]
+  },
+  "DecisionControls": {
+    "file": "components/checkpoint/DecisionControls/DecisionControls.tsx",
+    "props": [
+      {
+        "name": "rejectLabel",
+        "type": "string",
+        "required": true,
+        "description": "The label of the reject control. Supplied; never a generic word such as no or cancel."
+      },
+      {
+        "name": "approveLabel",
+        "type": "string",
+        "required": true,
+        "description": "The label of the approve control. Supplied; never a generic word such as yes or ok."
+      },
+      {
+        "name": "approveArmedLabel",
+        "type": "string",
+        "required": true,
+        "description": "The approve label shown after the first interaction, while the confirmation window is open."
+      },
+      {
+        "name": "approveArmedAnnouncement",
+        "type": "string",
+        "required": true,
+        "description": "The message announced to assistive technology when approve becomes armed."
+      },
+      {
+        "name": "approveDisarmedAnnouncement",
+        "type": "string",
+        "required": true,
+        "description": "The message announced to assistive technology when the confirmation window closes without approval."
+      },
+      {
+        "name": "processingLabel",
+        "type": "string",
+        "required": true,
+        "description": "The label shown on the control while the decision is being sent."
+      },
+      {
+        "name": "approveEnabled",
+        "type": "boolean",
+        "required": true,
+        "description": "RESOLVED upstream of this component (acknowledgment, decision-ready, supplied upstream condition). This component renders it and never computes or infers it (BRD 1.2 5.10 Feature 2B)."
+      },
+      {
+        "name": "rejectEnabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Resolved upstream too. Reject is available whenever the checkpoint can take a decision; it does not wait for the acknowledgment. It is unavailable only while the checkpoint is paused (for example revalidating after a lost connection). Defaults to true."
+      },
+      {
+        "name": "deciding",
+        "type": "\"approve\" | \"reject\"",
+        "required": true,
+        "description": "Which decision is in flight, if any. Both controls are inert while one is, so there is exactly one decision event."
+      },
+      {
+        "name": "confirmWindowMs",
+        "type": "number",
+        "required": true,
+        "description": "How long, in milliseconds, the second interaction is accepted after the first. Supplied upstream."
+      },
+      {
+        "name": "onApproveIntent",
+        "type": "() => void",
+        "required": true,
+        "description": "`approve-intent`: emitted only after the confirmation gesture completes."
+      },
+      {
+        "name": "onReject",
+        "type": "() => void",
+        "required": true,
+        "description": "`reject`: a single action, available whether or not the acknowledgment was completed."
+      }
+    ]
+  },
+  "DegradedBanner": {
+    "file": "components/DegradedBanner/DegradedBanner.tsx",
+    "props": [
+      {
+        "name": "message",
+        "type": "string",
+        "required": true,
+        "description": "The limitation, what it affects and what the worker can do, in plain words. Supplied text. Never generated from a condition code."
+      },
+      {
+        "name": "dismissLabel",
+        "type": "string",
+        "required": false,
+        "description": "The label of the dismiss control. Supplied text."
+      },
+      {
+        "name": "onDismiss",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the worker dismisses the banner (the `dismiss` event)."
+      }
+    ]
+  },
+  "DetailRow": {
+    "file": "components/DetailRow/DetailRow.tsx",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "The name of the value, shown beside it."
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "required": false,
+        "description": "Rendered exactly as supplied. An absent value renders an empty value, never a placeholder (BRD 1.2 5.6)."
+      },
+      {
+        "name": "status",
+        "type": "{ label: string; tone: PillTone; }",
+        "required": false,
+        "description": "SUPPLIED trailing status. Rendered by StatusPill and never derived from the value (BRD 1.2 5.6.1 Feature 1B)."
+      },
+      {
+        "name": "columnContext",
+        "type": "\"single\" | \"multi\"",
+        "required": false,
+        "description": "`multi` places label and value side by side from tablet up and collapses to one column on mobile (BRD 1.3 section 6.4)."
+      }
+    ]
+  },
+  "DiffView": {
+    "file": "components/checkpoint/DiffView/DiffView.tsx",
+    "props": [
+      {
+        "name": "diff",
+        "type": "DiffPayload",
+        "required": true,
+        "description": "Exactly what will be written, as supplied. Rendered, never transformed, edited or recomputed."
+      },
+      {
+        "name": "labels",
+        "type": "DiffViewLabels",
+        "required": true,
+        "description": "Every visible word the diff shows, such as the column and group names. Supplied so the view generates no text."
+      }
+    ]
+  },
+  "DonutChart": {
+    "file": "components/visualization/DonutChart.tsx",
+    "props": [
+      {
+        "name": "segments",
+        "type": "readonly DonutSegment[]",
+        "required": true,
+        "description": "At most FIVE segments. More is presented as a table."
+      },
+      {
+        "name": "centerValue",
+        "type": "string",
+        "required": true,
+        "description": "The primary value, written in the CENTRE of the ring: supplied text such as \"42 packets\". A donut with no centred value forces the worker to estimate proportions by eye (BRD 1.3 section 10.5), so it is required."
+      },
+      {
+        "name": "centerCaption",
+        "type": "string",
+        "required": false,
+        "description": "A short caption under the centred value, supplied."
+      },
+      {
+        "name": "valueFormat",
+        "type": "(n: number) => string",
+        "required": false,
+        "description": "Formats a number for display. It changes how a value reads, never the value."
+      },
+      {
+        "name": "onSegmentSelect",
+        "type": "(segmentId: string) => void",
+        "required": false,
+        "description": "`segment-select`: emitted when a segment is chosen, from the ring or the legend."
+      },
+      {
+        "name": "selectedSegmentId",
+        "type": "string",
+        "required": false,
+        "description": "The id of the segment shown as selected. The composing layer owns the selection."
+      },
+      {
+        "name": "legendLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the legend."
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "description": "The chart title, shown above the chart and used as its accessible name."
+      },
+      {
+        "name": "textAlternative",
+        "type": "string",
+        "required": true,
+        "description": "The key value in plain text. A worker who cannot read the chart for any reason must still be able to read the truth it shows."
+      },
+      {
+        "name": "status",
+        "type": "ChartStatus",
+        "required": false,
+        "description": "The condition of the data as supplied: loading, ready or degraded. An empty series shows the empty explanation."
+      },
+      {
+        "name": "degradedMessage",
+        "type": "string",
+        "required": false,
+        "description": "Supplied when the data is partial. Never inferred from the data."
+      },
+      {
+        "name": "emptyTitle",
+        "type": "string",
+        "required": true,
+        "description": "The heading shown when the chart has no data. Supplied text."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Why the chart is empty and what would cause data to appear. Supplied text, never blank."
+      }
+    ]
+  },
+  "EmptyState": {
+    "file": "components/EmptyState/EmptyState.tsx",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "description": "Why there is nothing here, and what would cause data to appear. SUPPLIED. Never blank, never invented."
+      },
+      {
+        "name": "explanation",
+        "type": "string",
+        "required": true,
+        "description": "Why there is nothing here and what would cause data to appear. Supplied text, never blank."
+      },
+      {
+        "name": "actionLabel",
+        "type": "string",
+        "required": false,
+        "description": "The label of the optional action. Supplied text."
+      },
+      {
+        "name": "onAction",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the worker takes the optional action."
+      }
+    ]
+  },
+  "FeedbackForm": {
+    "file": "components/FeedbackForm/FeedbackForm.tsx",
+    "props": [
+      {
+        "name": "open",
+        "type": "boolean",
+        "required": true,
+        "description": "Whether the form is open. The composing layer owns this."
+      },
+      {
+        "name": "presentation",
+        "type": "\"sheet\" | \"popover\"",
+        "required": true,
+        "description": "A popover on tablet and desktop, a bottom sheet on mobile (BRD 1.3 section 6.7)."
+      },
+      {
+        "name": "screenSummary",
+        "type": "string",
+        "required": true,
+        "description": "The screen the feedback is about, captured AUTOMATICALLY and shown read-only: the worker never describes it."
+      },
+      {
+        "name": "draft",
+        "type": "string",
+        "required": true,
+        "description": "Controlled draft, owned by the composing layer."
+      },
+      {
+        "name": "onDraftChange",
+        "type": "(draft: string) => void",
+        "required": true,
+        "description": "Called with the draft text on every edit. The composing layer owns the draft."
+      },
+      {
+        "name": "status",
+        "type": "\"idle\" | \"submitting\" | \"succeeded\" | \"failed\"",
+        "required": true,
+        "description": "Submission state is SUPPLIED. The form never decides success or failure itself (BRD 1.2 5.10 Feature 7)."
+      },
+      {
+        "name": "validationMessage",
+        "type": "string",
+        "required": false,
+        "description": "Supplied validation text for the field, if any."
+      },
+      {
+        "name": "maxLength",
+        "type": "number",
+        "required": true,
+        "description": "The longest message the field accepts, in characters. Supplied."
+      },
+      {
+        "name": "onSubmit",
+        "type": "() => void",
+        "required": true,
+        "description": "Called when the worker sends the feedback. The form never decides whether it succeeded."
+      },
+      {
+        "name": "onDismiss",
+        "type": "() => void",
+        "required": true,
+        "description": "Called when the worker closes the form without sending."
+      },
+      {
+        "name": "labels",
+        "type": "FeedbackLabels",
+        "required": true,
+        "description": "Every visible word and accessible name the form shows. Supplied so it generates no text."
+      },
+      {
+        "name": "portalTarget",
+        "type": "HTMLElement",
+        "required": false,
+        "description": "The element the form renders into, so it sits on the correct layer."
+      }
+    ]
+  },
+  "FormField": {
+    "file": "components/FormField/FormField.tsx",
+    "props": [
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": "The id of the control the label belongs to."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "Visible, programmatically associated label. Persists when the field holds a value."
+      },
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": true,
+        "description": "The wrapped control. It must use `id` and may set aria-describedby to `${id}-message`."
+      },
+      {
+        "name": "validationMessage",
+        "type": "string",
+        "required": false,
+        "description": "Supplied validation text. The wrapper never computes business validity."
+      },
+      {
+        "name": "helpText",
+        "type": "string",
+        "required": false,
+        "description": "A short hint shown under the control. Supplied text."
+      }
+    ]
+  },
+  "HealthBadge": {
+    "file": "components/HealthBadge/HealthBadge.tsx",
+    "props": [
+      {
+        "name": "availability",
+        "type": "Availability",
+        "required": true,
+        "description": "SUPPLIED. A badge renders availability and never derives it from other data (BRD 1.2 5.8)."
+      },
+      {
+        "name": "connection",
+        "type": "BadgeConnection",
+        "required": false,
+        "description": "The runtime dimension: is the feed that reports this availability itself live? When it is not, the badge cannot confirm what it shows, so it says so with a different shape instead of presenting a stale answer as current (BRD 1.2 5.8.1 Feature 1)."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "Supplied plain-language name, for example \"Service ERP is available\". Exposed to assistive technology."
+      },
+      {
+        "name": "text",
+        "type": "string",
+        "required": false,
+        "description": "Optional visible text beside the shape. Shape plus label always carries the state, never color alone."
+      }
+    ]
+  },
+  "HistoryList": {
+    "file": "components/HistoryList/HistoryList.tsx",
+    "props": [
+      {
+        "name": "status",
+        "type": "HistoryListStatus",
+        "required": true,
+        "description": "The condition of the history as supplied: loading, ready, empty, degraded or error. The list never works it out."
+      },
+      {
+        "name": "records",
+        "type": "readonly HistoryItem[]",
+        "required": true,
+        "description": "The past records, in the order supplied."
+      },
+      {
+        "name": "loadingMore",
+        "type": "boolean",
+        "required": true,
+        "description": "True while a further page is being fetched."
+      },
+      {
+        "name": "hasMore",
+        "type": "boolean",
+        "required": true,
+        "description": "True when more records exist. The list never decides this: it is supplied."
+      },
+      {
+        "name": "ariaLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the list."
+      },
+      {
+        "name": "degradedMessage",
+        "type": "string",
+        "required": false,
+        "description": "Supplied by upstream when the history is partial. Never inferred."
+      },
+      {
+        "name": "emptyTitle",
+        "type": "string",
+        "required": true,
+        "description": "Supplied explanations for the empty and error states."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Why there is no history. Supplied text, never blank."
+      },
+      {
+        "name": "errorTitle",
+        "type": "string",
+        "required": true,
+        "description": "The heading shown when history could not be loaded. Supplied text."
+      },
+      {
+        "name": "errorExplanation",
+        "type": "string",
+        "required": true,
+        "description": "What went wrong and what the worker can do, in plain words. Supplied text."
+      },
+      {
+        "name": "retryLabel",
+        "type": "string",
+        "required": true,
+        "description": "The label of the retry action in the error state."
+      },
+      {
+        "name": "loadMoreLabel",
+        "type": "string",
+        "required": true,
+        "description": "The label of the control that asks for more records."
+      },
+      {
+        "name": "statusLabel",
+        "type": "string",
+        "required": false,
+        "description": "Visible lead-ins for the optional status and sources lines. Required only when records carry them."
+      },
+      {
+        "name": "sourcesLabel",
+        "type": "string",
+        "required": false,
+        "description": "The heading above a record's sources, such as \"From\"."
+      },
+      {
+        "name": "loadingLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible message announced while history loads."
+      },
+      {
+        "name": "onRetry",
+        "type": "() => void",
+        "required": true,
+        "description": "Called when the worker asks to try loading history again."
+      },
+      {
+        "name": "onRequestMore",
+        "type": "() => void",
+        "required": true,
+        "description": "`request-more`: asked for as the end of the list scrolls into view. The canvas relays it; the list fetches nothing."
+      }
+    ]
+  },
+  "Icon": {
+    "file": "components/Icon/Icon.tsx",
+    "props": [
+      {
+        "name": "name",
+        "type": "\"user\" | \"arrow-right\" | \"alert-triangle\" | \"box\" | \"building-warehouse\" | \"camera\" | \"check\" | \"chevron-down\" | \"chevron-right\" | \"clipboard-check\" | \"clipboard-list\" | \"dots\" | \"eye\" | \"eye-off\" | \"file-text\" | \"help\" | \"inbox\" | \"layout-dashboard\" | \"lifebuoy\" | \"menu\" | \"message\" | \"minus\" | \"plus\" | \"refresh\" | \"send\" | \"settings\" | \"sparkles\" | \"wifi-off\" | \"x\"",
+        "required": true,
+        "description": "Which Tabler outline glyph to draw, from the fixed list the library allows."
+      },
+      {
+        "name": "size",
+        "type": "IconSize",
+        "required": false,
+        "description": "The icon size token: extra small, small, medium, large or extra large."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "required": false,
+        "description": "Informative icons carry a label. Decorative ones, and ones that repeat adjacent text, are hidden from assistive technology."
+      }
+    ]
+  },
+  "InlineError": {
+    "file": "components/InlineError/InlineError.tsx",
+    "props": [
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "description": "Plain-language title and body, SUPPLIED. A component never turns a code into text (BRD 1.2 5.2 Feature 8)."
+      },
+      {
+        "name": "body",
+        "type": "string",
+        "required": false,
+        "description": "A second line explaining the failure in plain words. Supplied text."
+      },
+      {
+        "name": "retryLabel",
+        "type": "string",
+        "required": false,
+        "description": "Recovery path where one exists. If none exists, say so in `body`."
+      },
+      {
+        "name": "onRetry",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the worker asks to retry the failed operation."
+      },
+      {
+        "name": "dismissLabel",
+        "type": "string",
+        "required": false,
+        "description": "The label of the dismiss control."
+      },
+      {
+        "name": "onDismiss",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the worker dismisses the message."
+      }
+    ]
+  },
+  "KeyValue": {
+    "file": "components/KeyValue/KeyValue.tsx",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "The name of the value."
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "required": false,
+        "description": "Rendered exactly as supplied. A KeyValue never reformats a value into a different meaning, and renders no placeholder when the value is absent: an absent value renders an empty value, not invented content."
+      },
+      {
+        "name": "emphasis",
+        "type": "boolean",
+        "required": false,
+        "description": "Emphasis flag from the composing layer. Data values are medium weight, not bold (BRD 1.3 section 4.2)."
+      }
+    ]
+  },
+  "Label": {
+    "file": "components/Label/Label.tsx",
+    "props": [
+      {
+        "name": "text",
+        "type": "string",
+        "required": true,
+        "description": "The text of the label. It is shown in capitals by the type token."
+      },
+      {
+        "name": "as",
+        "type": "\"span\" | \"p\"",
+        "required": false,
+        "description": "Renders as a <span>; use FormField for a real form label. A Label never substitutes for one."
+      }
+    ]
+  },
+  "LineChart": {
+    "file": "components/visualization/LineChart.tsx",
+    "props": [
+      {
+        "name": "xLabels",
+        "type": "readonly string[]",
+        "required": true,
+        "description": "One label per point, in order. The time axis is named by its specific meaning, for example a site-local date."
+      },
+      {
+        "name": "xKind",
+        "type": "\"text\" | \"site-local-date\"",
+        "required": false,
+        "description": "`site-local-date` formats \"YYYY-MM-DD\" labels without converting them to the viewer's time zone (BRD 1.2 5.3 Feature 2)."
+      },
+      {
+        "name": "series",
+        "type": "readonly ChartSeries[]",
+        "required": true,
+        "description": "At most FIVE series. More is presented as a table. `null` values leave a gap in the line: the chart never invents a point."
+      },
+      {
+        "name": "valueFormat",
+        "type": "(n: number) => string",
+        "required": false,
+        "description": "Formats a number for display. It changes how a value reads, never the value."
+      },
+      {
+        "name": "onPointSelect",
+        "type": "(selection: { seriesId: string; index: number; }) => void",
+        "required": false,
+        "description": "`point-select`: emitted when a point is chosen. When absent, points are not interactive and take no focus."
+      },
+      {
+        "name": "legendLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the legend."
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "description": "The chart title, shown above the chart and used as its accessible name."
+      },
+      {
+        "name": "textAlternative",
+        "type": "string",
+        "required": true,
+        "description": "The key value in plain text. A worker who cannot read the chart for any reason must still be able to read the truth it shows."
+      },
+      {
+        "name": "status",
+        "type": "ChartStatus",
+        "required": false,
+        "description": "The condition of the data as supplied: loading, ready or degraded. An empty series shows the empty explanation."
+      },
+      {
+        "name": "degradedMessage",
+        "type": "string",
+        "required": false,
+        "description": "Supplied when the data is partial. Never inferred from the data."
+      },
+      {
+        "name": "emptyTitle",
+        "type": "string",
+        "required": true,
+        "description": "The heading shown when the chart has no data. Supplied text."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Why the chart is empty and what would cause data to appear. Supplied text, never blank."
+      }
+    ]
+  },
+  "Link": {
+    "file": "components/Link/Link.tsx",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "The text of the link. Say where it goes or what it does."
+      },
+      {
+        "name": "href",
+        "type": "string",
+        "required": false,
+        "description": "Navigates. Provide this OR onActivate."
+      },
+      {
+        "name": "onActivate",
+        "type": "() => void",
+        "required": false,
+        "description": "Opens a secondary surface instead of navigating (for example the contextual feedback entry). Never a write or destructive action: those are Buttons and route through the checkpoint (BRD 1.2 5.5.1)."
+      },
+      {
+        "name": "tone",
+        "type": "\"default\" | \"on-chrome\"",
+        "required": false,
+        "description": "`on-chrome` for a link on an Evergreen surface (Warm Cream, never the default dark green)."
+      }
+    ]
+  },
+  "LookupField": {
+    "file": "components/LookupField/LookupField.tsx",
+    "props": [
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": "id of the visible label, set by FormField. Placeholder is never the label."
+      },
+      {
+        "name": "query",
+        "type": "string",
+        "required": true,
+        "description": "Controlled: the composing layer owns the query. After a selection it normally supplies the chosen label here."
+      },
+      {
+        "name": "onQueryChange",
+        "type": "(query: string) => void",
+        "required": true,
+        "description": "`query-change`: the current query text. Timing, cancellation and stale-response handling are owned OUTSIDE this component (BRD 1.2 5.7.1 Feature 2B)."
+      },
+      {
+        "name": "results",
+        "type": "readonly LookupResult[]",
+        "required": true,
+        "description": "SUPPLIED in order. The field renders it and never ranks, filters or resolves results for correctness."
+      },
+      {
+        "name": "data",
+        "type": "\"loading\" | \"ready\" | \"empty\" | \"idle\"",
+        "required": true,
+        "description": "Data dimension, supplied."
+      },
+      {
+        "name": "emptyMessage",
+        "type": "string",
+        "required": true,
+        "description": "Supplied text. `emptyMessage` explains why there are no results; `loadingMessage` and `resultsMessage` are announced."
+      },
+      {
+        "name": "loadingMessage",
+        "type": "string",
+        "required": true,
+        "description": "The message shown while results are being fetched. Supplied text."
+      },
+      {
+        "name": "resultsMessage",
+        "type": "string",
+        "required": false,
+        "description": "Optional supplied announcement for a delivered result set (for example \"3 results\"). Never computed here."
+      },
+      {
+        "name": "onSelect",
+        "type": "(id: string) => void",
+        "required": true,
+        "description": "`result-select`: emitted upward. The field keeps no authoritative copy of the selection."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the field unavailable. It stays visible at reduced opacity."
+      },
+      {
+        "name": "onFocus",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the field receives focus."
+      },
+      {
+        "name": "onBlur",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the field loses focus."
+      }
+    ]
+  },
+  "MoreMenu": {
+    "file": "components/MoreMenu/MoreMenu.tsx",
+    "props": [
+      {
+        "name": "open",
+        "type": "boolean",
+        "required": true,
+        "description": "The composing layer owns the authoritative open state; the menu renders it and asks to close (BRD 1.2 5.15.1)."
+      },
+      {
+        "name": "actions",
+        "type": "readonly MoreAction[]",
+        "required": true,
+        "description": "The three fixed actions (Ask Olannah, Feedback, Settings). Never varied by role."
+      },
+      {
+        "name": "overflowDestinations",
+        "type": "readonly NavItemModel[]",
+        "required": false,
+        "description": "Role destinations that did not fit in the tab bar, rendered as supplied."
+      },
+      {
+        "name": "onCloseRequest",
+        "type": "() => void",
+        "required": true,
+        "description": "Called when the worker asks to close the menu. The composing layer owns the open state."
+      },
+      {
+        "name": "onActionSelect",
+        "type": "(id: string) => void",
+        "required": true,
+        "description": "Called with the id of the action the worker chose."
+      },
+      {
+        "name": "onDestinationSelect",
+        "type": "(id: string) => void",
+        "required": true,
+        "description": "Called with the id of the destination the worker chose. The canvas performs the navigation."
+      },
+      {
+        "name": "portalTarget",
+        "type": "HTMLElement",
+        "required": false,
+        "description": "Portal host at the more-menu layer (z-250). If absent the menu renders in place."
+      }
+    ]
+  },
+  "NavigationRail": {
+    "file": "components/NavigationRail/NavigationRail.tsx",
+    "props": [
+      {
+        "name": "items",
+        "type": "readonly NavItemModel[]",
+        "required": true,
+        "description": "Rendered in the order SUPPLIED. The rail never reorders, filters, or decides which items a persona sees."
+      },
+      {
+        "name": "ariaLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the navigation landmark."
+      },
+      {
+        "name": "onSelect",
+        "type": "(id: string) => void",
+        "required": true,
+        "description": "Called with the destination id the worker chose. The canvas performs the navigation."
+      }
+    ]
+  },
+  "NavItem": {
+    "file": "components/NavItem/NavItem.tsx",
+    "props": [
+      {
+        "name": "layout",
+        "type": "\"rail\" | \"tab\"",
+        "required": true,
+        "description": "Whether the item sits in the side rail or the bottom tab bar."
+      },
+      {
+        "name": "onActivate",
+        "type": "(id: string) => void",
+        "required": true,
+        "description": "Called with the destination id when the worker activates the item. It never navigates itself."
+      },
+      {
+        "name": "ariaExpanded",
+        "type": "boolean",
+        "required": false,
+        "description": "Extra aria for the More item that controls a menu."
+      },
+      {
+        "name": "ariaHasPopup",
+        "type": "boolean",
+        "required": false,
+        "description": "Marks the item as one that opens a menu, such as More."
+      },
+      {
+        "name": "destinationId",
+        "type": "string",
+        "required": true,
+        "description": "Stable identifier of the destination. Matching, comparison and restoration use identifiers, never labels or routes."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "The destination name shown under or beside the icon, as supplied. A tenant may override it."
+      },
+      {
+        "name": "icon",
+        "type": "\"user\" | \"arrow-right\" | \"alert-triangle\" | \"box\" | \"building-warehouse\" | \"camera\" | \"check\" | \"chevron-down\" | \"chevron-right\" | \"clipboard-check\" | \"clipboard-list\" | \"dots\" | \"eye\" | \"eye-off\" | \"file-text\" | \"help\" | \"inbox\" | \"layout-dashboard\" | \"lifebuoy\" | \"menu\" | \"message\" | \"minus\" | \"plus\" | \"refresh\" | \"send\" | \"settings\" | \"sparkles\" | \"wifi-off\" | \"x\"",
+        "required": true,
+        "description": "The Tabler outline glyph for the destination."
+      },
+      {
+        "name": "active",
+        "type": "boolean",
+        "required": false,
+        "description": "Active is a SUPPLIED presentation condition, not an interaction state."
+      },
+      {
+        "name": "unavailable",
+        "type": "boolean",
+        "required": false,
+        "description": "A destination that cannot currently be reached. Supplied. Never uses the 40% disabled treatment."
+      },
+      {
+        "name": "unavailableReason",
+        "type": "string",
+        "required": false,
+        "description": "Supplied explanation, announced to assistive technology."
+      }
+    ]
+  },
+  "NumberInput": {
+    "file": "components/NumberInput/NumberInput.tsx",
+    "props": [
+      {
+        "name": "value",
+        "type": "number",
+        "required": true,
+        "description": "Controlled: the composing layer owns the value. `null` is an empty field. The input holds no authoritative copy."
+      },
+      {
+        "name": "onChange",
+        "type": "(value: number | null) => void",
+        "required": true,
+        "description": "Called with the number the worker entered, or null when the field is empty."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": "id of the visible label, set by FormField. Placeholder is never the label."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": false,
+        "description": "The form field name used when the value is submitted."
+      },
+      {
+        "name": "minimum",
+        "type": "number",
+        "required": false,
+        "description": "SUPPLIED bounds and step. The input enforces them but never derives them (BRD 1.2 5.7.1 Feature 6)."
+      },
+      {
+        "name": "maximum",
+        "type": "number",
+        "required": false,
+        "description": "The largest value the field accepts. Supplied; the component enforces it."
+      },
+      {
+        "name": "step",
+        "type": "number",
+        "required": false,
+        "description": "How much the steppers add or remove. One by default."
+      },
+      {
+        "name": "steppers",
+        "type": "{ decrementLabel: string; incrementLabel: string; }",
+        "required": false,
+        "description": "Steppers are one display option. Their accessible names are supplied."
+      },
+      {
+        "name": "decimal",
+        "type": "boolean",
+        "required": false,
+        "description": "Whether a decimal keypad is wanted. Integers by default."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the field unavailable. It stays visible at reduced opacity."
+      },
+      {
+        "name": "invalid",
+        "type": "boolean",
+        "required": false,
+        "description": "Marks the value as failing validation, so the field shows its error treatment."
+      },
+      {
+        "name": "describedBy",
+        "type": "string",
+        "required": false,
+        "description": "The id of the element that describes the field, such as its help or error text."
+      },
+      {
+        "name": "onFocus",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the field receives focus."
+      },
+      {
+        "name": "onBlur",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the field loses focus."
+      }
+    ]
+  },
+  "PasswordInput": {
+    "file": "components/PasswordInput/PasswordInput.tsx",
+    "props": [
+      {
+        "name": "value",
+        "type": "string",
+        "required": true,
+        "description": "Controlled: the composing layer owns the value. This component never stores or logs it."
+      },
+      {
+        "name": "onChange",
+        "type": "(value: string) => void",
+        "required": true,
+        "description": "Called with the text as the worker types. The value is never stored or logged."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": "The id the field label points at."
+      },
+      {
+        "name": "autoComplete",
+        "type": "\"current-password\" | \"new-password\"",
+        "required": true,
+        "description": "`current-password` for sign in, `new-password` for sign up and password change. Lets password managers help."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the field unavailable. It stays visible at reduced opacity."
+      },
+      {
+        "name": "invalid",
+        "type": "boolean",
+        "required": false,
+        "description": "Marks the value as failing validation, so the field shows its error treatment."
+      },
+      {
+        "name": "describedBy",
+        "type": "string",
+        "required": false,
+        "description": "The id of the element that describes the field, such as its help or error text."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": false,
+        "description": "The form field name used when the value is submitted."
+      },
+      {
+        "name": "maxLength",
+        "type": "number",
+        "required": false,
+        "description": "The longest value the field accepts, in characters."
+      },
+      {
+        "name": "showLabel",
+        "type": "string",
+        "required": true,
+        "description": "Supplied accessible names for the visibility toggle."
+      },
+      {
+        "name": "hideLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the toggle while the password is visible, such as \"Hide password\"."
+      }
+    ]
+  },
+  "PhotoCapture": {
+    "file": "components/PhotoCapture/PhotoCapture.tsx",
+    "props": [
+      {
+        "name": "prompt",
+        "type": "string",
+        "required": true,
+        "description": "Supplied prompt text, for example \"Photograph the data plate\"."
+      },
+      {
+        "name": "captureLabel",
+        "type": "string",
+        "required": true,
+        "description": "Supplied outcome-named label for the capture button."
+      },
+      {
+        "name": "requiredLabel",
+        "type": "string",
+        "required": true,
+        "description": "Supplied text shown when the photo is required (for example \"Required\"). Shown only when `required` is true."
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "required": false,
+        "description": "Whether a photo must be attached. Shows the required marker."
+      },
+      {
+        "name": "captured",
+        "type": "readonly CapturedPhoto[]",
+        "required": true,
+        "description": "SUPPLIED references to photos already captured. The prompt renders them and owns no capture or upload session."
+      },
+      {
+        "name": "emptyMessage",
+        "type": "string",
+        "required": true,
+        "description": "The prompt shown before a photo is attached. Supplied text."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the control unavailable. It stays visible at reduced opacity."
+      },
+      {
+        "name": "onCaptureRequest",
+        "type": "() => void",
+        "required": false,
+        "description": "`capture-request`: the worker asked to capture."
+      },
+      {
+        "name": "onCaptureComplete",
+        "type": "(files: readonly File[]) => void",
+        "required": true,
+        "description": "`capture-complete`: the device returned image files. They are handed upward untouched and are not stored here. The canvas (or a future CaptureSession surface) owns camera, upload and retry state (BRD 1.2 5.7.1 Feature 7)."
+      }
+    ]
+  },
+  "ProgressRing": {
+    "file": "components/visualization/ProgressRing.tsx",
+    "props": [
+      {
+        "name": "value",
+        "type": "number",
+        "required": true,
+        "description": "SUPPLIED, named by what they measure. The ring draws the ratio; it never turns it into a derived status (BRD 1.2 5.9)."
+      },
+      {
+        "name": "total",
+        "type": "number",
+        "required": true,
+        "description": "The whole the value is measured against. The ring draws the ratio and derives no status from it."
+      },
+      {
+        "name": "centeredLabel",
+        "type": "string",
+        "required": true,
+        "description": "The figure written in the CENTRE, supplied and short (for example \"70%\" or \"7/10\"). A ring without it forces the worker to estimate a proportion by eye, which introduces error into operational decisions (BRD 1.3 section 10.5)."
+      },
+      {
+        "name": "textAlternative",
+        "type": "string",
+        "required": true,
+        "description": "Supplied plain-text equivalent, exposed to assistive technology."
+      },
+      {
+        "name": "size",
+        "type": "32 | 48",
+        "required": false,
+        "description": "32px or 48px (BRD 1.3 section 10.3)."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Supplied explanation when there is nothing to draw (no total). Never blank."
+      }
+    ]
+  },
+  "RecordList": {
+    "file": "components/RecordList/RecordList.tsx",
+    "props": [
+      {
+        "name": "records",
+        "type": "readonly RecordRow[]",
+        "required": true,
+        "description": "Rendered in the order SUPPLIED. A list never sorts or filters for correctness (BRD 1.2 5.6.1 Feature 2)."
+      },
+      {
+        "name": "ariaLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the list."
+      },
+      {
+        "name": "emptyTitle",
+        "type": "string",
+        "required": true,
+        "description": "A short statement that there are no records. SUPPLIED."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Why there are no records and what would cause some to appear. SUPPLIED. Never blank."
+      },
+      {
+        "name": "onSelect",
+        "type": "(id: string) => void",
+        "required": false,
+        "description": "When given, rows are buttons that emit `row-select`."
+      }
+    ]
+  },
+  "SectionHeader": {
+    "file": "components/SectionHeader/SectionHeader.tsx",
+    "props": [
+      {
+        "name": "text",
+        "type": "string",
+        "required": true,
+        "description": "The heading text."
+      },
+      {
+        "name": "size",
+        "type": "HeadingSize",
+        "required": false,
+        "description": "The heading size token. It never exceeds 28px."
+      },
+      {
+        "name": "level",
+        "type": "HeadingLevel",
+        "required": false,
+        "description": "Semantic level is independent of visual size."
+      },
+      {
+        "name": "trailing",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Content placed at the end of the header, such as a status."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "required": false,
+        "description": "The element id, so the section it names can point at it."
+      }
+    ]
+  },
+  "Select": {
+    "file": "components/Select/Select.tsx",
+    "props": [
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": "id of the visible label, set by FormField. A placeholder is never the label."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": false,
+        "description": "The form field name used when the value is submitted."
+      },
+      {
+        "name": "options",
+        "type": "readonly SelectOption[]",
+        "required": true,
+        "description": "SUPPLIED. The select renders these options and fetches none. It never decides which options are valid: that is the source system's business (BRD 1.2 5.7.1 Feature 2C)."
+      },
+      {
+        "name": "selection",
+        "type": "string",
+        "required": true,
+        "description": "Controlled: the composing layer owns the selection. `null` is \"nothing chosen yet\". Nothing is held as authoritative."
+      },
+      {
+        "name": "onChange",
+        "type": "(value: string) => void",
+        "required": true,
+        "description": "Called with the value of the option the worker chose."
+      },
+      {
+        "name": "placeholder",
+        "type": "string",
+        "required": true,
+        "description": "Supplied text for the unselected state, for example \"Choose a failure condition\". Shown as a disabled first option."
+      },
+      {
+        "name": "emptyLabel",
+        "type": "string",
+        "required": true,
+        "description": "Supplied text shown instead of an empty list. Never blank."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the field unavailable. It stays visible at reduced opacity."
+      },
+      {
+        "name": "invalid",
+        "type": "boolean",
+        "required": false,
+        "description": "Marks the value as failing validation, so the field shows its error treatment."
+      },
+      {
+        "name": "describedBy",
+        "type": "string",
+        "required": false,
+        "description": "The id of the element that describes the field, such as its help or error text."
+      },
+      {
+        "name": "onFocus",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the field receives focus."
+      },
+      {
+        "name": "onBlur",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the field loses focus."
+      }
+    ]
+  },
+  "Skeleton": {
+    "file": "components/Skeleton/Skeleton.tsx",
+    "props": [
+      {
+        "name": "shape",
+        "type": "SkeletonShape",
+        "required": true,
+        "description": "The shape of the content that is on its way, from the design system table."
+      },
+      {
+        "name": "cardHeight",
+        "type": "\"sm\" | \"md\" | \"lg\"",
+        "required": false,
+        "description": "Cards have variable height. Ignored for every other shape."
+      },
+      {
+        "name": "shimmer",
+        "type": "boolean",
+        "required": false,
+        "description": "Whether the shimmer sweep runs. True by default. It never runs on an action button or a card frame, whatever is passed (BRD 1.3 section 8.3)."
+      }
+    ]
+  },
+  "SLAIndicator": {
+    "file": "components/visualization/SLAIndicator.tsx",
+    "props": [
+      {
+        "name": "current",
+        "type": "number",
+        "required": true,
+        "description": "SUPPLIED, named by meaning. The marker reflects what it is given."
+      },
+      {
+        "name": "threshold",
+        "type": "number",
+        "required": true,
+        "description": "The point on the scale the marker sits at. Supplied; the component never decides whether it is breached."
+      },
+      {
+        "name": "minimum",
+        "type": "number",
+        "required": false,
+        "description": "The scale. Supplied: the indicator never derives its own bounds."
+      },
+      {
+        "name": "maximum",
+        "type": "number",
+        "required": true,
+        "description": "The end of the scale the current value is measured against."
+      },
+      {
+        "name": "valueLabel",
+        "type": "string",
+        "required": true,
+        "description": "Supplied text for the current value (for example \"2h 10m remaining\") and for the threshold marker (for example \"SLA 4h\")."
+      },
+      {
+        "name": "thresholdLabel",
+        "type": "string",
+        "required": true,
+        "description": "The text for the threshold marker, so it is not shown by shape or colour alone."
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "required": true,
+        "description": "The chart title, shown above the chart and used as its accessible name."
+      },
+      {
+        "name": "textAlternative",
+        "type": "string",
+        "required": true,
+        "description": "The key value in plain text. A worker who cannot read the chart for any reason must still be able to read the truth it shows."
+      },
+      {
+        "name": "status",
+        "type": "ChartStatus",
+        "required": false,
+        "description": "The condition of the data as supplied: loading, ready or degraded. An empty series shows the empty explanation."
+      },
+      {
+        "name": "degradedMessage",
+        "type": "string",
+        "required": false,
+        "description": "Supplied when the data is partial. Never inferred from the data."
+      },
+      {
+        "name": "emptyTitle",
+        "type": "string",
+        "required": true,
+        "description": "The heading shown when the chart has no data. Supplied text."
+      },
+      {
+        "name": "emptyExplanation",
+        "type": "string",
+        "required": true,
+        "description": "Why the chart is empty and what would cause data to appear. Supplied text, never blank."
+      }
+    ]
+  },
+  "StatTile": {
+    "file": "components/StatTile/StatTile.tsx",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "What the figure is, such as \"Jobs today\"."
+      },
+      {
+        "name": "value",
+        "type": "string | number",
+        "required": true,
+        "description": "SUPPLIED. A tile renders a figure and never computes one (a count, a total, a percentage). An unknown figure is supplied as an em dash."
+      },
+      {
+        "name": "status",
+        "type": "\"warning\" | \"error\"",
+        "required": false,
+        "description": "The shape beside the figure, SUPPLIED: a warning triangle or an error circle. Null shows none, including beside a zero. The tile never decides that a figure needs attention: that is upstream's judgment, and the shape plus the label carry it, never colour alone."
+      },
+      {
+        "name": "caption",
+        "type": "string",
+        "required": false,
+        "description": "A short supporting line under the figure. Supplied text."
+      },
+      {
+        "name": "tone",
+        "type": "\"success\" | \"default\" | \"attention\"",
+        "required": false,
+        "description": "Emphasis chosen upstream. `attention` adds a warning border. The caption text carries the meaning."
+      }
+    ]
+  },
+  "StatusIndicator": {
+    "file": "components/StatusIndicator/StatusIndicator.tsx",
+    "props": [
+      {
+        "name": "state",
+        "type": "StatusState",
+        "required": true,
+        "description": "The condition to show: success, warning, error, checkpoint, inactive or loading. Each has its own shape."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "Plain-language accessible name, supplied by the caller. Never derived from a code."
+      },
+      {
+        "name": "decorative",
+        "type": "boolean",
+        "required": false,
+        "description": "Hide from assistive technology when adjacent visible text already says the same thing."
+      },
+      {
+        "name": "size",
+        "type": "\"sm\" | \"md\" | \"lg\"",
+        "required": false,
+        "description": "The marker size: small, medium or large."
+      }
+    ]
+  },
+  "StatusPill": {
+    "file": "components/StatusPill/StatusPill.tsx",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "The status text, supplied. A pill renders a status; it never derives one from other data."
+      },
+      {
+        "name": "tone",
+        "type": "PillTone",
+        "required": true,
+        "description": "The meaning the pill carries: success, warning, error, checkpoint or neutral. The label always says it in words too."
+      }
+    ]
+  },
+  "Surface": {
+    "file": "components/Surface/Surface.tsx",
+    "props": [
+      {
+        "name": "role",
+        "type": "SurfaceRole",
+        "required": true,
+        "description": "The structural role: workspace, card, panel or chrome. It decides the background."
+      },
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": false,
+        "description": "The content placed on the surface."
+      },
+      {
+        "name": "as",
+        "type": "\"div\" | \"section\" | \"main\" | \"aside\" | \"header\"",
+        "required": false,
+        "description": "The HTML element to render, so the surface carries the right landmark."
+      },
+      {
+        "name": "padding",
+        "type": "3 | 4 | 5 | 6 | 8",
+        "required": false,
+        "description": "Spacing token name, e.g. 4 means --space-4. Internal padding only; Surface applies no outer margin."
+      },
+      {
+        "name": "bordered",
+        "type": "boolean",
+        "required": false,
+        "description": "Cards separate from the cream workspace by border, not shadow (BRD 1.3 section 7)."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "An extra class for placing the surface in a layout. It must not change colours or elevation."
+      }
+    ]
+  },
+  "SyncDot": {
+    "file": "components/SyncDot/SyncDot.tsx",
+    "props": [
+      {
+        "name": "freshness",
+        "type": "Freshness",
+        "required": true,
+        "description": "How current the shown data is: fresh, syncing or stale. Supplied, never worked out."
+      },
+      {
+        "name": "connectivity",
+        "type": "Connectivity",
+        "required": false,
+        "description": "The state of the connection: connected, reconnecting or disconnected. Kept apart from freshness."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "Visible text beside the dot, supplied (for example \"Synced\")."
+      }
+    ]
+  },
+  "TabBar": {
+    "file": "components/TabBar/TabBar.tsx",
+    "props": [
+      {
+        "name": "items",
+        "type": "readonly NavItemModel[]",
+        "required": true,
+        "description": "Rendered as supplied (at most five)."
+      },
+      {
+        "name": "ariaLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the navigation landmark."
+      },
+      {
+        "name": "onSelect",
+        "type": "(id: string) => void",
+        "required": true,
+        "description": "Called with the destination id the worker chose. The canvas performs the navigation."
+      },
+      {
+        "name": "menuItemId",
+        "type": "string",
+        "required": false,
+        "description": "The item that opens a menu (More) reports it."
+      },
+      {
+        "name": "menuOpen",
+        "type": "boolean",
+        "required": false,
+        "description": "Whether the More menu is open, so the More item shows the right state."
+      }
+    ]
+  },
+  "TextArea": {
+    "file": "components/TextArea/TextArea.tsx",
+    "props": [
+      {
+        "name": "value",
+        "type": "string",
+        "required": true,
+        "description": "Controlled: the composing layer owns the value (and the draft). The field holds no authoritative copy."
+      },
+      {
+        "name": "onChange",
+        "type": "(value: string) => void",
+        "required": true,
+        "description": "Called with the text as the worker types."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": "id of the visible label, set by FormField. Placeholder is never the label."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": false,
+        "description": "The form field name used when the value is submitted."
+      },
+      {
+        "name": "rows",
+        "type": "number",
+        "required": false,
+        "description": "How many lines tall the field starts."
+      },
+      {
+        "name": "maxLength",
+        "type": "number",
+        "required": false,
+        "description": "The longest value the field accepts, in characters."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the field unavailable. It stays visible at reduced opacity."
+      },
+      {
+        "name": "invalid",
+        "type": "boolean",
+        "required": false,
+        "description": "Marks the value as failing validation, so the field shows its error treatment."
+      },
+      {
+        "name": "describedBy",
+        "type": "string",
+        "required": false,
+        "description": "The id of the element that describes the field, such as its help or error text."
+      }
+    ]
+  },
+  "TextInput": {
+    "file": "components/TextInput/TextInput.tsx",
+    "props": [
+      {
+        "name": "value",
+        "type": "string",
+        "required": true,
+        "description": "Controlled: the composing layer owns the value. The input holds no authoritative copy (BRD 1.2 5.7)."
+      },
+      {
+        "name": "onChange",
+        "type": "(value: string) => void",
+        "required": true,
+        "description": "Called with the text as the worker types. The composing layer owns the value."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": "id of the visible label, set by FormField. Placeholder is never the label."
+      },
+      {
+        "name": "type",
+        "type": "\"text\" | \"email\" | \"password\"",
+        "required": false,
+        "description": "The native input type: text, email or password."
+      },
+      {
+        "name": "autoComplete",
+        "type": "string",
+        "required": false,
+        "description": "The browser autofill hint, such as \"email\" or \"current-password\"."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Makes the field unavailable. It stays visible at reduced opacity."
+      },
+      {
+        "name": "invalid",
+        "type": "boolean",
+        "required": false,
+        "description": "Marks the value as failing validation, so the field shows its error treatment."
+      },
+      {
+        "name": "describedBy",
+        "type": "string",
+        "required": false,
+        "description": "The id of the element that describes the field, such as its help or error text."
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "required": false,
+        "description": "Marks the field as required for assistive technology and validation."
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": false,
+        "description": "The form field name used when the value is submitted."
+      },
+      {
+        "name": "maxLength",
+        "type": "number",
+        "required": false,
+        "description": "Upper bound enforced by the browser as well as by validation."
+      },
+      {
+        "name": "inputMode",
+        "type": "\"text\" | \"email\" | \"numeric\" | \"tel\"",
+        "required": false,
+        "description": "Which on-screen keyboard a phone shows: text, email, numeric or tel."
+      },
+      {
+        "name": "hardened",
+        "type": "boolean",
+        "required": false,
+        "description": "Identifiers and passwords must not be auto-capitalized, auto-corrected or spell-checked (and sent to a dictionary)."
+      }
+    ]
+  },
+  "Toast": {
+    "file": "components/Toast/Toast.tsx",
+    "props": [
+      {
+        "name": "message",
+        "type": "string",
+        "required": true,
+        "description": "Supplied text. A toast never builds its message from a code."
+      },
+      {
+        "name": "tone",
+        "type": "\"success\" | \"info\"",
+        "required": false,
+        "description": "Success or info. The message always says it in words too."
+      },
+      {
+        "name": "durationMs",
+        "type": "number",
+        "required": false,
+        "description": "Default 7 seconds (BRD 1.2 5.8 Feature 8). The shell passes the configured value."
+      },
+      {
+        "name": "dismissLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the dismiss control."
+      },
+      {
+        "name": "onDismiss",
+        "type": "() => void",
+        "required": true,
+        "description": "Called when the toast should go, after its supplied duration or when the worker dismisses it."
+      }
+    ]
+  },
+  "WidgetContainer": {
+    "file": "components/WidgetContainer/WidgetContainer.tsx",
+    "props": [
+      {
+        "name": "widget",
+        "type": "unknown",
+        "required": true,
+        "description": "The widget exactly as delivered. It is validated here, never trusted."
+      },
+      {
+        "name": "headerLabel",
+        "type": "string",
+        "required": true,
+        "description": "The widget's own header text, supplied (for example \"Olannah Insight\")."
+      },
+      {
+        "name": "fallbackTitle",
+        "type": "string",
+        "required": true,
+        "description": "Supplied worker-facing fallback text for anything that cannot be rendered. No schema, type or code."
+      },
+      {
+        "name": "fallbackMessage",
+        "type": "string",
+        "required": true,
+        "description": "What the worker sees when the payload is unsupported or invalid. Plain words, no version or type name."
+      },
+      {
+        "name": "onDiagnostic",
+        "type": "(reason: WidgetDiagnostic) => void",
+        "required": false,
+        "description": "Receives WHY a widget could not render, so unsupported (a version problem) and invalid (an upstream defect) stay distinguishable in diagnostics even though the worker sees the same fallback. Not an interaction event."
+      }
+    ]
+  },
+  "WorkflowStepper": {
+    "file": "components/WorkflowStepper/WorkflowStepper.tsx",
+    "props": [
+      {
+        "name": "steps",
+        "type": "readonly WorkflowStep[]",
+        "required": true,
+        "description": "Ordered steps, rendered in the order supplied. Empty renders nothing: the composing layer chooses an EmptyState."
+      },
+      {
+        "name": "activeStepId",
+        "type": "string",
+        "required": true,
+        "description": "SUPPLIED, never computed: which step is the current one."
+      },
+      {
+        "name": "ariaLabel",
+        "type": "string",
+        "required": true,
+        "description": "The accessible name of the steps list."
+      },
+      {
+        "name": "onSelect",
+        "type": "(id: string) => void",
+        "required": false,
+        "description": "`step-select`: the worker asked to look at a step."
+      },
+      {
+        "name": "onAdvance",
+        "type": "(id: string) => void",
+        "required": false,
+        "description": "`step-advance`: the worker asked to move a step forward. The stepper advances and completes nothing itself: the canvas decides, and any write routes through the checkpoint (BRD 1.2 5.6 Prohibited)."
+      },
+      {
+        "name": "initialContinuity",
+        "type": "WorkflowContinuity",
+        "required": false,
+        "description": "Presentation continuity (which step was open), handed in and out by the shell's persistence manager. This component is persistence-CAPABLE only: the shell decides whether it persists, and nothing here is workflow progress (BRD 1.2 5.4)."
+      },
+      {
+        "name": "onContinuity",
+        "type": "(c: WorkflowContinuity) => void",
+        "required": false,
+        "description": "Called with the expanded step so the shell can restore it if the stepper is preserved across a layout change."
+      }
+    ]
+  }
+}

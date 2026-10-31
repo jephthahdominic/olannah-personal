@@ -5,11 +5,17 @@ import { ConfirmationGesture } from '../ConfirmationGesture/ConfirmationGesture'
 import styles from './DecisionControls.module.css';
 
 export interface DecisionControlsProps {
+  /** The label of the reject control. Supplied; never a generic word such as no or cancel. */
   rejectLabel: string;
+  /** The label of the approve control. Supplied; never a generic word such as yes or ok. */
   approveLabel: string;
+  /** The approve label shown after the first interaction, while the confirmation window is open. */
   approveArmedLabel: string;
+  /** The message announced to assistive technology when approve becomes armed. */
   approveArmedAnnouncement: string;
+  /** The message announced to assistive technology when the confirmation window closes without approval. */
   approveDisarmedAnnouncement: string;
+  /** The label shown on the control while the decision is being sent. */
   processingLabel: string;
   /** RESOLVED upstream of this component (acknowledgment, decision-ready, supplied upstream condition). This component renders it
    *  and never computes or infers it (BRD 1.2 5.10 Feature 2B). */
@@ -19,6 +25,7 @@ export interface DecisionControlsProps {
   rejectEnabled?: boolean;
   /** Which decision is in flight, if any. Both controls are inert while one is, so there is exactly one decision event. */
   deciding: 'approve' | 'reject' | null;
+  /** How long, in milliseconds, the second interaction is accepted after the first. Supplied upstream. */
   confirmWindowMs: number;
   /** `approve-intent`: emitted only after the confirmation gesture completes. */
   onApproveIntent: () => void;

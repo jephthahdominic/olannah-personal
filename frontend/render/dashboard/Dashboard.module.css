@@ -1,0 +1,28 @@
+.dashboard { display: flex; flex-direction: column; gap: var(--space-4); }
+.greeting { display: flex; flex-direction: column; gap: var(--space-1); }
+.greeting h1 { margin: 0; }
+.date, .muted { margin: 0; color: var(--color-text-secondary); }
+
+.jobsRow { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.jobsRow h2 { margin: 0; }
+.updating { margin: 0; display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-text-primary); }
+
+.counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+
+/* The next job: a white card with a dark green frame, so it is the thing to look at. */
+.jobFrame { border: 2px solid var(--color-brand-primary); border-radius: var(--radius-md); overflow: hidden; }
+.job { display: flex; flex-direction: column; gap: var(--space-4); }
+.jobHead { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+.jobHead p { margin: 0; }
+.reference { color: var(--color-brand-primary); }
+.jobBody { display: flex; flex-direction: column; gap: var(--space-1); }
+.jobBody p { margin: 0; }
+.note { display: flex; align-items: flex-start; gap: var(--space-3); }
+.note p { margin: 0; }
+.noteIcon { flex: none; display: inline-flex; }
+
+.group { display: flex; flex-direction: column; gap: var(--space-2); }
+.group h2 { margin: 0; }
+.groupCard { overflow: hidden; border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-md); }
+.groupHead { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface-panel); border-block-end: 1px solid var(--color-brand-secondary); }
+.groupHead h3 { margin: 0; }

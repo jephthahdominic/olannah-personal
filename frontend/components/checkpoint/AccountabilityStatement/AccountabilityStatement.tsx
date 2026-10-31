@@ -5,6 +5,7 @@ export interface AccountabilityStatementProps {
   statement: string;
   /** Optional supplied lead-in, for example "Before you decide". */
   heading?: string;
+  /** The element id, so a decision control can reference the statement as its accessible description. */
   id?: string;
 }
 

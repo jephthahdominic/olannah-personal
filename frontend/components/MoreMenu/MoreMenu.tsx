@@ -21,8 +21,11 @@ export interface MoreMenuProps {
   actions: readonly MoreAction[];
   /** Role destinations that did not fit in the tab bar, rendered as supplied. */
   overflowDestinations?: readonly NavItemModel[];
+  /** Called when the worker asks to close the menu. The composing layer owns the open state. */
   onCloseRequest: () => void;
+  /** Called with the id of the action the worker chose. */
   onActionSelect: (id: string) => void;
+  /** Called with the id of the destination the worker chose. The canvas performs the navigation. */
   onDestinationSelect: (id: string) => void;
   /** Portal host at the more-menu layer (z-250). If absent the menu renders in place. */
   portalTarget?: HTMLElement | null;
@@ -68,7 +71,7 @@ export function MoreMenu({ open, actions, overflowDestinations = [], onCloseRequ
         {overflowDestinations.length > 0 && (
           <ul className={styles.overflow}>
             {overflowDestinations.map((item) => (
-              <li key={item.id}>
+              <li key={item.destinationId}>
                 <NavItem {...item} layout="rail" onActivate={onDestinationSelect} />
               </li>
             ))}
@@ -78,7 +81,7 @@ export function MoreMenu({ open, actions, overflowDestinations = [], onCloseRequ
           <button key={action.id} type="button" role="menuitem" className={styles.action} onClick={() => onActionSelect(action.id)}>
             <span className={`${styles.card} `}>
               <span className="type-heading-sm">{action.title}</span>
-              <span className={`${styles.desc} type-caption`}>{action.description}</span>
+              <span className={`${styles.desc} type-body-sm`}>{action.description}</span>
             </span>
             <span className={styles.circle}>
               <Icon name={action.icon} size="md" />

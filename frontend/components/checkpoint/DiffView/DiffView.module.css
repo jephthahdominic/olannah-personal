@@ -2,7 +2,7 @@
 /* One column at narrow widths; the meta facts sit side by side from tablet up. */
 .meta { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
 .fields { list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
-.field { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--color-surface-panel); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.field { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--color-surface-panel); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-md); }
 .values { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
 .values dt { color: var(--color-text-secondary); }
 .values dd { overflow-wrap: anywhere; }

@@ -5,11 +5,13 @@ import styles from './StatusIndicator.module.css';
 export type StatusState = 'success' | 'warning' | 'error' | 'checkpoint' | 'inactive' | 'loading';
 
 export interface StatusIndicatorProps {
+  /** The condition to show: success, warning, error, checkpoint, inactive or loading. Each has its own shape. */
   state: StatusState;
   /** Plain-language accessible name, supplied by the caller. Never derived from a code. */
   label: string;
   /** Hide from assistive technology when adjacent visible text already says the same thing. */
   decorative?: boolean;
+  /** The marker size: small, medium or large. */
   size?: 'sm' | 'md' | 'lg';
 }
 

@@ -17,9 +17,11 @@ export interface RecordRow {
 export interface RecordListProps {
   /** Rendered in the order SUPPLIED. A list never sorts or filters for correctness (BRD 1.2 5.6.1 Feature 2). */
   records: readonly RecordRow[];
+  /** The accessible name of the list. */
   ariaLabel: string;
-  /** Why there is nothing here and what would cause data to appear. SUPPLIED. Never blank. */
+  /** A short statement that there are no records. SUPPLIED. */
   emptyTitle: string;
+  /** Why there are no records and what would cause some to appear. SUPPLIED. Never blank. */
   emptyExplanation: string;
   /** When given, rows are buttons that emit `row-select`. */
   onSelect?: (id: string) => void;
@@ -35,11 +37,13 @@ export function RecordList({ records, ariaLabel, emptyTitle, emptyExplanation, o
           <>
             {r.timeLocal && <span className={`${styles.time} type-data`}>{formatSiteLocalTime(r.timeLocal)}</span>}
             <span className={styles.text}>
-              <span className="type-heading-sm">{r.title}</span>
+              <span className={styles.titleRow}>
+                <span className="type-body">{r.title}</span>
+                {r.status && <StatusPill label={r.status.label} tone={r.status.tone} />}
+              </span>
               {r.subtitle && <span className={`${styles.subtitle} type-body-sm`}>{r.subtitle}</span>}
             </span>
             {r.trailing && <span className={`${styles.trailing} type-data`}>{r.trailing}</span>}
-            {r.status && <StatusPill label={r.status.label} tone={r.status.tone} />}
             {onSelect && <Icon name="chevron-right" size="md" />}
           </>
         );

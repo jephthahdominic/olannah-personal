@@ -1,4 +1,4 @@
-import { validateContext } from '@/contracts';
+import { validateWireContext } from '@/contracts';
 import { startDeadline } from '../timers/deadline';
 import { logEvent } from '../telemetry';
 import type { ZoneStore } from '../zones/zoneStore';
@@ -39,7 +39,8 @@ export class RefreshManager {
       this.#deferred = true; // pauses while a checkpoint is active, resumes on restoration
       return;
     }
-    const keys = this.deps.store.keys();
+    // History is delivered in its own pass and refreshed by its own hydrator, so a context re-delivery does not touch it.
+    const keys = this.deps.store.keys().filter((key) => key !== 'history');
     for (const key of keys) this.deps.pipeline.beginRefresh(key);
 
     let raw: unknown;
@@ -49,12 +50,15 @@ export class RefreshManager {
       return; // the indicator becomes a warning at 30 seconds; the last data stays on screen
     }
     if (this.#disposed) return;
-    const result = validateContext(raw);
+    const result = validateWireContext(raw);
     if (result.kind !== 'ok') return; // a bad re-delivery changes nothing the worker can see
-    const delivered = result.context.zones;
+    const delivered = result.context.zones as unknown as Record<string, { ok: boolean; zone?: unknown }>;
     for (const key of keys) {
-      if (key in delivered) this.deps.pipeline.receiveZone(key, delivered[key]);
-      else this.deps.pipeline.endRefresh(key); // nothing new for this zone
+      const outcome = delivered[key];
+      if (!outcome) this.deps.pipeline.endRefresh(key);
+      else if (outcome.ok) this.deps.pipeline.receiveZone(key, outcome.zone);
+      // A malformed zone in a re-delivery degrades that zone only (SR21A).
+      else this.deps.pipeline.receiveZone(key, undefined);
     }
   }
 

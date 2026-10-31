@@ -10,8 +10,8 @@ export function SettingsScreen() {
   return (
     <>
       <SectionHeader id="settings-title" text={messages.settings.title} level={2} size="lg" />
-      <KeyValue label={messages.settings.name} value={worker.displayName} />
-      <KeyValue label={messages.settings.role} value={worker.jobTitle} />
+      <KeyValue label={messages.settings.name} value={worker.name} />
+      <KeyValue label={messages.settings.role} value={worker.role_label} />
       <Button label={messages.workspace.signOut} variant="ghost" onActivate={signOut} />
     </>
   );

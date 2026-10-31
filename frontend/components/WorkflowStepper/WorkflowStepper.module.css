@@ -1,19 +1,26 @@
-.list { list-style: none; display: flex; flex-direction: column; }
-.item { border-block-end: 1px solid var(--color-border-subtle); }
+.wrap { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+/* The current step is the focal card: white, with the accent border, open by default. The rest are slim rows on the page itself. */
+.item { border-block-end: 1px solid var(--color-brand-secondary); }
 .item:last-child { border-block-end: 0; }
+.item[data-current] { border: 2px solid var(--color-brand-accent); border-radius: var(--radius-md); background: var(--color-surface-card); margin-block: var(--space-2); }
+.item[data-current] + .item { border-block-start: 0; }
 .header {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   inline-size: 100%;
   min-block-size: var(--width-touch-target);
-  padding: var(--space-3) var(--space-2);
+  padding: var(--space-2) var(--space-3);
   background: transparent;
   color: var(--color-text-primary);
   border: 0;
+  border-radius: var(--radius-md);
   text-align: start;
   cursor: pointer;
 }
+.item[data-current] .header { padding-block: var(--space-3); }
 @media (min-width: 769px) {
   .header:hover { background: var(--color-surface-panel); }
 }
@@ -33,6 +40,6 @@
 .item[data-current] .marker { border-color: var(--color-brand-primary); border-width: 3px; }
 .title { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; }
 .status { color: var(--color-text-secondary); }
-.body { display: flex; flex-direction: column; gap: var(--space-3); padding: 0 var(--space-2) var(--space-4) calc(var(--icon-lg) + var(--space-5)); }
+.body { display: flex; flex-direction: column; gap: var(--space-3); padding: 0 var(--space-3) var(--space-4) calc(var(--icon-lg) + var(--space-6)); }
 .body[hidden] { display: none; }
 .detail { color: var(--color-text-secondary); }

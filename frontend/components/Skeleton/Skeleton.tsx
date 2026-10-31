@@ -19,13 +19,16 @@ export type SkeletonShape =
 const NO_SHIMMER: SkeletonShape[] = ['action-button', 'card'];
 
 export interface SkeletonProps {
+  /** The shape of the content that is on its way, from the design system table. */
   shape: SkeletonShape;
   /** Cards have variable height. Ignored for every other shape. */
   cardHeight?: 'sm' | 'md' | 'lg';
+  /** Whether the shimmer sweep runs. True by default. It never runs on an action button or a card frame, whatever is passed (BRD 1.3 section 8.3). */
+  shimmer?: boolean;
 }
 
-export function Skeleton({ shape, cardHeight = 'md' }: SkeletonProps) {
-  const shimmer = !NO_SHIMMER.includes(shape);
+export function Skeleton({ shape, cardHeight = 'md', shimmer: shimmerRequested = true }: SkeletonProps) {
+  const shimmer = shimmerRequested && !NO_SHIMMER.includes(shape);
   return (
     <span
       aria-hidden="true"

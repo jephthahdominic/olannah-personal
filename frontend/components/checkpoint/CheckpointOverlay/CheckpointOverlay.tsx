@@ -13,7 +13,9 @@ export interface CheckpointOverlayProps {
   blockingNote: string;
   /** What raised the checkpoint, shown BEFORE any diff (BRD 1.2 5.10). SUPPLIED. */
   triggeredByLabel: string;
+  /** The system or workflow that triggered the checkpoint, shown as supplied. */
   triggeredBy: string;
+  /** A plain-language account of what the checkpoint is for, shown as supplied. */
   description: string;
   /** The fixed card sequence: diff, accountability statement, acknowledgment, decision controls. Nothing else belongs between them. */
   children: ReactNode;

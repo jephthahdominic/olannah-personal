@@ -1,33 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { validateContext, SessionConfirmationSchema } from './index';
-import {
-  technicianContext,
-  estimatorContext,
-  unmappedRoleContext,
-  undeterminedRoleContext,
-  unknownVersionContext,
-  malformedContexts,
-} from './fixtures/context';
+import { SessionConfirmationSchema } from './index';
 import { technicianSession, estimatorSession } from './fixtures/session';
 
-describe('context contract', () => {
-  it.each([
-    ['technician', technicianContext],
-    ['estimator', estimatorContext],
-    ['unmapped role', unmappedRoleContext],
-    ['undetermined role', undeterminedRoleContext],
-  ])('accepts the valid %s fixture', (_name, fixture) => {
-    expect(validateContext(fixture).kind).toBe('ok');
-  });
-
-  it('reports an unrecognized schema version, and never throws', () => {
-    expect(validateContext(unknownVersionContext)).toEqual({ kind: 'schema_mismatch', version: '99.0' });
-  });
-
-  it.each(Object.entries(malformedContexts))('treats malformed fixture "%s" as a malformed envelope', (_name, fixture) => {
-    expect(validateContext(fixture).kind).toBe('envelope_malformed');
-  });
-});
+// The context and history contracts are tested in contracts/wire/wire.test.ts, against the practice API's own responses.
 
 describe('session contract', () => {
   it('accepts valid session fixtures', () => {

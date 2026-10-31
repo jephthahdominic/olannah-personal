@@ -5,13 +5,17 @@ import styles from './Surface.module.css';
 export type SurfaceRole = 'workspace' | 'card' | 'panel' | 'chrome';
 
 export interface SurfaceProps {
+  /** The structural role: workspace, card, panel or chrome. It decides the background. */
   role: SurfaceRole;
+  /** The content placed on the surface. */
   children?: ReactNode;
+  /** The HTML element to render, so the surface carries the right landmark. */
   as?: 'div' | 'section' | 'main' | 'aside' | 'header';
   /** Spacing token name, e.g. 4 means --space-4. Internal padding only; Surface applies no outer margin. */
   padding?: 3 | 4 | 5 | 6 | 8;
   /** Cards separate from the cream workspace by border, not shadow (BRD 1.3 section 7). */
   bordered?: boolean;
+  /** An extra class for placing the surface in a layout. It must not change colours or elevation. */
   className?: string;
 }
 

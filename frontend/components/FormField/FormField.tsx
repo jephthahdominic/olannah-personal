@@ -3,6 +3,7 @@ import { StatusIndicator } from '../StatusIndicator/StatusIndicator';
 import styles from './FormField.module.css';
 
 export interface FormFieldProps {
+  /** The id of the control the label belongs to. */
   id: string;
   /** Visible, programmatically associated label. Persists when the field holds a value. */
   label: string;
@@ -10,6 +11,7 @@ export interface FormFieldProps {
   children: ReactNode;
   /** Supplied validation text. The wrapper never computes business validity. */
   validationMessage?: string;
+  /** A short hint shown under the control. Supplied text. */
   helpText?: string;
 }
 

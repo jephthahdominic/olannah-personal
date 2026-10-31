@@ -5,9 +5,9 @@ import { useState } from 'react';
 import { NavItem, NavigationRail, TabBar, MoreMenu, Toast, Skeleton, StatusPill, DegradedBanner, InlineError, EmptyState, SyncDot, type NavItemModel } from './index';
 
 const items: NavItemModel[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', active: true },
-  { id: 'work-orders', label: 'Work Orders', icon: 'clipboard-list' },
-  { id: 'settings', label: 'Settings', icon: 'settings', pinned: true },
+  { destinationId: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', active: true },
+  { destinationId: 'work-orders', label: 'Work Orders', icon: 'clipboard-list' },
+  { destinationId: 'settings', label: 'Settings', icon: 'settings' },
 ];
 
 describe('NavItem', () => {
@@ -29,14 +29,14 @@ describe('NavItem', () => {
 
   it('emits the destination id on activation and performs no navigation itself', () => {
     const onActivate = vi.fn();
-    render(<NavItem id="assets" label="Assets" icon="building-warehouse" layout="rail" onActivate={onActivate} />);
+    render(<NavItem destinationId="assets" label="Assets" icon="building-warehouse" layout="rail" onActivate={onActivate} />);
     fireEvent.click(screen.getByRole('button'));
     expect(onActivate).toHaveBeenCalledWith('assets');
   });
 
   it('an unavailable item stays focusable, keeps full contrast, shows a marker, exposes its reason, and still activates', () => {
     const onActivate = vi.fn();
-    render(<NavItem id="assets" label="Assets" icon="building-warehouse" layout="rail" unavailable unavailableReason="This area needs a connection." onActivate={onActivate} />);
+    render(<NavItem destinationId="assets" label="Assets" icon="building-warehouse" layout="rail" unavailable unavailableReason="This area needs a connection." onActivate={onActivate} />);
     const button = screen.getByRole('button');
     expect(button).not.toBeDisabled();
     expect(button).toHaveAttribute('aria-disabled', 'true');
@@ -48,7 +48,7 @@ describe('NavItem', () => {
   });
 
   it('shows both the current indicator and the unavailable marker when a destination is current and unavailable', () => {
-    render(<NavItem id="assets" label="Assets" icon="building-warehouse" layout="rail" active unavailable unavailableReason="Needs a connection." onActivate={() => {}} />);
+    render(<NavItem destinationId="assets" label="Assets" icon="building-warehouse" layout="rail" active unavailable unavailableReason="Needs a connection." onActivate={() => {}} />);
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-current', 'page');
     expect(button).toHaveAttribute('aria-disabled', 'true');
@@ -63,7 +63,7 @@ describe('NavigationRail and TabBar render exactly what they are given', () => {
   });
 
   it('tab bar renders the supplied items in order and reports the menu item as a popup', () => {
-    const mobile: NavItemModel[] = [items[0], items[1], { id: 'more', label: 'More', icon: 'dots' }];
+    const mobile: NavItemModel[] = [items[0], items[1], { destinationId: 'more', label: 'More', icon: 'menu' }];
     render(<TabBar items={mobile} ariaLabel="Main navigation" onSelect={() => {}} menuItemId="more" menuOpen={false} />);
     expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual(['Dashboard', 'Work Orders', 'More']);
     const more = screen.getByRole('button', { name: 'More' });
@@ -214,10 +214,11 @@ describe('feedback and status components', () => {
   });
 
   it('degraded and failed are visually distinct: different shape and different live-region role', () => {
-    const degraded = render(<InlineError tone="degraded" title="Limited" />);
+    const degraded = render(<DegradedBanner message="Limited" />);
     const degradedShape = degraded.container.querySelector('svg')!.innerHTML;
+    expect(screen.getByRole('status')).toBeInTheDocument();
     degraded.unmount();
-    const failed = render(<InlineError tone="failure" title="Failed" />);
+    const failed = render(<InlineError title="Failed" />);
     const failedShape = failed.container.querySelector('svg')!.innerHTML;
     expect(degradedShape).not.toBe(failedShape);
     expect(screen.getByRole('alert')).toBeInTheDocument();
@@ -231,12 +232,9 @@ describe('feedback and status components', () => {
     expect(document.body.textContent).not.toMatch(/\b[A-Z]{2,}-[A-Z]{2}-\d+\b/);
   });
 
-  it('degraded banner announces politely and uses the error severity only when told to', () => {
-    const { rerender } = render(<DegradedBanner message="Connection lost" />);
+  it('degraded banner announces politely and is always the warning treatment', () => {
+    render(<DegradedBanner message="Connection lost" />);
     expect(screen.getByRole('status')).toHaveTextContent('Connection lost');
-    const warningShape = document.querySelector('svg')!.innerHTML;
-    rerender(<DegradedBanner message="Reconnection failed" severity="error" />);
-    expect(document.querySelector('svg')!.innerHTML).not.toBe(warningShape);
   });
 
   it('empty state explains why and offers no error treatment', () => {

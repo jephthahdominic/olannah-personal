@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { CanvasRuntime } from './canvasRuntime';
 import { DEFAULT_RUNTIME_CONFIG } from '@/contracts';
-import { technicianContext } from '@/contracts/fixtures/context';
-import { technicianDashboardWithNote } from '@/contracts/fixtures/zones';
+import { rawFixture, rawTechnician, validated } from '@/tests/wireFixtures';
+import { withWorkOrders, workOrdersZone } from '@/contracts/fixtures/workOrders';
 import type { EventSourceLike } from '@/clients/bus/busConnection';
 import { clearTelemetryBuffer, getBufferedEvents } from '../telemetry';
 import { purgeSession } from '../purgeSession';
@@ -22,10 +22,10 @@ class FakeSource implements EventSourceLike {
 
 function setup(over: { refresh?: () => Promise<unknown>; history?: () => Promise<unknown> } = {}) {
   const sources: FakeSource[] = [];
-  const contextRequest = vi.fn(over.refresh ?? (async () => structuredClone(technicianContext)));
-  const historyRequest = vi.fn(over.history ?? (async () => ({ records: [{ id: 'h1', occurredOn: '2026-09-21', title: 'Visit' }], nextCursor: null })));
+  const contextRequest = vi.fn(over.refresh ?? (async () => rawTechnician()));
+  const historyRequest = vi.fn(over.history ?? (async () => rawFixture('history.happy')));
   const runtime = new CanvasRuntime({
-    context: technicianContext,
+    context: validated(rawTechnician()),
     session: { userId: 'u', tenantId: 't', resolvedRole: 'technician' },
     config: { ...DEFAULT_RUNTIME_CONFIG, bus: { ...DEFAULT_RUNTIME_CONFIG.bus, backoffMs: [1000, 2000, 4000], heartbeatMs: 3_600_000 } },
     upstream: {
@@ -47,6 +47,8 @@ function setup(over: { refresh?: () => Promise<unknown>; history?: () => Promise
   return { runtime, sources, latest, contextRequest, historyRequest, render };
 }
 const flushPromises = () => vi.advanceTimersByTimeAsync(0);
+// A zone update as the bus delivers it: an alerts zone in the DELIVERED shape.
+const NEW_ALERTS = { state: 'rendered', as_of: '2026-10-23T09:00:00-05:00', data: [{ id: 'a9', severity: 'critical', message: 'Store manager update received', suggestion: null, evidence: [] }] };
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -60,8 +62,7 @@ afterEach(async () => {
 describe('CanvasRuntime: initial state', () => {
   it('has zone data from the context object before it starts, so the first render is never empty', () => {
     const { runtime } = setup();
-    expect(runtime.zones.get('primary:dashboard').condition).toBe('rendered');
-    expect(runtime.zones.get('context').condition).toBe('rendered');
+    for (const key of ['alerts', 'work_order', 'steps', 'actions', 'history']) expect(runtime.zones.get(key).condition, key).toBe('rendered');
     expect(runtime.getConnection()).toBe('connecting');
   });
 
@@ -80,21 +81,22 @@ describe('CanvasRuntime: live updates', () => {
     const { runtime, latest, render } = setup();
     runtime.start();
     latest().onopen!();
-    latest().onmessage!({ data: JSON.stringify({ type: 'zone.update', zoneId: 'primary:dashboard', payload: { status: 'ready', data: technicianDashboardWithNote } }) });
-    const s = runtime.zones.get('primary:dashboard');
-    expect((s.data as { notice?: { title: string } }).notice?.title).toBe('Store-manager update received');
+    latest().onmessage!({ data: JSON.stringify({ type: 'zone.update', zoneId: 'alerts', payload: NEW_ALERTS }) });
+    const s = runtime.zones.get('alerts');
+    expect((s.data as { message: string }[])[0].message).toBe('Store manager update received');
+    expect(s.asOf).toBe('2026-10-23T09:00:00-05:00');
     expect(s.refreshing).toBe(true);
     render();
-    expect(runtime.zones.get('primary:dashboard').refreshing).toBe(false);
+    expect(runtime.zones.get('alerts').refreshing).toBe(false);
   });
 
-  it('leaves the other zone alone during an update', () => {
+  it('leaves every other zone alone during an update', () => {
     const { runtime, latest } = setup();
     runtime.start();
     latest().onopen!();
     const other = vi.fn();
-    runtime.zones.subscribe('context')(other);
-    latest().onmessage!({ data: JSON.stringify({ type: 'zone.update', zoneId: 'primary:dashboard', payload: { status: 'ready', data: technicianDashboardWithNote } }) });
+    runtime.zones.subscribe('steps')(other);
+    latest().onmessage!({ data: JSON.stringify({ type: 'zone.update', zoneId: 'alerts', payload: NEW_ALERTS }) });
     expect(other).not.toHaveBeenCalled();
   });
 });
@@ -104,12 +106,12 @@ describe('CanvasRuntime: connection loss', () => {
     const { runtime, sources, latest } = setup();
     runtime.start();
     latest().onopen!();
-    const before = runtime.zones.get('primary:dashboard').data;
+    const before = runtime.zones.get('alerts').data;
 
     latest().onerror!();
     expect(runtime.getConnection()).toBe('reconnecting');
-    expect(runtime.zones.get('primary:dashboard')).toMatchObject({ condition: 'stale' });
-    expect(runtime.zones.get('primary:dashboard').data).toBe(before); // last known data preserved
+    expect(runtime.zones.get('alerts')).toMatchObject({ condition: 'stale' });
+    expect(runtime.zones.get('alerts').data).toBe(before); // last known data preserved
     expect(runtime.canWrite).toBe(false);
     expect(getBufferedEvents().map((e) => e.event)).toContain('bus.disconnected');
 
@@ -128,8 +130,8 @@ describe('CanvasRuntime: connection loss', () => {
     await flushPromises();
     expect(contextRequest).toHaveBeenCalledTimes(1);
     render();
-    expect(runtime.zones.get('primary:dashboard').condition).toBe('rendered');
-    expect(runtime.zones.get('primary:dashboard').refreshing).toBe(false);
+    expect(runtime.zones.get('alerts').condition).toBe('rendered');
+    expect(runtime.zones.get('alerts').refreshing).toBe(false);
     expect(runtime.canWrite).toBe(true);
   });
 
@@ -151,7 +153,7 @@ describe('CanvasRuntime: connection loss', () => {
       latest().onerror!();
     }
     expect(runtime.getConnection()).toBe('failed');
-    expect(runtime.zones.get('primary:dashboard').condition).toBe('stale');
+    expect(runtime.zones.get('alerts').condition).toBe('stale');
     expect(getBufferedEvents().map((e) => e.event)).toContain('bus.reconnect_failed');
 
     const count = sources.length;
@@ -187,7 +189,7 @@ describe('CanvasRuntime: refresh', () => {
     latest().onopen!();
     void runtime.refreshAll();
     await vi.advanceTimersByTimeAsync(30_100);
-    expect(runtime.zones.get('primary:dashboard')).toMatchObject({ condition: 'rendered', refreshing: true, refreshDelayed: true });
+    expect(runtime.zones.get('alerts')).toMatchObject({ condition: 'rendered', refreshing: true, refreshDelayed: true });
   });
 });
 
@@ -197,17 +199,18 @@ describe('CanvasRuntime: history second pass', () => {
     expect(historyRequest).not.toHaveBeenCalled();
     expect(runtime.history.getSnapshot().status).toBe('loading');
     runtime.start();
-    expect(historyRequest).toHaveBeenCalledWith(technicianContext.historyRef, null);
+    // The opaque pointer from the context object, handed on untouched.
+    expect(historyRequest).toHaveBeenCalledWith('hist_s_8f2_E-2231');
     await flushPromises();
     expect(runtime.history.getSnapshot().status).toBe('ready');
   });
 
-  it('shows history as unavailable on failure while the dashboard keeps working', async () => {
+  it('shows history as unavailable on failure while the other zones keep working', async () => {
     const { runtime } = setup({ history: () => Promise.reject(new Error('down')) });
     runtime.start();
     await flushPromises();
     expect(runtime.history.getSnapshot().status).toBe('error');
-    expect(runtime.zones.get('primary:dashboard').condition).toBe('rendered');
+    expect(runtime.zones.get('alerts').condition).toBe('rendered');
   });
 });
 
@@ -240,5 +243,76 @@ describe('CanvasRuntime: lifecycle', () => {
     const source = latest();
     await purgeSession();
     expect(source.closed).toBe(true);
+  });
+});
+
+describe('CanvasRuntime: asking for more rows of a zone', () => {
+  function withMore(requestMore?: () => Promise<unknown>) {
+    const t = setup();
+    const raw = withWorkOrders(rawTechnician());
+    const runtime = new CanvasRuntime({
+      context: validated(raw),
+      session: { userId: 'u', tenantId: 't', resolvedRole: 'technician' },
+      config: DEFAULT_RUNTIME_CONFIG,
+      upstream: {
+        context: { request: async () => raw, ...(requestMore ? { requestMore } : {}) },
+        history: { request: async () => rawFixture('history.happy') },
+        createBusSource: () => ({ onopen: null, onmessage: null, onerror: null, close() {} }),
+        createAssistantSource: () => ({ onopen: null, onmessage: null, onerror: null, close() {} }),
+        feedback: { submit: async () => true },
+      },
+      schedule: (f) => f(),
+      random: () => 0.5,
+    });
+    void t;
+    return runtime;
+  }
+
+  it('applies the zone the channel supplies through the normal pipeline, and is busy only while it waits', async () => {
+    let resolve!: (v: unknown) => void;
+    const runtime = withMore(() => new Promise((r) => (resolve = r)));
+    runtime.start();
+    const pending = runtime.requestMore('work_orders', 'tomorrow');
+    expect(runtime.moreLoadingKeys()).toBe('work_orders:tomorrow');
+    resolve(workOrdersZone('assigned', true));
+    expect(await pending).toBe(true);
+    expect(runtime.moreLoadingKeys()).toBe('');
+    expect((runtime.zones.get('work_orders').data as { groups: { items: unknown[] }[] }).groups[1].items).toHaveLength(11);
+    runtime.dispose();
+  });
+
+  it('ignores a second request for the same group while one is pending, so the channel is asked once', async () => {
+    let calls = 0;
+    let resolve!: (v: unknown) => void;
+    const runtime = withMore(() => ((calls += 1), new Promise((r) => (resolve = r))));
+    runtime.start();
+    const first = runtime.requestMore('work_orders', 'tomorrow');
+    await runtime.requestMore('work_orders', 'tomorrow');
+    expect(calls).toBe(1);
+    resolve(workOrdersZone('assigned', true));
+    await first;
+    runtime.dispose();
+  });
+
+  it('reports failure (false) when the channel rejects or cannot, and keeps the rows it has', async () => {
+    const rejecting = withMore(() => Promise.reject(new Error('down')));
+    rejecting.start();
+    expect(await rejecting.requestMore('work_orders', 'tomorrow')).toBe(false);
+    expect(rejecting.moreLoadingKeys()).toBe('');
+    expect((rejecting.zones.get('work_orders').data as { groups: { items: unknown[] }[] }).groups[1].items).toHaveLength(4);
+    rejecting.dispose();
+    const none = withMore();
+    none.start();
+    expect(await none.requestMore('work_orders', 'tomorrow')).toBe(false);
+    none.dispose();
+  });
+
+  it('a malformed answer degrades that zone only, and still reports it was received', async () => {
+    const runtime = withMore(async () => ({ state: 'rendered', as_of: null, data: 'nope' }));
+    runtime.start();
+    await runtime.requestMore('work_orders', 'tomorrow');
+    expect(runtime.zones.get('work_orders').condition).toBe('unavailable');
+    expect(runtime.zones.get('alerts').condition).toBe('rendered');
+    runtime.dispose();
   });
 });

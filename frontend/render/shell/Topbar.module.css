@@ -18,7 +18,6 @@
   border-radius: var(--radius-md);
   background: var(--color-brand-accent);
   color: var(--color-text-primary);
-  font-weight: 700;
 }
 .divider { inline-size: 1px; block-size: 1.5rem; background: var(--color-text-on-chrome); opacity: 0.4; }
 .workspace { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -27,3 +26,5 @@
 @media (max-width: 480px) {
   .divider, .workspace { display: none; }
 }
+/* On a phone the topbar is slimmer: the wordmark only (approved design 03). */
+.compact { min-block-size: var(--space-12); }

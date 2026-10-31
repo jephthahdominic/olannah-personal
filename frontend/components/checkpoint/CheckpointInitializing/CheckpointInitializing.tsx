@@ -10,6 +10,7 @@ export interface CheckpointInitializingProps {
   /** The supplied window. If given, `timeout` is emitted once it elapses, so the wait is never indefinite (BRD 1.2 5.10 Feature 3).
    *  The controller owns the authoritative window; this is the component's own guarantee. */
   timeoutMs?: number;
+  /** Called when the supplied window ends without a diff, so the canvas can show the error state. */
   onTimeout?: () => void;
 }
 

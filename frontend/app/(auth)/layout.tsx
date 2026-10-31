@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Surface } from '@/components';
-import { upstreamMode } from '@/clients/upstream';
+import { devToolsEnabled } from '@/clients/upstream';
 import { messages } from '@/render/messages';
 import { MockPanel } from './MockPanel';
 import styles from './auth.module.css';
@@ -13,7 +13,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <div className={styles.page}>
         <p className={`${styles.wordmark} type-display`}>{messages.brand.name}</p>
         {children}
-        {upstreamMode === 'mock' && <MockPanel />}
+        {devToolsEnabled && <MockPanel />}
       </div>
     </Surface>
   );

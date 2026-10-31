@@ -4,6 +4,7 @@ import styles from './DatePicker.module.css';
 export interface DatePickerProps {
   /** id of the visible label, set by FormField. A placeholder is never the label. */
   id: string;
+  /** The form field name used when the value is submitted. */
   name?: string;
   /**
    * What this date MEANS, named specifically (for example `departure-date`, `valid-through`), never a generic "date" (BRD 1.2
@@ -17,11 +18,17 @@ export interface DatePickerProps {
   onChange: (value: string | null) => void;
   /** SUPPLIED bounds, "YYYY-MM-DD". The picker enforces them but never derives them (BRD 1.2 5.7.1 Feature 6). */
   min?: string;
+  /** The latest date that can be chosen, as a site-local YYYY-MM-DD date. */
   max?: string;
+  /** Makes the field unavailable. It stays visible at reduced opacity. */
   disabled?: boolean;
+  /** Marks the value as failing validation, so the field shows its error treatment. */
   invalid?: boolean;
+  /** The id of the element that describes the field, such as its help or error text. */
   describedBy?: string;
+  /** Called when the field receives focus. */
   onFocus?: () => void;
+  /** Called when the field loses focus. */
   onBlur?: () => void;
 }
 

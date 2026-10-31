@@ -5,6 +5,8 @@ import { Surface } from '@/components';
 import { DEMOS } from './demos';
 import { buildEntries, type GalleryEntry } from './entries';
 import { GROUPS, groupLabel } from './groups';
+import { Specification } from './Specification';
+import { StateMatrix } from './StateMatrix';
 import styles from './Gallery.module.css';
 
 type Selected = 'all' | (typeof GROUPS)[number]['id'];
@@ -40,7 +42,7 @@ function useCountUp(target: number) {
   return { progress, value: Math.round(target * progress) };
 }
 
-function Card({ entry }: { entry: GalleryEntry }) {
+export function Card({ entry }: { entry: GalleryEntry }) {
   const demo = DEMOS[entry.name];
   return (
     <article className={`${styles.card} ${entry.built ? '' : styles.planned} ${demo?.wide ? styles.wide : ''}`} aria-labelledby={`c-${entry.name}`}>
@@ -52,6 +54,7 @@ function Card({ entry }: { entry: GalleryEntry }) {
           {entry.persistenceCapable && <li className={styles.chip}>Persistence-capable</li>}
           {!entry.built && <li className={`${styles.chip} ${styles.chipPlanned}`}>Not built yet</li>}
         </ul>
+        {entry.manifest && <p className={`${styles.job} type-body`}>{entry.manifest.job}</p>}
         <p className={`${styles.purpose} type-body-sm`}>{entry.purpose}</p>
       </header>
       {entry.built && demo ? (
@@ -63,6 +66,8 @@ function Card({ entry }: { entry: GalleryEntry }) {
       ) : (
         <p className={`${styles.note} type-body-sm`}>{entry.note}</p>
       )}
+      {entry.built && entry.manifest && <StateMatrix manifest={entry.manifest} id={`c-${entry.name}`} />}
+      {entry.built && entry.manifest && <Specification manifest={entry.manifest} id={`c-${entry.name}`} />}
       {entry.built && (
         <footer className={`${styles.footer} type-caption`}>
           {entry.events.length > 0 ? `Emits: ${entry.events.join(', ')}` : 'Emits no events'}

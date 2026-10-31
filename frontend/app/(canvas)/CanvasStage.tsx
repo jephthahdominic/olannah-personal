@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo } from 'react';
-import type { ContextEnvelope, RuntimeConfig } from '@/contracts';
-import { getUpstream, upstreamMode } from '@/clients/upstream';
+import type { RuntimeConfig, Wire } from '@/contracts';
+import { getUpstream, devToolsEnabled } from '@/clients/upstream';
 import type { SessionIdentity } from '@/clients/session/sessionClient';
 import type { ResolvedLayout } from '@/runtime/boot/layoutRegistry';
 import { CheckpointController } from '@/runtime/checkpoint/checkpointController';
@@ -23,7 +23,7 @@ export function CanvasStage({
   config,
   signOut,
 }: {
-  context: DeepReadonly<ContextEnvelope>;
+  context: DeepReadonly<Wire.ValidatedContext>;
   layout: ResolvedLayout;
   session: SessionIdentity;
   config: RuntimeConfig;
@@ -72,7 +72,7 @@ export function CanvasStage({
       signOut={signOut}
       supportHref={config.support.contactHref}
       toastDurationMs={config.toast.durationMs}
-      devTools={upstreamMode === 'mock' ? <DevOverlay runtime={runtime} /> : undefined}
+      devTools={devToolsEnabled ? <DevOverlay runtime={runtime} /> : undefined}
     />
   );
 }

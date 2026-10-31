@@ -1,6 +1,7 @@
 import styles from './Link.module.css';
 
 export interface LinkProps {
+  /** The text of the link. Say where it goes or what it does. */
   label: string;
   /** Navigates. Provide this OR onActivate. */
   href?: string;

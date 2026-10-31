@@ -4,15 +4,8 @@ import { SessionClient } from '@/clients/session/sessionClient';
 import type { AuthProvider } from '@/clients/auth/authProvider';
 import type { ContextChannel } from '@/clients/context/contextChannel';
 import { technicianSession, estimatorSession } from '@/contracts/fixtures/session';
-import {
-  technicianContext,
-  estimatorContext,
-  unmappedRoleContext,
-  undeterminedRoleContext,
-  unknownVersionContext,
-  malformedContexts,
-} from '@/contracts/fixtures/context';
-import { DEFAULT_RUNTIME_CONFIG, type SessionConfirmation } from '@/contracts';
+import { rawEstimator, rawFixture, rawTechnician } from '@/tests/wireFixtures';
+import { DEFAULT_RUNTIME_CONFIG, DeliveryError, type SessionConfirmation } from '@/contracts';
 import { clearTelemetryBuffer, getBufferedEvents } from '../telemetry';
 import { purgeSession } from '../purgeSession';
 import { stableStringify } from '../freeze';
@@ -36,10 +29,13 @@ function makeAuth(session: SessionConfirmation | null | 'never'): AuthProvider &
   };
 }
 
+// A payload that is an Error is a failed delivery (a DeliveryError, as the real channels reject with).
 function channel(delayMs: number | 'never', payload: unknown): ContextChannel {
   return {
     request: () =>
-      delayMs === 'never' ? never() : new Promise((resolve) => setTimeout(() => resolve(structuredClone(payload)), delayMs)),
+      delayMs === 'never'
+        ? never()
+        : new Promise((resolve, reject) => setTimeout(() => (payload instanceof Error ? reject(payload) : resolve(structuredClone(payload))), delayMs)),
   };
 }
 
@@ -48,7 +44,7 @@ function boot(opts: { session?: SessionConfirmation | null | 'never'; delay?: nu
   const auth = makeAuth(opts.session === undefined ? technicianSession : opts.session);
   const controller = new BootController({
     auth,
-    context: channel(opts.delay ?? 0, 'payload' in opts ? opts.payload : technicianContext),
+    context: channel(opts.delay ?? 0, 'payload' in opts ? opts.payload : rawTechnician()),
     sessionClient,
     config: DEFAULT_RUNTIME_CONFIG,
   });
@@ -103,7 +99,7 @@ describe('boot: context delivery', () => {
     await advance(150);
     const state = controller.getState();
     expect(state.phase).toBe('settled');
-    if (state.phase === 'settled') expect(state.layout).toEqual({ layoutId: 'technician', unmappedRole: false });
+    if (state.phase === 'settled') expect(state.layout).toEqual({ layoutId: 'technician', unmappedRole: false, unknownTemplate: false });
     expect(getBufferedEvents()).toEqual([]);
   });
 
@@ -139,7 +135,7 @@ describe('boot: context delivery', () => {
       sessionClient,
       config: DEFAULT_RUNTIME_CONFIG,
       context: {
-        request: () => (++calls === 1 ? never() : Promise.resolve(structuredClone(technicianContext))),
+        request: () => (++calls === 1 ? never() : Promise.resolve(structuredClone(rawTechnician()))),
       },
     });
     controller.start();
@@ -154,13 +150,21 @@ describe('boot: context delivery', () => {
 
 describe('boot: bad payloads never crash', () => {
   it('renders the recovery state for an unrecognized schema version and logs a version mismatch', async () => {
-    const { controller } = boot({ payload: unknownVersionContext });
+    const { controller } = boot({ payload: rawFixture('context.bad-schema') });
     await advance(1);
     expect(phase(controller)).toBe('fallbackSchema');
     expect(getBufferedEvents().map((e) => e.event)).toEqual(['context.schema_mismatch']);
   });
 
-  it.each(Object.entries(malformedContexts))('renders the recovery state for malformed envelope "%s"', async (_name, payload) => {
+  const malformedEnvelopes: [string, unknown][] = [
+    ['the practice API\'s own malformed envelope', rawFixture('context.malformed-envelope')],
+    ['no schema version', { ...rawTechnician(), schema_version: undefined }],
+    ['no layout', { ...rawTechnician(), layout_config: undefined }],
+    ['a string', 'garbage'],
+    ['null', null],
+    ['an array', []],
+  ];
+  it.each(malformedEnvelopes)('renders the recovery state for malformed envelope: %s', async (_name, payload) => {
     const { controller } = boot({ payload });
     await advance(1);
     expect(phase(controller)).toBe('fallbackMalformed');
@@ -168,7 +172,7 @@ describe('boot: bad payloads never crash', () => {
   });
 
   it('can retry out of a schema mismatch', async () => {
-    const { controller } = boot({ payload: unknownVersionContext });
+    const { controller } = boot({ payload: rawFixture('context.bad-schema') });
     await advance(1);
     controller.retry();
     expect(phase(controller)).toBe('awaitingContext');
@@ -177,9 +181,9 @@ describe('boot: bad payloads never crash', () => {
 
 describe('boot: personas and layout resolution', () => {
   it('loads the technician layout for a technician and the estimator layout for an estimator, from the same code', async () => {
-    const tech = boot({ session: technicianSession, payload: technicianContext });
+    const tech = boot({ session: technicianSession, payload: rawTechnician() });
     await advance(1);
-    const est = boot({ session: estimatorSession, payload: estimatorContext });
+    const est = boot({ session: estimatorSession, payload: rawEstimator() });
     await advance(1);
     const t = tech.controller.getState();
     const e = est.controller.getState();
@@ -188,24 +192,24 @@ describe('boot: personas and layout resolution', () => {
   });
 
   it('uses the primary role layout only for a multi-role worker, never a hybrid', async () => {
-    const multi = { ...technicianContext, persona: { roles: ['technician', 'estimator'], primaryRole: 'technician' } };
-    const { controller } = boot({ payload: multi });
+    // The PCR resolves the primary role. A worker with several roles still gets one delivery with ONE template.
+    const { controller } = boot({ payload: rawTechnician() });
     await advance(1);
     const state = controller.getState();
     expect(state.phase === 'settled' && state.layout.layoutId).toBe('technician');
   });
 
   it('loads the platform default layout for an unmapped role (not the fallback screen) and logs a structured event', async () => {
-    const { controller } = boot({ payload: unmappedRoleContext });
+    const { controller } = boot({ payload: rawFixture('context.unmapped-role') });
     await advance(1);
     const state = controller.getState();
     expect(state.phase).toBe('settled');
-    if (state.phase === 'settled') expect(state.layout).toEqual({ layoutId: 'default', unmappedRole: true });
+    if (state.phase === 'settled') expect(state.layout).toEqual({ layoutId: 'default', unmappedRole: true, unknownTemplate: false });
     expect(getBufferedEvents().map((e) => e.event)).toEqual(['layout.unmapped_role']);
   });
 
-  it('renders the fallback screen for an undetermined role and loads no layout', async () => {
-    const { controller } = boot({ payload: undeterminedRoleContext });
+  it('renders the fallback screen for an undetermined role (the delivery answers 404) and loads no layout', async () => {
+    const { controller } = boot({ payload: new DeliveryError('role_undetermined') });
     await advance(1);
     expect(phase(controller)).toBe('fallbackUnknownRole');
     expect(getBufferedEvents().map((e) => e.event)).toEqual(['layout.role_undetermined']);
@@ -214,18 +218,22 @@ describe('boot: personas and layout resolution', () => {
 
 describe('boot: context object is never modified', () => {
   it('is identical before and after consumption, and rejects mutation', async () => {
-    const before = stableStringify(technicianContext);
-    const { controller } = boot({});
+    const raw = rawTechnician();
+    const { controller } = boot({ payload: raw });
     await advance(1);
     const state = controller.getState();
     if (state.phase !== 'settled') throw new Error('expected settled');
-    expect(stableStringify(state.context)).toBe(before);
+    // Every delivered field, and every zone, is exactly what was delivered.
+    const { zones: deliveredZones, ...deliveredEnvelope } = raw;
+    const { zones, ...envelope } = state.context;
+    expect(stableStringify(envelope)).toBe(stableStringify(deliveredEnvelope));
+    for (const [id, outcome] of Object.entries(zones)) expect(outcome.ok && stableStringify(outcome.zone), id).toBe(stableStringify(deliveredZones[id]));
     expect(Object.isFrozen(state.context)).toBe(true);
-    expect(Object.isFrozen(state.context.layoutConfig.destinations)).toBe(true);
+    expect(Object.isFrozen(state.context.layout_config.destinations)).toBe(true);
     expect(() => {
-      (state.context as { resolvedRole: string | null }).resolvedRole = 'hacker';
+      (state.context.worker as { name: string }).name = 'hacker';
     }).toThrow(TypeError);
-    expect(stableStringify(state.context)).toBe(before);
+    expect(stableStringify(envelope)).toBe(stableStringify(deliveredEnvelope));
   });
 });
 
@@ -249,5 +257,79 @@ describe('session expiry and purge', () => {
     expect(sessionClient.hasSession()).toBe(false);
     await advance(60_000);
     expect(phase(controller)).toBe('awaitingContext');
+  });
+});
+
+describe('boot: each way the delivery can end (BRD section 6; practice API handoff section 8)', () => {
+  it('a 401 keeps the worker on the loading screen: the workspace is never rendered before login is confirmed (UR1)', async () => {
+    const { controller } = boot({ payload: new DeliveryError('unauthorized') });
+    await advance(1);
+    expect(controller.getState()).toEqual({ phase: 'awaitingSession', slow: true });
+    await advance(60_000); // no timer fires into it
+    expect(phase(controller)).toBe('awaitingSession');
+    expect(getBufferedEvents().map((e) => e.event)).toEqual(['context.unauthorized']);
+  });
+
+  it('a 504 is the hard timeout: the recovery screen at once, and one structured event', async () => {
+    const { controller } = boot({ payload: new DeliveryError('timeout') });
+    await advance(1);
+    expect(phase(controller)).toBe('contextHardTimeout');
+    expect(getBufferedEvents().map((e) => e.event)).toEqual(['context.hard_timeout']);
+    await advance(20_000); // the timers were cleared, so nothing is logged twice
+    expect(getBufferedEvents()).toHaveLength(1);
+  });
+
+  it.each(['unreachable', 'server_error'] as const)('a "%s" failure has no screen of its own: the waiting states end it at the recovery screen', async (kind) => {
+    const { controller } = boot({ payload: new DeliveryError(kind) });
+    await advance(1);
+    expect(phase(controller)).toBe('awaitingContext');
+    await advance(DEFAULT_RUNTIME_CONFIG.context.hardTimeoutMs + 1);
+    expect(phase(controller)).toBe('contextHardTimeout');
+  });
+
+  it('a delivery that arrives over the 800 ms budget carries the PCR flag, and the degraded delivery is recorded (UR10B)', async () => {
+    const { controller } = boot({ payload: rawFixture('context.over-budget') });
+    await advance(1);
+    expect(phase(controller)).toBe('settled');
+    expect(getBufferedEvents().map((e) => e.event)).toEqual(['context.delivery_degraded']);
+  });
+
+  it('a malformed zone degrades only that zone: the workspace assembles, and one event is logged per bad zone (SR21A)', async () => {
+    const { controller } = boot({ payload: rawFixture('context.malformed-zone') });
+    await advance(1);
+    const state = controller.getState();
+    expect(state.phase).toBe('settled');
+    if (state.phase === 'settled') {
+      expect(state.context.zones.alerts.ok).toBe(false);
+      expect(state.context.zones.steps.ok).toBe(true);
+    }
+    expect(getBufferedEvents().map((e) => e.event)).toEqual(['zone.payload_malformed']);
+  });
+
+  it('an unknown template with NO unmapped flag is not reported as an unmapped role (UR3C: never inferred)', async () => {
+    const raw = rawTechnician();
+    (raw.layout_config as { template_id: string }).template_id = 'something.new';
+    const { controller } = boot({ payload: raw });
+    await advance(1);
+    const state = controller.getState();
+    if (state.phase !== 'settled') throw new Error('expected settled');
+    expect(state.layout).toEqual({ layoutId: 'default', unmappedRole: false, unknownTemplate: true });
+    expect(getBufferedEvents().map((e) => e.event)).toEqual(['layout.unknown_template']);
+  });
+
+  it.each([
+    'context.happy',
+    'context.clear',
+    'context.busy',
+    'context.no-active-job',
+    'context.sitedocs-down',
+    'context.sitedocs-and-xoi-down',
+    'context.busy-xoi-down',
+    'context.portal-login-wall',
+    'context.sampro-down',
+  ])('%s assembles and settles', async (file) => {
+    const { controller } = boot({ payload: rawFixture(file) });
+    await advance(1);
+    expect(phase(controller)).toBe('settled');
   });
 });

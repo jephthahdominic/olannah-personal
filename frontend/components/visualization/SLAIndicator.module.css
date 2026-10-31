@@ -1,5 +1,5 @@
 .wrap { display: flex; flex-direction: column; gap: var(--space-2); inline-size: 100%; }
-.track { position: relative; inline-size: 100%; block-size: 0.75rem; background: var(--color-surface-panel); border: 1px solid var(--color-border-strong); border-radius: var(--radius-pill); }
+.track { position: relative; inline-size: 100%; block-size: 0.75rem; background: var(--color-surface-panel); border: 1px solid var(--color-text-secondary); border-radius: var(--radius-pill); }
 .fill { block-size: 100%; background: var(--color-viz-1); border-start-start-radius: var(--radius-pill); border-end-start-radius: var(--radius-pill); }
 /* The threshold marker is a vertical bar that overshoots the track, with a triangular cap: a shape, not just a colour. */
 .threshold { position: absolute; inset-block: -0.375rem; inline-size: 2px; margin-inline-start: -1px; background: var(--color-text-primary); }
