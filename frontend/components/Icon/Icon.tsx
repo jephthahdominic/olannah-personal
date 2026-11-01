@@ -1,5 +1,6 @@
 import {
   IconAlertTriangle,
+  IconArrowRight,
   IconBox,
   IconBuildingWarehouse,
   IconCamera,
@@ -16,6 +17,7 @@ import {
   IconInbox,
   IconLayoutDashboard,
   IconLifebuoy,
+  IconMenu2,
   IconMessage,
   IconMinus,
   IconPlus,
@@ -24,6 +26,7 @@ import {
   IconSettings,
   IconSparkles,
   IconWifiOff,
+  IconUser,
   IconX,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
@@ -31,6 +34,8 @@ import {
 // Tabler OUTLINE icons are the only icon family (BRD 1.3 section 9). Every glyph is registered here, so a non-Tabler
 // or filled icon cannot be used. Add a name to this map to make a glyph available.
 const GLYPHS = {
+  user: IconUser,
+  'arrow-right': IconArrowRight,
   'alert-triangle': IconAlertTriangle,
   box: IconBox,
   'building-warehouse': IconBuildingWarehouse,
@@ -48,6 +53,7 @@ const GLYPHS = {
   inbox: IconInbox,
   'layout-dashboard': IconLayoutDashboard,
   lifebuoy: IconLifebuoy,
+  menu: IconMenu2,
   message: IconMessage,
   minus: IconMinus,
   plus: IconPlus,
@@ -71,7 +77,9 @@ const PX: Record<IconSize, string> = {
 };
 
 export interface IconProps {
+  /** Which Tabler outline glyph to draw, from the fixed list the library allows. */
   name: IconName;
+  /** The icon size token: extra small, small, medium, large or extra large. */
   size?: IconSize;
   /** Informative icons carry a label. Decorative ones, and ones that repeat adjacent text, are hidden from assistive technology. */
   label?: string;

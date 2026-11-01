@@ -10,9 +10,11 @@ export interface LineChartProps extends ChartFrameProps {
   xKind?: 'text' | 'site-local-date';
   /** At most FIVE series. More is presented as a table. `null` values leave a gap in the line: the chart never invents a point. */
   series: readonly ChartSeries[];
+  /** Formats a number for display. It changes how a value reads, never the value. */
   valueFormat?: (n: number) => string;
   /** `point-select`: emitted when a point is chosen. When absent, points are not interactive and take no focus. */
   onPointSelect?: (selection: { seriesId: string; index: number }) => void;
+  /** The accessible name of the legend. */
   legendLabel: string;
 }
 

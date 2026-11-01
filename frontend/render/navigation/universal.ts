@@ -12,7 +12,7 @@ export interface UniversalDestination {
 }
 
 const DASHBOARD: UniversalDestination = { id: 'dashboard', route: '/', icon: 'layout-dashboard', label: 'Dashboard' };
-const MORE: UniversalDestination = { id: 'more', route: null, icon: 'dots', label: 'More' };
+const MORE: UniversalDestination = { id: 'more', route: null, icon: 'menu', label: 'More' };
 const SETTINGS: UniversalDestination = { id: 'settings', route: '/settings', icon: 'settings', label: 'Settings' };
 
 export function universalFor(viewport: Viewport): { leading: UniversalDestination; trailing: UniversalDestination } {
@@ -23,4 +23,7 @@ export function universalFor(viewport: Viewport): { leading: UniversalDestinatio
 export const UNIVERSAL_ROUTES: Readonly<Record<string, string>> = {
   '/': 'dashboard',
   '/settings': 'settings',
+  // The work order hub: one job's alerts, steps and actions. It is reached from a work order, not from the navigation, so it has no item of its
+  // own, and Work Orders stays the active destination while the worker is in it.
+  '/work-order': 'work-order',
 };

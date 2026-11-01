@@ -1,47 +1,37 @@
-import { Avatar, Link, SyncDot } from '@/components';
-import type { WorkerIdentity } from '@/contracts';
-import type { ConnectionStatus } from '@/runtime/canvas/canvasRuntime';
-import type { Freshness } from '@/runtime/zones/useZoneFreshness';
+import { Avatar, Link } from '@/components';
+import type { Wire } from '@/contracts';
 import type { Viewport } from '@/tokens/tokens.generated';
 import { messages } from '../messages';
 import styles from './Topbar.module.css';
 
-// The topbar is defined from the approved designs (brand mark, workspace label, sync state, worker) because the BRDs
-// reference a topbar without defining one (SDD R20, Q30). On Evergreen, Warm Cream text (BRD 1.3 section 3.2).
-// Feedback link, AI trigger and More are added with the surfaces they open (Stage 4).
-export function Topbar({ layoutId, worker, viewport, freshness, connection, onFeedback }: { layoutId: string; worker: WorkerIdentity; viewport: Viewport; freshness: Freshness; connection: ConnectionStatus; onFeedback: () => void }) {
+// The topbar (approved design 03): on a phone it is the wordmark and nothing else. The checkpoint status, the sync marker, the notification bell
+// and the avatar are hidden when no checkpoint status is supplied, which is every ordinary state, and that reclaims the space. Freshness and
+// connection are shown where they matter (beside the section that is updating, and in the banner under the topbar), not here.
+// From tablet up there is room for the workspace name, the feedback link (BRD 1.3 section 6.7) and the worker.
+export function Topbar({ layoutId, worker, viewport, onFeedback }: { layoutId: string; worker: Wire.Worker; viewport: Viewport; onFeedback: () => void }) {
   const workspace =
     messages.shell.workspaceLabel[layoutId as keyof typeof messages.shell.workspaceLabel] ?? messages.shell.workspaceLabel.default;
+  const compact = viewport === 'mobile';
   return (
-    <header className={styles.topbar}>
+    <header className={`${styles.topbar} ${compact ? styles.compact : ''}`}>
       <div className={styles.brand}>
-        <span className={styles.mark} aria-hidden="true">
+        <span className={`${styles.mark} type-heading-sm`} aria-hidden="true">
           O
         </span>
         <span className="type-heading-md">{messages.brand.name}</span>
-        <span className={`${styles.divider} type-body-sm`} aria-hidden="true" />
-        <span className={`${styles.workspace} type-body-sm`}>{workspace}</span>
-      </div>
-      <div className={styles.status}>
-        {/* Feedback is a small text link in the topbar on tablet and desktop, always about the current screen. On mobile it is
-            reached through the More menu (BRD 1.3 section 6.7). */}
-        {viewport !== 'mobile' && <Link label={messages.feedback.link} tone="on-chrome" onActivate={onFeedback} />}
-        <span className={styles.sync}>
-          {/* Freshness and connectivity are separate dimensions and are never collapsed into one condition. */}
-          <SyncDot
-            freshness={freshness}
-            connectivity={connection === 'connected' || connection === 'connecting' ? 'connected' : connection === 'reconnecting' ? 'reconnecting' : 'disconnected'}
-            label={freshness === 'fresh' ? messages.shell.synced : freshness === 'syncing' ? messages.shell.updating : messages.shell.stale}
-          />
-        </span>
-        <Avatar initials={worker.initials} label={worker.displayName} />
-        {viewport !== 'mobile' && (
-          <span className={styles.identity}>
-            <span className="type-heading-sm">{worker.displayName}</span>
-            <span className="type-caption">{worker.jobTitle}</span>
-          </span>
+        {!compact && (
+          <>
+            <span className={`${styles.divider} type-body-sm`} aria-hidden="true" />
+            <span className={`${styles.workspace} type-body-sm`}>{workspace}</span>
+          </>
         )}
       </div>
+      {!compact && (
+        <div className={styles.status}>
+          <Link label={messages.feedback.link} tone="on-chrome" onActivate={onFeedback} />
+          <Avatar label={worker.name} />
+        </div>
+      )}
     </header>
   );
 }

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Button, DegradedBanner, Label, MoreMenu, SectionHeader, Surface } from '@/components';
-import type { ContextEnvelope, ScreenContext } from '@/contracts';
+import { Button, DegradedBanner, EmptyState, InlineError, MoreMenu, Surface } from '@/components';
+import { ZONE_IDS, type ScreenContext, type Wire } from '@/contracts';
 import type { CanvasRuntime } from '@/runtime/canvas/canvasRuntime';
 import { useConnection } from '@/runtime/canvas/useCanvasRuntime';
 import type { DeepReadonly } from '@/runtime/freeze';
@@ -14,8 +14,6 @@ import type { ResolvedLayout } from '@/runtime/boot/layoutRegistry';
 import { logEvent } from '@/runtime/telemetry';
 import { toastStore } from '@/runtime/toasts';
 import { useViewport } from '@/runtime/viewport';
-import { CONTEXT_ZONE, primaryZoneKey } from '@/runtime/zones/zoneKeys';
-import { useZoneFreshness } from '@/runtime/zones/useZoneFreshness';
 import { ShellContext, type ShellContextValue } from '../layout/ShellContext';
 import { getTemplate } from '../layout/templates';
 import { ZoneHost } from '../layout/ZoneHost';
@@ -27,6 +25,8 @@ import { AssistantHost } from '../assistant/AssistantHost';
 import { CheckpointHost } from '../checkpoint/CheckpointHost';
 import { useBlockingScope } from '../checkpoint/useBlockingScope';
 import { FeedbackHost } from '../feedback/FeedbackHost';
+import { ContextHeader } from './ContextHeader';
+import { PageBand } from './PageBand';
 import { LiveRegions } from './LiveRegions';
 import { PortalHosts } from './PortalHosts';
 import { SettingsScreen } from './SettingsScreen';
@@ -35,7 +35,7 @@ import { Topbar } from './Topbar';
 import styles from './Shell.module.css';
 
 interface ShellProps {
-  context: DeepReadonly<ContextEnvelope>;
+  context: DeepReadonly<Wire.ValidatedContext>;
   layout: ResolvedLayout;
   /** Owns the bus connection, update pipeline, refresh and history. The shell only reads its state. */
   runtime: CanvasRuntime;
@@ -53,7 +53,7 @@ interface ShellProps {
 // The canvas shell: assembles the workspace from the context object (BRD 1.0). It composes; it decides nothing about
 // business meaning. Layout comes from a template (data), navigation from the pure assembly function, and every zone is
 // isolated behind its own host.
-export function Shell({ context, layout, runtime, signOut, supportHref, toastDurationMs, checkpoint, devTools }: ShellProps) {
+export function Shell({ context, layout, runtime, signOut, toastDurationMs, checkpoint, devTools }: ShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const viewport = useViewport();
@@ -90,9 +90,11 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
   const activeId = destinationIdForPath(pathname);
   const assistantScope = runtime.persistence.isElected('AssistantPanel', true) ? 'persistent' : (activeId ?? 'none');
   const assistantOpen = assistantOpenAt === assistantScope;
-  const { model } = useNavigation(context, viewport, activeId);
+  const connectionLost = connection === 'reconnecting' || connection === 'failed';
+  // The work order hub is reached from Work Orders and has no item of its own, so Work Orders stays the active destination while the worker is in it.
+  const { model } = useNavigation(context, viewport, activeId === 'work-order' ? 'jobs' : activeId, connectionLost);
   const allItems = useMemo(() => [...model.items, ...model.overflow], [model]);
-  const activeLabel = allItems.find((i) => i.id === activeId)?.label ?? null;
+  const activeLabel = allItems.find((i) => i.destinationId === activeId)?.label ?? null;
 
   const go = useCallback(
     (id: string) => {
@@ -105,7 +107,7 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
   const onSelect = useCallback(
     (id: string) => {
       if (id === 'more') return setMenuOpen((open) => !open);
-      const item = allItems.find((i) => i.id === id);
+      const item = allItems.find((i) => i.destinationId === id);
       if (item?.unavailable) {
         // An unavailable destination stays discoverable but activates to an explanation, never a route change.
         logEvent('nav.offline_unavailable_selected', 'info');
@@ -131,13 +133,47 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
   // A zone's "try again" asks the context channel to re-deliver. The result flows through the normal update pipeline.
   const retryZone = useCallback(() => void runtime.refreshAll(), [runtime]);
 
-  const shellValue = useMemo<ShellContextValue>(
-    () => ({ layoutId: layout.layoutId, viewport, worker: context.worker, activeLabel, signOut, runtime, navigate: go }),
-    [layout.layoutId, viewport, context.worker, activeLabel, signOut, runtime, go],
+  // Access to the screen the worker was on was removed (BRD 1.0 SR25): take them to Dashboard, the platform safe destination, and keep the
+  // supplied message until they dismiss it. The navigation set is not changed: the canvas is not an authorization boundary.
+  const revocation = useSyncExternalStore(runtime.subscribeRevocation, runtime.getRevocation, () => null);
+  useEffect(() => {
+    if (revocation && activeId !== 'dashboard') go('dashboard');
+  }, [revocation, activeId, go]);
+
+  // The canvas holds the full detail of the ACTIVE work order only. Any other job says its detail is not available yet, rather than showing the
+  // wrong job. (How another job's detail is delivered is not defined yet.)
+  const activeWorkOrderId = context.active_work_order?.id ?? null;
+  const openWorkOrder = useCallback(
+    (reference: string) => {
+      if (reference === activeWorkOrderId) go('work-order');
+      else toastStore.push(messages.workOrders.notLoaded);
+    },
+    [activeWorkOrderId, go],
   );
 
-  const primaryKey = primaryZoneKey(activeId);
-  const watchedKeys = useMemo(() => [primaryKey, CONTEXT_ZONE], [primaryKey]);
+  const shellValue = useMemo<ShellContextValue>(
+    () => ({ layoutId: layout.layoutId, viewport, worker: context.worker, activeLabel, signOut, runtime, navigate: go, openWorkOrder }),
+    [layout.layoutId, viewport, context.worker, activeLabel, signOut, runtime, go, openWorkOrder],
+  );
+
+  // Every delivered zone is watched. The Dashboard is the destination that shows the job workspace; other destinations have no zones yet.
+  const hasDashboard = context.zones.dashboard !== undefined;
+  const hasWorkOrders = context.zones.work_orders !== undefined;
+  const watchedKeys = useMemo(
+    () => [...ZONE_IDS, ...(hasDashboard ? ['dashboard'] : []), ...(hasWorkOrders ? ['work_orders'] : [])] as string[],
+    [hasDashboard, hasWorkOrders],
+  );
+  // Which zones each screen shows. When the context supplies a dashboard, the Dashboard is that design, and when it supplies work orders, Work Orders
+  // is that design. The job workspace (one job's alerts, steps and actions) is the work order hub they open. When a context supplies neither (the
+  // practice API today), the job workspace is shown on Dashboard and Work Orders too, so there is always something real to see.
+  const onDashboard = activeId === null || activeId === 'dashboard';
+  const onJobs = activeId === 'jobs';
+  const onHub = activeId === 'work-order';
+  const showsDashboard = onDashboard && hasDashboard;
+  const showsWorkOrders = onJobs && hasWorkOrders;
+  const showsWorkspace = onHub || (onJobs && !hasWorkOrders) || (onDashboard && !hasDashboard);
+  // The approved Dashboard and Work Orders designs carry their own headings and show no Context Header.
+  const ownsHeading = showsDashboard || showsWorkOrders;
   // The screen context for feedback is captured automatically, as structured data. No screenshot, no values (SDD 15.3).
   const screenContext: ScreenContext = {
     destinationId: activeId,
@@ -145,15 +181,27 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
     viewport,
     zones: watchedKeys.map((zone) => ({ zone, condition: runtime.zones.get(zone).condition })),
   };
-  const freshness = useZoneFreshness(runtime.zones, watchedKeys, connection);
+  // A lost connection shows until it is restored and never covers content. Reconnecting is a degraded condition (the warning banner); once
+  // reconnection has failed it is a failure, so it uses the failure surface with its recovery action (BRD 1.2 5.8; BRD 1.0 section 6).
+  const phone = viewport === 'mobile';
+  const connectionBanner =
+    connection === 'reconnecting' ? (
+      <DegradedBanner message={messages.connection.lost} />
+    ) : connection === 'failed' ? (
+      <InlineError
+        title={messages.connection.failed}
+        body={messages.connection.failedHelp}
+        retryLabel={messages.connection.retry}
+        onRetry={() => runtime.retryConnection()}
+      />
+    ) : null;
 
-  const workspaceLabel =
-    messages.shell.workspaceLabel[layout.layoutId as keyof typeof messages.shell.workspaceLabel] ?? messages.shell.workspaceLabel.default;
   const placements = template.placements[viewport];
-  const zoneFor = (zoneId: string) => template.zones.find((z) => z.id === zoneId);
-  const mainZone = zoneFor(placements.find((p) => p.region === 'main')?.zoneId ?? 'primary');
-  const sideZone = zoneFor(placements.find((p) => p.region === 'aside')?.zoneId ?? '');
-  const collapsibleZone = zoneFor(placements.find((p) => p.region === 'collapsible')?.zoneId ?? '');
+  const zonesIn = (region: 'main' | 'aside' | 'collapsible') =>
+    placements.filter((p) => p.region === region).flatMap((p) => template.zones.filter((z) => z.id === p.zoneId));
+  const mainZones = zonesIn('main');
+  const sideZones = zonesIn('aside');
+  const collapsibleZones = zonesIn('collapsible');
 
   const moreActions = [
     { id: 'ask', icon: 'sparkles' as const, ...messages.nav.moreActions.ask },
@@ -172,39 +220,43 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
           {messages.nav.skipToContent}
         </a>
 
-        <Topbar layoutId={layout.layoutId} worker={context.worker} viewport={viewport} freshness={freshness} connection={connection} onFeedback={() => setFeedbackOpen(true)} />
+        <Topbar layoutId={layout.layoutId} worker={context.worker} viewport={viewport} onFeedback={() => setFeedbackOpen(true)} />
+
+        {phone && connectionBanner}
+
+        {/* The approved Dashboard design has no Context Header: it is the worker's overview, and its Next job card is the job. */}
+        <PageBand title={ownsHeading ? null : onHub ? messages.workOrders.hubTitle : activeLabel}>
+          {context.active_work_order && !ownsHeading && <ContextHeader workOrder={context.active_work_order} worker={context.worker} connection={connection} />}
+        </PageBand>
 
         <div className={styles.body}>
           {/* Focus order follows document order: navigation, then primary content, then context (BRD 1.3 section 11.2). */}
           {viewport !== 'mobile' && <div className={styles.navRail}>{navigation}</div>}
 
+          <div className={styles.content}>
           <main id="primary-content" tabIndex={-1} className={styles.main}>
-            {/* The connection banner persists until the connection is restored and never obscures zone content. */}
-            {connection === 'reconnecting' && <DegradedBanner message={messages.connection.lost} />}
-            {connection === 'failed' && (
-              <DegradedBanner
-                message={messages.connection.failed}
-                severity="error"
-                actionLabel={messages.connection.retry}
-                onAction={() => runtime.retryConnection()}
-                secondaryLabel={messages.connection.contactSupport}
-                secondaryHref={supportHref}
-              />
-            )}
+            {!phone && connectionBanner}
 
-            <div className={styles.pageHeader}>
-              <Label text={workspaceLabel} />
-              {activeLabel && <SectionHeader text={activeLabel} level={1} size="lg" />}
-            </div>
+            {/* The supplied message stays until the worker dismisses it. */}
+            {revocation && <DegradedBanner message={revocation.message} dismissLabel={messages.revoked.dismiss} onDismiss={() => runtime.dismissRevocation()} />}
+
             {activeId === 'settings' ? (
               <Surface role="card" padding={5}>
                 <SettingsScreen />
               </Surface>
+            ) : showsDashboard && template.dashboard ? (
+              <ZoneHost key="dashboard" spec={template.dashboard} store={runtime.zones} onRetry={retryZone} />
+            ) : showsWorkOrders && template.workOrders ? (
+              <ZoneHost key="work_orders" spec={template.workOrders} store={runtime.zones} onRetry={retryZone} />
+            ) : showsWorkspace ? (
+              mainZones.map((zone) => <ZoneHost key={zone.id} spec={zone} store={runtime.zones} onRetry={retryZone} />)
             ) : (
-              mainZone && <ZoneHost key={primaryKey} spec={mainZone} zoneKey={primaryKey} store={runtime.zones} onRetry={retryZone} />
+              <Surface role="card" padding={5}>
+                <EmptyState title={messages.destination.notBuiltTitle} explanation={messages.destination.notBuiltBody} />
+              </Surface>
             )}
 
-            {collapsibleZone && (
+            {showsWorkspace && collapsibleZones.length > 0 && (
               <section className={styles.collapsible} aria-label={messages.zone.contextTitle}>
                 <Button
                   label={contextOpen ? messages.zone.hideContext : messages.zone.showContext}
@@ -213,17 +265,22 @@ export function Shell({ context, layout, runtime, signOut, supportHref, toastDur
                   onActivate={() => setContextOpen((o) => !o)}
                 />
                 <div id="context-zone" hidden={!contextOpen}>
-                  <ZoneHost spec={collapsibleZone} zoneKey={CONTEXT_ZONE} store={runtime.zones} onRetry={retryZone} />
+                  {collapsibleZones.map((zone) => (
+                    <ZoneHost key={zone.id} spec={zone} store={runtime.zones} onRetry={retryZone} />
+                  ))}
                 </div>
               </section>
             )}
           </main>
 
-          {sideZone && (
+          {showsWorkspace && sideZones.length > 0 && (
             <aside className={styles.aside} aria-label={messages.zone.contextTitle}>
-              <ZoneHost spec={sideZone} zoneKey={CONTEXT_ZONE} store={runtime.zones} onRetry={retryZone} />
+              {sideZones.map((zone) => (
+                <ZoneHost key={zone.id} spec={zone} store={runtime.zones} onRetry={retryZone} />
+              ))}
             </aside>
           )}
+          </div>
         </div>
 
         {viewport === 'mobile' && <div className={styles.tabBar}>{navigation}</div>}

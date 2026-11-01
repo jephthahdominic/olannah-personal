@@ -28,21 +28,22 @@
 
 .main { flex: 1; min-inline-size: 0; padding: var(--space-5) var(--space-4) var(--space-12); display: flex; flex-direction: column; gap: var(--space-6); }
 .mainHeader { display: flex; flex-direction: column; gap: var(--space-2); max-inline-size: var(--width-content-max); }
-.summaryBand { position: relative; overflow: hidden; padding: var(--space-4) var(--space-5); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.summaryBand { position: relative; overflow: hidden; padding: var(--space-4) var(--space-5); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-md); }
 /* The bottom edge fills like a progress bar as the figure counts up. */
 .progressEdge { position: absolute; inset-inline: 0; inset-block-end: 0; block-size: 4px; background: var(--color-brand-primary); transform-origin: left center; will-change: transform; }
 .summaryLead strong { font-variant-numeric: tabular-nums; }
 .search { display: flex; flex-direction: column; gap: var(--space-1); color: var(--color-text-on-chrome); margin-block-end: var(--space-3); }
-.search input { min-block-size: var(--width-touch-target); padding-inline: var(--space-3); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.search input { min-block-size: var(--width-touch-target); padding-inline: var(--space-3); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-md); }
 .summary { color: var(--color-text-secondary); }
 .grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-items: start; }
 
-.card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--color-surface-card); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); min-inline-size: 0; }
-.planned { background: transparent; border: 1px dashed var(--color-border-subtle); }
+.card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--color-surface-card); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-md); min-inline-size: 0; }
+.planned { background: transparent; border: 1px dashed var(--color-brand-secondary); }
 .cardHeader { display: flex; flex-direction: column; gap: var(--space-2); }
 .chips { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.chip { padding: 0 var(--space-2); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-pill); font-size: var(--type-caption-size); line-height: var(--type-caption-line-height); color: var(--color-text-primary); }
+.chip { padding: 0 var(--space-2); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-pill); font-size: var(--type-caption-size); line-height: var(--type-caption-line-height); color: var(--color-text-primary); }
 .chipPlanned { border-style: dashed; border-color: var(--color-brand-secondary); }
+.job { color: var(--color-text-primary); }
 .purpose { color: var(--color-text-secondary); }
 .note { color: var(--color-text-secondary); }
 .footer { color: var(--color-text-secondary); }

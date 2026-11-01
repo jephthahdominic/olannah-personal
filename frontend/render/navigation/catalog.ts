@@ -19,8 +19,12 @@ export interface CatalogEntry {
 export type DestinationCatalog = Readonly<Record<string, CatalogEntry>>;
 
 export const destinationCatalog: DestinationCatalog = {
+  // The practice API's technician destinations (layout_config.destinations), named as the approved designs name them: Work Orders and Assets.
+  // The assigned jobs are already loaded, so the list stays readable and selectable offline. Assets needs a connection (approved design 04).
+  jobs: { id: 'jobs', route: '/jobs', icon: 'clipboard-list', fallbackLabel: 'Work Orders', offlineCapable: true },
+  inventory: { id: 'inventory', route: '/inventory', icon: 'box', fallbackLabel: 'Assets', offlineCapable: false },
   'work-orders': { id: 'work-orders', route: '/work-orders', icon: 'clipboard-list', fallbackLabel: 'Work Orders', offlineCapable: false },
-  assets: { id: 'assets', route: '/assets', icon: 'building-warehouse', fallbackLabel: 'Assets', offlineCapable: false },
+  assets: { id: 'assets', route: '/assets', icon: 'box', fallbackLabel: 'Assets', offlineCapable: false },
   quotes: { id: 'quotes', route: '/quotes', icon: 'file-text', fallbackLabel: 'Quotes', offlineCapable: false },
   'field-review': { id: 'field-review', route: '/field-review', icon: 'clipboard-check', fallbackLabel: 'Field Review', offlineCapable: false },
 };

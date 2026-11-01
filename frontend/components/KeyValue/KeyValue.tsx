@@ -2,6 +2,7 @@ import { Label } from '../Label/Label';
 import styles from './KeyValue.module.css';
 
 export interface KeyValueProps {
+  /** The name of the value. */
   label: string;
   /** Rendered exactly as supplied. A KeyValue never reformats a value into a different meaning, and renders no
    *  placeholder when the value is absent: an absent value renders an empty value, not invented content. */

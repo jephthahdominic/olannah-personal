@@ -1,0 +1,5 @@
+.screen { display: flex; flex-direction: column; gap: var(--space-4); }
+.screen h1 { margin: 0; }
+.group { display: flex; flex-direction: column; gap: var(--space-2); }
+.group h2 { margin: 0; }
+.card { overflow: hidden; border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-md); }

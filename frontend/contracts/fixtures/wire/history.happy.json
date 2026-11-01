@@ -1,0 +1,72 @@
+{
+  "type": "zone_data",
+  "session_id": "s_8f2",
+  "zone_id": "history",
+  "seq": 1,
+  "state": "rendered",
+  "as_of": "2026-10-23T08:00:03-05:00",
+  "data": [
+    {
+      "id": "sampro-8841",
+      "date": "2026-08-14",
+      "title": "Compressor tripped on high pressure. Replaced discharge valve.",
+      "status": "completed",
+      "flags": [
+        "recurring issue"
+      ],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-8310",
+      "date": "2026-03-02",
+      "title": "Compressor short cycling. Cleaned condenser, checked charge.",
+      "status": "completed",
+      "flags": [
+        "recurring issue"
+      ],
+      "sources": [
+        "sampro",
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "sampro-7502",
+      "date": "2025-06-11",
+      "title": "Annual PM",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro",
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "drive-1",
+      "date": "2024-02-09",
+      "title": "Replaced condenser fan motor. Customer says it was noisy",
+      "status": "unknown",
+      "flags": [],
+      "sources": [
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "sampro-6120",
+      "date": "2023-11-20",
+      "title": "Replaced contactor",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro",
+        "shared_drive"
+      ]
+    }
+  ],
+  "data_quality": {
+    "deduplicated": 4,
+    "dropped_undated": 1,
+    "unavailable_sources": []
+  }
+}

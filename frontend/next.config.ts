@@ -13,13 +13,17 @@ const isProd = process.env.NODE_ENV === "production";
 //    known weakness. The planned fix is hashed inline scripts (or nonces on a dynamic render). Until then the other
 //    directives, a strict no-HTML-injection rule (react/no-danger) and token-only rendering carry the load.
 //  - Development additionally needs 'unsafe-eval' for hot reload, so the strict policy is production only.
+// The practice Context API origin, when one is configured (NEXT_PUBLIC_UPSTREAM_MODE=practice). Added to connect-src as one exact origin,
+// never a wildcard. Production builds do not add it unless it is set explicitly.
+const practiceOrigin = process.env.NEXT_PUBLIC_UPSTREAM_MODE === "practice" ? new URL(process.env.NEXT_PUBLIC_PRACTICE_API_URL || "http://localhost:8000").origin : null;
+
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  `connect-src 'self'${practiceOrigin ? ` ${practiceOrigin}` : ""}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

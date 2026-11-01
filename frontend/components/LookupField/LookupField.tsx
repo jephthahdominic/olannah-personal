@@ -25,13 +25,17 @@ export interface LookupFieldProps {
   data: 'idle' | 'loading' | 'ready' | 'empty';
   /** Supplied text. `emptyMessage` explains why there are no results; `loadingMessage` and `resultsMessage` are announced. */
   emptyMessage: string;
+  /** The message shown while results are being fetched. Supplied text. */
   loadingMessage: string;
   /** Optional supplied announcement for a delivered result set (for example "3 results"). Never computed here. */
   resultsMessage?: string;
   /** `result-select`: emitted upward. The field keeps no authoritative copy of the selection. */
   onSelect: (id: string) => void;
+  /** Makes the field unavailable. It stays visible at reduced opacity. */
   disabled?: boolean;
+  /** Called when the field receives focus. */
   onFocus?: () => void;
+  /** Called when the field loses focus. */
   onBlur?: () => void;
 }
 

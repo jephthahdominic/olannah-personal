@@ -1,0 +1,6 @@
+.band { background: var(--color-surface-chrome); color: var(--color-text-on-chrome); padding: var(--space-4) var(--space-4) var(--space-5); }
+.inner { display: flex; flex-direction: column; gap: var(--space-3); max-inline-size: 80rem; margin-inline: auto; }
+.title { margin: 0; }
+@media (min-width: 769px) {
+  .band { padding-inline: var(--space-6); }
+}

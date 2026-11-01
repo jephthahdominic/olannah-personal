@@ -5,20 +5,23 @@ import styles from './InlineError.module.css';
 export interface InlineErrorProps {
   /** Plain-language title and body, SUPPLIED. A component never turns a code into text (BRD 1.2 5.2 Feature 8). */
   title: string;
+  /** A second line explaining the failure in plain words. Supplied text. */
   body?: string;
   /** Recovery path where one exists. If none exists, say so in `body`. */
   retryLabel?: string;
+  /** Called when the worker asks to retry the failed operation. */
   onRetry?: () => void;
+  /** The label of the dismiss control. */
   dismissLabel?: string;
+  /** Called when the worker dismisses the message. */
   onDismiss?: () => void;
-  /** failure = error token + circle-cross. degraded = warning token + triangle. They must look different. */
-  tone?: 'failure' | 'degraded';
 }
 
-export function InlineError({ title, body, retryLabel, onRetry, dismissLabel, onDismiss, tone = 'failure' }: InlineErrorProps) {
+// An in-context failure (BRD 1.2 5.8): the error token and the circle with a cross. A degraded source is a different surface (DegradedBanner).
+export function InlineError({ title, body, retryLabel, onRetry, dismissLabel, onDismiss }: InlineErrorProps) {
   return (
-    <div className={`${styles.box} ${tone === 'failure' ? styles.failure : styles.degraded}`} role={tone === 'failure' ? 'alert' : 'status'}>
-      <StatusIndicator state={tone === 'failure' ? 'error' : 'warning'} label={tone === 'failure' ? 'Problem' : 'Limited'} decorative size="lg" />
+    <div className={styles.box} role="alert">
+      <StatusIndicator state="error" label="Problem" decorative size="lg" />
       <div className={styles.text}>
         <p className="type-heading-sm">{title}</p>
         {body && <p className="type-body-sm">{body}</p>}

@@ -14,7 +14,9 @@ export const messages = {
   },
 
   context: {
-    degraded: 'Your workspace is taking longer than expected to load. You can keep waiting. We are still trying.',
+    degraded: "Your workspace is taking longer than expected to load. You don't need to do anything.",
+    assembling: 'Loading your workspace',
+    assemblingRegion: 'Your workspace is loading',
   },
 
   recovery: {
@@ -122,12 +124,14 @@ export const messages = {
 
   settings: { title: 'Settings', name: 'Name', role: 'Role' },
 
+  destination: { notBuiltTitle: 'Not available yet', notBuiltBody: 'This area is not part of this release. Your current job is on the Dashboard.' },
+
   zone: {
     unavailableTitle: 'This section is unavailable',
     unavailableBody: 'We could not load this section. The rest of your workspace is not affected.',
     retry: 'Try again',
-    showContext: 'Show context',
-    hideContext: 'Hide context',
+    showContext: 'Show service history',
+    hideContext: 'Hide service history',
     contextTitle: 'Context',
     emptyTitle: 'Nothing here yet',
     emptyBody: 'Information for this section appears here once your work is assigned.',
@@ -138,10 +142,11 @@ export const messages = {
   },
 
   connection: {
-    lost: 'Connection lost. You are seeing the last information we received, and anything that changes records is unavailable until it returns.',
+    lost: "Connection lost. You can keep viewing what's loaded. Sending is paused until you're back online.",
     failed: 'We could not restore the connection. You are seeing the last information we received, and anything that changes records is unavailable.',
     retry: 'Try again',
     contactSupport: 'Contact support',
+    failedHelp: 'If this keeps happening, contact support.',
     reconnecting: 'Reconnecting',
   },
 
@@ -239,6 +244,67 @@ export const messages = {
     fallbackMessage: 'This insight cannot be shown right now. Your work and history are not affected.',
   },
 
+  // The five delivered zones (backend handoff section 5). Every zone has its own unavailable message before it ships (BRD UR5A), and
+  // its own empty message: empty is not an error (BRD section 6). Text is registered here, never generated from a code.
+  zones: {
+    workOrders: {
+      title: 'Work orders',
+      unavailable: { title: 'Your work orders are unavailable', body: 'We could not load your jobs. Your current job is on the Dashboard.' },
+      empty: { title: 'No work orders', body: 'No jobs are assigned for today or tomorrow. New assignments appear here automatically.' },
+    },
+    dashboard: {
+      title: 'Dashboard',
+      unavailable: { title: 'Your jobs are unavailable', body: 'We could not load your jobs. Your current job is on the Work Orders screen.' },
+      empty: { title: 'No jobs for today or tomorrow', body: 'New assignments appear here automatically.' },
+    },
+    alerts: {
+      title: 'Alerts',
+      unavailable: { title: 'Alerts are unavailable', body: 'We could not load the alerts for this job. Check the job notes before you start. The rest of your workspace is not affected.' },
+      empty: { title: 'No alerts', body: 'Nothing needs your attention on this job right now.' },
+      severity: { critical: 'Critical', warning: 'Warning', info: 'Notice' },
+      suggestion: 'Suggestion',
+      evidence: 'Source',
+    },
+    workOrder: {
+      title: 'Work order',
+      unavailable: { title: 'The work order is unavailable', body: 'We could not load the work order details. The rest of your workspace is not affected.' },
+      empty: { title: 'No active job', body: 'Work order details appear here when a job is assigned to you.' },
+      asOf: 'Updated',
+    },
+    steps: {
+      title: 'Job steps',
+      ariaLabel: 'Steps for this job',
+      unavailable: { title: 'Job steps are unavailable', body: 'We could not load the steps for this job. Follow your usual checklist for now. The rest of your workspace is not affected.' },
+      empty: { title: 'No steps yet', body: 'The steps for this job appear here once the job has a checklist.' },
+      status: { done: 'Done', current: 'In progress', todo: 'To do' },
+      kind: { confirm: 'Confirm', photo: 'Take a photo', question: 'Answer a question', guide: 'Follow the guide' },
+      required: 'Required',
+      optional: 'Optional',
+    },
+    actions: {
+      title: 'Actions',
+      unavailable: { title: 'Actions are unavailable', body: 'We could not load the actions for this job. The rest of your workspace is not affected.' },
+      empty: { title: 'No actions', body: 'Actions for this job appear here when they are available.' },
+      manual: 'Manual step',
+      needsApproval: 'Needs approval',
+      unavailableNow: 'Unavailable now',
+      offline: 'Offline',
+      noWriteBack: 'Not sent on',
+    },
+    history: {
+      title: 'Service history',
+      unavailable: { title: 'Service history is unavailable', body: 'We could not load the history. Your work is not affected.' },
+      empty: { title: 'No service history to show', body: 'Service history appears here when a job is open.' },
+    },
+  },
+
+  contextHeader: {
+    label: 'Current job',
+    worker: 'Technician',
+    connectivity: { connecting: 'Connecting', connected: 'Connected', reconnecting: 'Reconnecting', disconnected: 'Offline' },
+    asOf: 'Updated',
+  },
+
   history: {
     label: 'Service history',
     loading: 'Loading service history',
@@ -248,13 +314,32 @@ export const messages = {
     errorBody: 'We could not load the history. Your work is not affected.',
     retry: 'Try again',
     loadMore: 'Show earlier visits',
+    partial: 'Some history could not be loaded, so this list may be incomplete.',
+    status: 'Status',
+    sources: 'From',
   },
 
+  // The Dashboard (approved design 03). The greeting, the date, the counts, the headings and the button label are SUPPLIED with the zone; what
+  // is here is only the canvas's own words for its own states.
   dashboard: {
-    featuredLabel: 'Next job',
-    queueEmptyTitle: 'Nothing queued',
-    queueEmptyBody: 'Items appear here as work is assigned to you.',
-    noteBy: (author: string) => `${author}:`,
+    updating: 'Updating',
+    freshnessWarning: 'Taking longer than usual to update. Your jobs may not be current.',
+    emptyTitle: 'No jobs for today or tomorrow',
+    emptyBody: 'New assignments appear here automatically.',
+    noteAt: (author: string, time: string | null) => (time ? `${author}, ${time}.` : `${author}.`),
+    openJobFallback: 'Open work order',
+  },
+  revoked: { dismiss: 'Dismiss' },
+
+  // The Work Orders screen (approved design 04). The page heading, the group headings, the rows and the "Showing 4 of 11" line are SUPPLIED with
+  // the zone. What is here is the canvas's own words for its own states.
+  workOrders: {
+    notLoaded: "Details for this job aren't available yet.",
+    moreFailed: "We couldn't load more jobs. Try again.",
+    loadingMore: 'Loading more jobs',
+    emptyTitle: 'No work orders',
+    emptyBody: 'No jobs are assigned for today or tomorrow. New assignments appear here automatically.',
+    hubTitle: 'Work order',
   },
 
   shell: {

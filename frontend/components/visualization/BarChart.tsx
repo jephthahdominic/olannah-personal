@@ -7,12 +7,15 @@ export interface BarChartProps extends ChartFrameProps {
   categories: readonly string[];
   /** At most FIVE series. More is presented as a table, because beyond five the chart is harder to read than the data (BRD 1.3 section 10.5). */
   series: readonly ChartSeries[];
+  /** Whether bars run vertically or horizontally. Vertical by default. */
   orientation?: 'vertical' | 'horizontal';
   /** How a value is shown. Defaults to a plain number. Formatting is not deriving. */
   valueFormat?: (n: number) => string;
   /** Controlled selection from the composing layer, for `series-select`. */
   selectedSeriesId?: string | null;
+  /** Called with the series id when the worker selects a bar series. */
   onSeriesSelect?: (seriesId: string) => void;
+  /** The accessible name of the legend. */
   legendLabel: string;
 }
 

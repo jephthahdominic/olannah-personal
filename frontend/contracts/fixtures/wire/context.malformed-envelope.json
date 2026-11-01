@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "session_id": "s_8f2",
+  "delivered_at": "2026-10-23T08:00:03-05:00",
+  "resolved_role": "technician",
+  "worker": {
+    "id": "T0042",
+    "name": "Marcus Allen",
+    "role_label": "Field Technician"
+  },
+  "layout_config": {
+    "template_id": "technician.v1",
+    "destinations": [
+      "jobs",
+      "inventory"
+    ]
+  },
+  "active_work_order": {
+    "id": "WO-4471",
+    "site_name": "Store 118",
+    "task_summary": "Compressor fault - walk-in cooler temp alarm"
+  },
+  "connection_status": [
+    {
+      "system": "sampro",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "xtreme",
+      "state": "live",
+      "write_back": false,
+      "last_synced": "2026-10-22T16:40:00-05:00"
+    },
+    {
+      "system": "xoi",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "sitedocs",
+      "state": "live",
+      "write_back": false,
+      "last_synced": null
+    },
+    {
+      "system": "client_portal",
+      "state": "read_only",
+      "write_back": false,
+      "last_synced": null
+    }
+  ],
+  "zones": "garbage",
+  "degraded_fields": []
+}

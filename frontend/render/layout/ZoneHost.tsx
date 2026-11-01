@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useMemo, useSyncExternalStore, type ReactNode } from 'react';
-import { DegradedBanner, EmptyState, InlineError, Skeleton, StatusIndicator, Surface, SyncDot } from '@/components';
+import { DegradedBanner, EmptyState, InlineError, SectionHeader, Skeleton, StatusIndicator, Surface, SyncDot } from '@/components';
 import type { ZoneState, ZoneStore } from '@/runtime/zones/zoneStore';
 import { logEvent } from '@/runtime/telemetry';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -27,28 +27,35 @@ interface ZoneHostProps {
 export function ZoneHost({ spec, zoneKey = spec.id, store, onRetry, labelledBy }: ZoneHostProps) {
   const retry = spec.unavailable.retry ? () => onRetry(zoneKey) : undefined;
 
-  return (
-    <Surface role={spec.surface} padding={5} className={styles.zone}>
-      <ErrorBoundary
-        onError={() => {
-          // A render failure inside this zone degrades THIS zone only.
-          logEvent('zone.unavailable', 'error', 'render_error');
-          store.markUnavailable(zoneKey);
-        }}
-        fallback={(reset) => (
-          <UnavailableState
-            spec={spec}
-            onRetry={() => {
-              onRetry(zoneKey);
-              reset();
-            }}
-          />
-        )}
-      >
-        <Suspense fallback={<ZoneSkeleton role={spec.role} />}>
-          <ZoneBody spec={spec} zoneKey={zoneKey} store={store} onRetry={retry} labelledBy={labelledBy} />
-        </Suspense>
-      </ErrorBoundary>
+  const inner = (
+    <ErrorBoundary
+      onError={() => {
+        // A render failure inside this zone degrades THIS zone only.
+        logEvent('zone.unavailable', 'error', 'render_error');
+        store.markUnavailable(zoneKey);
+      }}
+      fallback={(reset) => (
+        <UnavailableState
+          spec={spec}
+          onRetry={() => {
+            onRetry(zoneKey);
+            reset();
+          }}
+        />
+      )}
+    >
+      <Suspense fallback={<ZoneSkeleton role={spec.role} />}>
+        <ZoneBody spec={spec} zoneKey={zoneKey} store={store} onRetry={retry} labelledBy={labelledBy} />
+      </Suspense>
+    </ErrorBoundary>
+  );
+
+  // A 'workspace' zone has no container of its own: its items are the cards. Everything else sits on its Surface.
+  return spec.surface === 'workspace' ? (
+    <div className={styles.zone}>{inner}</div>
+  ) : (
+    <Surface role={spec.surface} padding={4} className={styles.zone}>
+      {inner}
     </Surface>
   );
 }
@@ -72,7 +79,8 @@ function ZoneBody({ spec, zoneKey, store, onRetry, labelledBy }: { spec: ZoneSpe
 
   return (
     <div className={styles.body} data-zone={spec.id} data-condition={state.condition} data-refreshing={state.refreshing || undefined} aria-labelledby={labelledBy} aria-busy={state.condition === 'scaffolded' || state.refreshing}>
-      <RefreshIndicator state={state} onRetry={onRetry} />
+      {spec.showTitle !== false && <SectionHeader text={spec.title} level={2} size={spec.surface === 'workspace' ? 'sm' : 'md'} />}
+      {!spec.selfIndicates && <RefreshIndicator state={state} showStale={spec.staleMarker !== false} />}
       <ZoneState_ spec={spec} state={state} onRetry={onRetry} />
     </div>
   );
@@ -83,14 +91,20 @@ function ZoneState_({ spec, state, onRetry }: { spec: ZoneSpec; state: ZoneState
     case 'scaffolded':
       return <ZoneSkeleton role={spec.role} />;
     case 'unavailable':
-      return <UnavailableState spec={spec} message={state.message} onRetry={onRetry} />;
+      return <UnavailableState spec={spec} onRetry={onRetry} />;
     case 'empty':
-      return <EmptyState title={spec.empty.title} explanation={spec.empty.body} />;
+      // A zone with no container of its own says so in one quiet line. A card gets the full empty state. Both say why it is empty.
+      return spec.surface === 'workspace' ? (
+        <p className={`${styles.emptyInline} type-body-sm`}>
+          <strong>{spec.empty.title}.</strong> {spec.empty.body}
+        </p>
+      ) : (
+        <EmptyState title={spec.empty.title} explanation={spec.empty.body} />
+      );
     case 'stale':
     case 'rendered':
       return (
         <>
-          {state.degraded && state.message && <DegradedBanner message={state.message} />}
           {spec.content.map((name) => {
             const Content = resolveComponent(name);
             return Content ? <Content key={name} zone={spec} state={state} /> : null;
@@ -103,28 +117,28 @@ function ZoneState_({ spec, state, onRetry }: { spec: ZoneSpec; state: ZoneState
 // Refreshing shows immediately and clears only after the new data renders. After the warning threshold it becomes a
 // warning (BRD 1.0 UR7B): freshness can no longer be guaranteed, which is not the same as the data being wrong. A stale
 // zone (its connection was lost) says so with text and a hollow-or-amber marker, never color alone.
-function RefreshIndicator({ state, onRetry }: { state: ZoneState; onRetry?: () => void }) {
+function RefreshIndicator({ state, showStale }: { state: ZoneState; showStale: boolean }) {
   if (state.refreshing && state.refreshDelayed) {
-    return <DegradedBanner message={messages.zone.refreshDelayed} {...(onRetry ? { actionLabel: messages.zone.retry, onAction: onRetry } : {})} />;
+    return <DegradedBanner message={messages.zone.refreshDelayed} />;
   }
   if (state.refreshing) {
     return (
-      <p className={`${styles.refreshing} type-caption`} role="status">
+      <p className={`${styles.refreshing} type-body-sm`} role="status">
         <StatusIndicator state="loading" label={messages.zone.refreshing} decorative size="sm" />
         {messages.zone.refreshing}
       </p>
     );
   }
-  if (state.condition === 'stale') return <SyncDot freshness="stale" connectivity="connected" label={messages.zone.stale} />;
+  if (showStale && state.condition === 'stale') return <SyncDot freshness="stale" connectivity="connected" label={messages.zone.stale} />;
   return null;
 }
 
-function UnavailableState({ spec, message, onRetry }: { spec: ZoneSpec; message?: string; onRetry?: () => void }) {
+function UnavailableState({ spec, onRetry }: { spec: ZoneSpec; onRetry?: () => void }) {
   return (
     <InlineError
       title={spec.unavailable.title}
-      // Supplied text wins; otherwise the zone's registered text. Never a code, never generated here.
-      body={message ?? spec.unavailable.body}
+      // The zone's own registered text (BRD UR5A). Never a code, never generated here.
+      body={spec.unavailable.body}
       {...(spec.unavailable.retry && onRetry ? { retryLabel: messages.zone.retry, onRetry } : {})}
     />
   );

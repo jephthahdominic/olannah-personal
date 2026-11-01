@@ -11,11 +11,13 @@ export interface ConfirmationGestureProps {
   armedLabel: string;
   /** Supplied, announced politely when the gesture is armed and when it times out. */
   armedAnnouncement: string;
+  /** The message announced to assistive technology when the first interaction expires without a second. */
   disarmedAnnouncement: string;
   /** Supplied by the canvas. The gesture does not decide that approval is valid. */
   enabled: boolean;
   /** The approval was submitted and is awaiting its acknowledgment. */
   processing?: boolean;
+  /** The label shown while the confirmed action is being carried out. */
   processingLabel: string;
   /** How long the armed state waits for the confirming action. Supplied (a configurable window). */
   windowMs: number;

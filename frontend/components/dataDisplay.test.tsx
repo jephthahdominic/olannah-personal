@@ -152,10 +152,29 @@ describe('HistoryList (BRD 1.2 5.6)', () => {
   });
 });
 
-describe('DegradedBanner secondary link', () => {
-  it('renders a navigating secondary action as a link (contact support), not a button', () => {
-    render(<DegradedBanner message="Reconnection failed" severity="error" actionLabel="Try again" onAction={() => {}} secondaryLabel="Contact support" secondaryHref="mailto:help@example.test" />);
-    expect(screen.getByRole('link', { name: 'Contact support' })).toHaveAttribute('href', 'mailto:help@example.test');
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+describe('DegradedBanner and InlineError stay distinct (BRD 1.2 5.8.1 Feature 1A)', () => {
+  it('a degraded banner is always the warning treatment, and emits dismiss', () => {
+    const onDismiss = vi.fn();
+    render(<DegradedBanner message="Parts availability is read-only" dismissLabel="Dismiss" onDismiss={onDismiss} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('RecordList (BRD 1.2 5.6): rows as supplied', () => {
+  const rows = [{ id: 'WO-1', timeLocal: '10:30', title: 'Northgate Grocers #4830', subtitle: 'Walk-in freezer not recovering temperature', status: { label: 'Urgent', tone: 'warning' as const } }];
+  const common = { ariaLabel: 'Tomorrow', emptyTitle: 'None', emptyExplanation: 'Nothing here.' };
+
+  it('shows the time formatted, the title, the subtitle and the status as a pill, exactly as supplied', () => {
+    render(<RecordList {...common} records={rows} onSelect={() => {}} />);
+    expect(screen.getByText('10:30 AM')).toBeInTheDocument();
+    expect(screen.getByText('Northgate Grocers #4830')).toBeInTheDocument();
+    expect(screen.getByText('Walk-in freezer not recovering temperature')).toBeInTheDocument();
+    expect(screen.getByText('Urgent')).toBeInTheDocument();
+  });
+
+  it('has no footer or other control of its own: it only emits row-select', () => {
+    render(<RecordList {...common} records={rows} />);
+    expect(screen.queryByRole('button')).toBeNull();
   });
 });

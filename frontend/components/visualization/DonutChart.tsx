@@ -18,11 +18,15 @@ export interface DonutChartProps extends ChartFrameProps {
    * forces the worker to estimate proportions by eye (BRD 1.3 section 10.5), so it is required.
    */
   centerValue: string;
+  /** A short caption under the centred value, supplied. */
   centerCaption?: string;
+  /** Formats a number for display. It changes how a value reads, never the value. */
   valueFormat?: (n: number) => string;
   /** `segment-select`: emitted when a segment is chosen, from the ring or the legend. */
   onSegmentSelect?: (segmentId: string) => void;
+  /** The id of the segment shown as selected. The composing layer owns the selection. */
   selectedSegmentId?: string | null;
+  /** The accessible name of the legend. */
   legendLabel: string;
 }
 
@@ -101,7 +105,7 @@ export function DonutChart({ segments, centerValue, centerCaption, valueFormat =
             {/* The primary value is written in the centre as plain HTML text. */}
             <div className={styles.center}>
               <span className="type-heading-lg">{centerValue}</span>
-              {centerCaption && <span className={`${styles.caption} type-caption`}>{centerCaption}</span>}
+              {centerCaption && <span className={`${styles.caption} type-body-sm`}>{centerCaption}</span>}
             </div>
           </div>
           <Legend kind="fill" ariaLabel={legendLabel} items={segments.map((s) => ({ id: s.id, name: s.label, value: valueFormat(s.value) }))} selectedId={selectedSegmentId} onSelect={onSegmentSelect} />

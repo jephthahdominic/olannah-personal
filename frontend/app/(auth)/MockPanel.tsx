@@ -9,13 +9,20 @@ import styles from './auth.module.css';
 // switch on the failure scenarios from the BRD error taxonomy (SDD 12.5 fault injection).
 const DELAYS: { label: string; ms: number }[] = [
   { label: 'Context delivered immediately', ms: 0 },
-  { label: 'Context at 0.9s (degraded state)', ms: 900 },
+  { label: 'Context at 0.6s (skeleton only, inside the delivery budget)', ms: 600 },
+  { label: 'Context at 0.9s (skeleton, then the slow message)', ms: 900 },
+  { label: 'Context at 3s (skeleton, then the slow message)', ms: 3000 },
+  { label: 'Context at 7s (slow message for longer)', ms: 7000 },
   { label: 'Context at 12s (recovery screen, then ignored)', ms: 12000 },
 ];
 const EXPIRY: { label: string; ms: number | null }[] = [
   { label: 'Session never expires', ms: null },
   { label: 'Session expires 5s after sign in', ms: 5000 },
 ];
+
+const WORK_ORDERS: MockFaults['workOrders'][] = ['assigned', 'empty', 'absent'];
+const DASHBOARDS: MockFaults['dashboard'][] = ['ready', 'insight', 'client-update', 'no-jobs', 'absent'];
+const SCENARIOS: MockFaults['scenario'][] = ['normal', 'clear', 'busy', 'no-job', 'sitedocs-down', 'sitedocs-and-xoi-down', 'sampro-down', 'portal-login-wall', 'over-budget'];
 
 export function MockPanel() {
   const [faults, setLocal] = useState<MockFaults>(() => getFaults());
@@ -24,7 +31,7 @@ export function MockPanel() {
     setLocal({ ...faults, ...patch });
   };
 
-  const toggle = (key: 'sessionNeverArrives' | 'contextNeverArrives' | 'schemaMismatch' | 'envelopeMalformed', label: string) => (
+  const toggle = (key: 'sessionNeverArrives' | 'contextNeverArrives' | 'schemaMismatch' | 'envelopeMalformed' | 'zoneMalformed', label: string) => (
     <label className={`${styles.check} type-body-sm`}>
       <input type="checkbox" checked={faults[key]} onChange={(e) => update({ [key]: e.target.checked })} />
       {label}
@@ -52,6 +59,31 @@ export function MockPanel() {
         {toggle('contextNeverArrives', 'Context object never arrives')}
         {toggle('schemaMismatch', 'Context has an unrecognized schema version')}
         {toggle('envelopeMalformed', 'Context envelope is malformed')}
+        {toggle('zoneMalformed', 'One zone (alerts) is malformed')}
+
+        <select className={styles.select} aria-label="Dashboard" value={faults.dashboard} onChange={(e) => update({ dashboard: e.target.value as MockFaults['dashboard'] })}>
+          {DASHBOARDS.map((x) => (
+            <option key={x} value={x}>
+              {x === 'absent' ? 'Dashboard: none (what the practice API sends today)' : `Dashboard: ${x}`}
+            </option>
+          ))}
+        </select>
+
+        <select className={styles.select} aria-label="Work orders" value={faults.workOrders} onChange={(e) => update({ workOrders: e.target.value as MockFaults['workOrders'] })}>
+          {WORK_ORDERS.map((x) => (
+            <option key={x} value={x}>
+              {x === 'absent' ? 'Work orders: none (what the practice API sends today)' : `Work orders: ${x}`}
+            </option>
+          ))}
+        </select>
+
+        <select className={styles.select} aria-label="Technician scenario" value={faults.scenario} onChange={(e) => update({ scenario: e.target.value as MockFaults['scenario'] })}>
+          {SCENARIOS.map((x) => (
+            <option key={x} value={x}>
+              {x}
+            </option>
+          ))}
+        </select>
 
         <select
           className={styles.select}

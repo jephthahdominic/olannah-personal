@@ -20,6 +20,7 @@ export interface DiffViewLabels {
 export interface DiffViewProps {
   /** Exactly what will be written, as supplied. Rendered, never transformed, edited or recomputed. */
   diff: DiffPayload;
+  /** Every visible word the diff shows, such as the column and group names. Supplied so the view generates no text. */
   labels: DiffViewLabels;
 }
 

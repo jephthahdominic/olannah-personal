@@ -1,0 +1,13 @@
+.matrix { border-block-start: 1px solid var(--color-brand-secondary); padding-block-start: var(--space-3); }
+.matrix > summary { cursor: pointer; min-block-size: var(--width-touch-target); display: flex; align-items: center; }
+.body { display: flex; flex-direction: column; gap: var(--space-3); padding-block: var(--space-3); }
+.rows { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; }
+.row { display: grid; grid-template-columns: 6rem 1fr; gap: var(--space-3); align-items: center; }
+.row dt { color: var(--color-text-secondary); }
+.row dd { margin: 0; }
+.buttons { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.state { min-block-size: var(--width-touch-target); padding-inline: var(--space-3); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-pill); cursor: pointer; }
+.active { background: var(--color-brand-primary); color: var(--color-text-on-chrome); border-color: var(--color-brand-primary); }
+.na { color: var(--color-text-secondary); }
+.stage { display: flex; flex-direction: column; gap: var(--space-2); }
+.stageTitle { color: var(--color-text-secondary); }

@@ -7,7 +7,7 @@ import { useBoot } from '@/runtime/boot/useBoot';
 import { purgeSession } from '@/runtime/purgeSession';
 import { CanvasStage } from './CanvasStage';
 import {
-  ContextDegradedNotice,
+  AssemblingScreen,
   SessionExpiredScreen,
   SessionLoadingScreen,
   UnknownRoleScreen,
@@ -47,10 +47,12 @@ export function CanvasRoot() {
     // While redirecting, keep the loading screen: never a blank page.
     case 'noSession':
       return <SessionLoadingScreen slow={false} />;
+    // The session is confirmed and the context has not arrived: the shell is there at once, with the content as a skeleton (BRD 1.0 UR10).
     case 'awaitingContext':
-      return <SessionLoadingScreen slow={false} />;
+      return <AssemblingScreen slow={false} />;
+    // Over the delivery budget: the same screen with a plain message. No retry: the recovery screen takes over at the hard timeout.
     case 'contextDegraded':
-      return <ContextDegradedNotice />;
+      return <AssemblingScreen slow />;
     case 'contextHardTimeout':
     case 'fallbackSchema':
     case 'fallbackMalformed':

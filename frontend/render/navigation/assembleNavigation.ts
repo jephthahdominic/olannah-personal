@@ -79,7 +79,7 @@ export function assembleNavigation(input: NavigationInput): NavigationResult {
 
   const unavailable = new Set(input.unavailable ?? []);
   const toItem = (d: { id: string; label: string; icon: NavItemModel['icon'] }): NavItemModel => ({
-    id: d.id,
+    destinationId: d.id,
     label: d.label,
     icon: d.icon,
     active: input.activeId === d.id,
@@ -96,12 +96,12 @@ export function assembleNavigation(input: NavigationInput): NavigationResult {
     overflow = roleDestinations.slice(MAX_MOBILE_ROLE_ITEMS).map(toItem);
     // When the current destination is an overflow item, More shows the active state visually (BRD 1.1 UR7).
     const moreActive = overflow.some((o) => o.active);
-    items = [leadingItem, ...shown, { id: trailing.id, label: trailing.label, icon: trailing.icon, active: moreActive }];
+    items = [leadingItem, ...shown, { destinationId: trailing.id, label: trailing.label, icon: trailing.icon, active: moreActive }];
   } else {
     items = [
       leadingItem,
       ...roleDestinations.map(toItem),
-      { id: trailing.id, label: trailing.label, icon: trailing.icon, active: input.activeId === trailing.id, pinned: true },
+      { destinationId: trailing.id, label: trailing.label, icon: trailing.icon, active: input.activeId === trailing.id },
     ];
   }
 

@@ -12,14 +12,14 @@ const base: NavigationInput = {
   catalog: destinationCatalog,
   activeId: 'dashboard',
 };
-const ids = (r: ReturnType<typeof assembleNavigation>) => r.model.items.map((i) => i.id);
+const ids = (r: ReturnType<typeof assembleNavigation>) => r.model.items.map((i) => i.destinationId);
 
 describe('assembleNavigation: persona sets', () => {
-  it('technician on tablet and desktop: Dashboard, Work Orders, Assets, Settings (Settings pinned last)', () => {
+  it('technician on tablet and desktop: Dashboard, Work Orders, Assets, Settings (Settings last)', () => {
     for (const viewport of ['tablet', 'desktop'] as const) {
       const r = assembleNavigation({ ...base, viewport });
       expect(r.model.items.map((i) => i.label)).toEqual(['Dashboard', 'Work Orders', 'Assets', 'Settings']);
-      expect(r.model.items.at(-1)?.pinned).toBe(true);
+      expect(r.model.items.at(-1)?.destinationId).toBe('settings');
     }
   });
 
@@ -65,12 +65,12 @@ describe('assembleNavigation: mobile overflow', () => {
     const r = assembleNavigation({ ...base, viewport: 'mobile', layoutDestinations: five });
     expect(ids(r)).toEqual(['dashboard', 'work-orders', 'assets', 'quotes', 'more']);
     expect(r.model.items).toHaveLength(5);
-    expect(r.model.overflow.map((o) => o.id)).toEqual(['field-review']);
+    expect(r.model.overflow.map((o) => o.destinationId)).toEqual(['field-review']);
   });
 
   it('marks More active when the current destination is an overflow item', () => {
     const r = assembleNavigation({ ...base, viewport: 'mobile', layoutDestinations: five, activeId: 'field-review' });
-    expect(r.model.items.find((i) => i.id === 'more')?.active).toBe(true);
+    expect(r.model.items.find((i) => i.destinationId === 'more')?.active).toBe(true);
     expect(r.model.overflow[0].active).toBe(true);
   });
 });
@@ -78,7 +78,7 @@ describe('assembleNavigation: mobile overflow', () => {
 describe('assembleNavigation: active state', () => {
   it('exactly one item is active when on a navigation destination', () => {
     const r = assembleNavigation({ ...base, activeId: 'assets' });
-    expect(r.model.items.filter((i) => i.active).map((i) => i.id)).toEqual(['assets']);
+    expect(r.model.items.filter((i) => i.active).map((i) => i.destinationId)).toEqual(['assets']);
   });
 
   it('no item is active on a screen outside the navigation set, and the nearest parent is never highlighted', () => {
@@ -88,7 +88,7 @@ describe('assembleNavigation: active state', () => {
 
   it('matches by identifier, so a tenant label change never changes which item is active', () => {
     const r = assembleNavigation({ ...base, activeId: 'work-orders', tenantLabels: { 'work-orders': 'Jobs' } });
-    const item = r.model.items.find((i) => i.id === 'work-orders');
+    const item = r.model.items.find((i) => i.destinationId === 'work-orders');
     expect(item?.label).toBe('Jobs');
     expect(item?.active).toBe(true);
   });
@@ -140,10 +140,10 @@ describe('assembleNavigation: degradation hierarchy', () => {
 describe('assembleNavigation: unavailable destinations', () => {
   it('flags a supplied-unavailable destination with its reason, without removing it', () => {
     const r = assembleNavigation({ ...base, unavailable: ['assets'] });
-    const assets = r.model.items.find((i) => i.id === 'assets');
+    const assets = r.model.items.find((i) => i.destinationId === 'assets');
     expect(assets?.unavailable).toBe(true);
     expect(assets?.unavailableReason).toBeTruthy();
-    expect(r.model.items.find((i) => i.id === 'work-orders')?.unavailable).toBeUndefined();
+    expect(r.model.items.find((i) => i.destinationId === 'work-orders')?.unavailable).toBeUndefined();
   });
 });
 
@@ -155,5 +155,19 @@ describe('assembleNavigation: purity', () => {
     const b = assembleNavigation(input);
     expect(JSON.stringify(input)).toBe(copy);
     expect(a).toEqual(b);
+  });
+});
+
+describe('the icons the approved design names', () => {
+  it('Work Orders is a clipboard with a list and Assets is a cube', () => {
+    expect(destinationCatalog.jobs).toMatchObject({ fallbackLabel: 'Work Orders', icon: 'clipboard-list' });
+    expect(destinationCatalog.inventory).toMatchObject({ fallbackLabel: 'Assets', icon: 'box' });
+  });
+});
+
+describe('the More destination', () => {
+  it('is drawn as a hamburger (three equal lines), never as three dots (approved design 03)', async () => {
+    const { universalFor } = await import('./universal');
+    expect(universalFor('mobile').trailing).toMatchObject({ id: 'more', icon: 'menu' });
   });
 });

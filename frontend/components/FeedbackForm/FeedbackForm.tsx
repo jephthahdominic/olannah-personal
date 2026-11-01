@@ -29,6 +29,7 @@ export interface FeedbackLabels {
 }
 
 export interface FeedbackFormProps {
+  /** Whether the form is open. The composing layer owns this. */
   open: boolean;
   /** A popover on tablet and desktop, a bottom sheet on mobile (BRD 1.3 section 6.7). */
   presentation: 'popover' | 'sheet';
@@ -36,15 +37,21 @@ export interface FeedbackFormProps {
   screenSummary: string;
   /** Controlled draft, owned by the composing layer. */
   draft: string;
+  /** Called with the draft text on every edit. The composing layer owns the draft. */
   onDraftChange: (draft: string) => void;
   /** Submission state is SUPPLIED. The form never decides success or failure itself (BRD 1.2 5.10 Feature 7). */
   status: 'idle' | 'submitting' | 'succeeded' | 'failed';
   /** Supplied validation text for the field, if any. */
   validationMessage?: string;
+  /** The longest message the field accepts, in characters. Supplied. */
   maxLength: number;
+  /** Called when the worker sends the feedback. The form never decides whether it succeeded. */
   onSubmit: () => void;
+  /** Called when the worker closes the form without sending. */
   onDismiss: () => void;
+  /** Every visible word and accessible name the form shows. Supplied so it generates no text. */
   labels: FeedbackLabels;
+  /** The element the form renders into, so it sits on the correct layer. */
   portalTarget?: HTMLElement | null;
 }
 

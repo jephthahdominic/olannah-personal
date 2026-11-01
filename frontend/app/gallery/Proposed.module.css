@@ -1,0 +1,13 @@
+.page { min-block-size: 100vh; display: flex; flex-direction: column; gap: var(--space-8); padding: var(--space-6) var(--space-4) var(--space-12); background: var(--color-surface-workspace); color: var(--color-text-primary); }
+.section { display: flex; flex-direction: column; gap: var(--space-4); }
+.componentBlock { display: flex; flex-direction: column; gap: var(--space-3); }
+.facts { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: var(--space-3); background: var(--color-surface-card); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-md); }
+.facts dt { color: var(--color-text-secondary); }
+.facts dd { margin: 0; }
+.list { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.item { display: flex; flex-direction: column; gap: var(--space-2); }
+.tableWrap { overflow-x: auto; background: var(--color-surface-card); border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-md); }
+.table { inline-size: 100%; min-inline-size: 60rem; border-collapse: collapse; }
+.table th, .table td { padding: var(--space-2) var(--space-3); border-block-end: 1px solid var(--color-brand-secondary); vertical-align: top; text-align: start; }
+.swatch { display: inline-block; inline-size: 1rem; block-size: 1rem; vertical-align: middle; border: 1px solid var(--color-brand-secondary); border-radius: var(--radius-sm); }
+@media (min-width: 64rem) { .page { padding-inline: var(--space-8); } }

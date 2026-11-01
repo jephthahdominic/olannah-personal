@@ -18,12 +18,17 @@ export interface ChoiceGroupProps {
   options: readonly ChoiceOption[];
   /** Controlled: the composing layer owns the selection. Nothing is held as authoritative (BRD 1.2 5.7). */
   selection: string | null;
+  /** Called with the value of the option the worker chose. The composing layer owns the selection. */
   onChange: (value: string) => void;
+  /** Makes the whole group unavailable. The options stay visible at reduced opacity. */
   disabled?: boolean;
   /** Supplied explanation when there are no options. Never blank. */
   emptyTitle: string;
+  /** Why there are no options and what would cause some to appear. Supplied text. */
   emptyExplanation: string;
+  /** Called when focus enters the group. */
   onFocus?: () => void;
+  /** Called when focus leaves the group. */
   onBlur?: () => void;
 }
 

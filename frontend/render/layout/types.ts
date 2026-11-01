@@ -24,6 +24,8 @@ export interface EmptySpec {
 
 export interface ZoneSpec {
   id: ZoneId;
+  /** The zone's heading (level 2), so the page has a heading structure and each zone can be found by it. Registered text, never a code. */
+  title: string;
   role: 'primary' | 'context';
   /** Fixed to the zone's structural role, not its content (BRD 1.3 section 7.2). */
   surface: SurfaceRole;
@@ -34,6 +36,12 @@ export interface ZoneSpec {
    */
   unavailable: UnavailableSpec;
   empty: EmptySpec;
+  /** False when the zone's own content carries its heading (the Dashboard's greeting), so the host does not add one. */
+  showTitle?: boolean;
+  /** True when the zone's content shows its own refresh and freshness indicators in its own place (the Dashboard), so the host adds none. */
+  selfIndicates?: boolean;
+  /** False when a lost connection is shown by the banner alone and the zone adds no "not up to date" marker of its own (the Work Orders design). */
+  staleMarker?: boolean;
   /** The context zone collapses to an expandable section on mobile (BRD 1.3 section 6.2). */
   collapsesOn?: 'mobile';
   /** Whether the shell may host persistence-capable components here. The shell, never a component, decides. */
@@ -52,5 +60,9 @@ export interface LayoutTemplate {
   id: string;
   schemaVersion: string;
   zones: ZoneSpec[];
+  /** The Dashboard zone, when the context supplies one. It is its own screen, so it is not in the placements. */
+  dashboard?: ZoneSpec;
+  /** The Work Orders zone, when the context supplies one. Also its own screen. */
+  workOrders?: ZoneSpec;
   placements: Record<Viewport, ZonePlacement[]>;
 }

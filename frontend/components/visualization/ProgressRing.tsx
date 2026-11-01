@@ -4,6 +4,7 @@ import styles from './ProgressRing.module.css';
 export interface ProgressRingProps {
   /** SUPPLIED, named by what they measure. The ring draws the ratio; it never turns it into a derived status (BRD 1.2 5.9). */
   value: number;
+  /** The whole the value is measured against. The ring draws the ratio and derives no status from it. */
   total: number;
   /** The figure written in the CENTRE, supplied and short (for example "70%" or "7/10"). A ring without it forces the worker to
    *  estimate a proportion by eye, which introduces error into operational decisions (BRD 1.3 section 10.5). */
@@ -19,7 +20,7 @@ export interface ProgressRingProps {
 // Completion against a whole: quote completeness, SLA countdown, capacity utilisation. The ring uses the visualization palette,
 // never a semantic colour, so a worker never has to ask whether a ring is "red because it is an error or because it is category four".
 export function ProgressRing({ value, total, centeredLabel, textAlternative, size = 48, emptyExplanation }: ProgressRingProps) {
-  if (!(total > 0) || !Number.isFinite(value)) return <p className={`${styles.empty} type-caption`}>{emptyExplanation}</p>;
+  if (!(total > 0) || !Number.isFinite(value)) return <p className={`${styles.empty} type-body-sm`}>{emptyExplanation}</p>;
   const pct = percentOf(value, total);
   return (
     <span className={`${styles.ring} ${size === 32 ? styles.small : styles.large}`} role="img" aria-label={textAlternative}>

@@ -5,8 +5,11 @@ import styles from './EmptyState.module.css';
 export interface EmptyStateProps {
   /** Why there is nothing here, and what would cause data to appear. SUPPLIED. Never blank, never invented. */
   title: string;
+  /** Why there is nothing here and what would cause data to appear. Supplied text, never blank. */
   explanation: string;
+  /** The label of the optional action. Supplied text. */
   actionLabel?: string;
+  /** Called when the worker takes the optional action. */
   onAction?: () => void;
 }
 
@@ -15,7 +18,7 @@ export function EmptyState({ title, explanation, actionLabel, onAction }: EmptyS
   return (
     <div className={styles.box}>
       <Icon name="inbox" size="lg" />
-      <p className="type-heading-sm">{title}</p>
+      <p className={`${styles.title} type-heading-sm`}>{title}</p>
       <p className={`${styles.text} type-body-sm`}>{explanation}</p>
       {onAction && actionLabel && <Button label={actionLabel} variant="ghost" onActivate={onAction} />}
     </div>

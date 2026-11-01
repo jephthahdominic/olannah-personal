@@ -46,7 +46,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # jsdom 30 (used by the Vitest component tests) needs Node ^22.22.2 || ^24.15.0 || >=26. On Node 20 it cannot load, which
+          # shows up as "[vitest-pool]: Failed to start forks worker" for every test file.
+          node-version: '24'
       - run: cd frontend && npm ci
       # Architecture and quality gates (SDD 18.1). A broken build must never reach the deploy job.
       - run: cd frontend && npm run tokens:check

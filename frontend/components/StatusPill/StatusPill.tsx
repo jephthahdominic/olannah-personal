@@ -14,15 +14,14 @@ const SHAPE: Record<PillTone, StatusState> = {
 export interface StatusPillProps {
   /** The status text, supplied. A pill renders a status; it never derives one from other data. */
   label: string;
+  /** The meaning the pill carries: success, warning, error, checkpoint or neutral. The label always says it in words too. */
   tone: PillTone;
-  /** Hide the leading shape only when the label already says everything. The shape is the non-color carrier. */
-  showShape?: boolean;
 }
 
-export function StatusPill({ label, tone, showShape = true }: StatusPillProps) {
+export function StatusPill({ label, tone }: StatusPillProps) {
   return (
-    <span className={`${styles.pill} ${styles[tone]} type-caption`}>
-      {showShape && <StatusIndicator state={SHAPE[tone]} label={label} decorative size="sm" />}
+    <span className={`${styles.pill} ${styles[tone]} type-data`}>
+      <StatusIndicator state={SHAPE[tone]} label={label} decorative size="sm" />
       <span>{label}</span>
     </span>
   );

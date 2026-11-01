@@ -3,6 +3,7 @@ import { StatusPill, type PillTone } from '../StatusPill/StatusPill';
 import styles from './DetailRow.module.css';
 
 export interface DetailRowProps {
+  /** The name of the value, shown beside it. */
   label: string;
   /** Rendered exactly as supplied. An absent value renders an empty value, never a placeholder (BRD 1.2 5.6). */
   value?: string;

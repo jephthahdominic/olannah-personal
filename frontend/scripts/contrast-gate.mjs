@@ -22,11 +22,9 @@ const ratio = (a, b) => {
 // Remove an entry only when Design resolves it (and record the decision in BRD 1.3 first).
 const known = {
   'Base warning color as small text on White':
-    'Design uses the base amber for small labels ("2 need attention today", "Required"). 3.79:1 fails AA at body size. Use color-semantic-warning-text for text and keep the base amber for shapes and borders.',
+    'Design uses the base amber for small labels ("2 need attention today", "Required"). 3.79:1 fails AA at body size. Use the primary text colour for text and keep the base amber for shapes and borders (BRD 1.3 defines no darker warning text token).',
   'Base Moss Gold as small text on Warm Cream':
     'Moss Gold is 2.90:1 on cream. Do not use it for text. Use it for shapes, borders and filled buttons with dark text (5.51:1).',
-  'Success text on success surface':
-    'Green on its own tint is below 4.5:1. Needs a darker success text token or dark text with a green shape. Design decision.',
 };
 
 // [description, foreground token, background token, minimum, priority]
@@ -51,20 +49,12 @@ const pairs = [
   // Decision (22 Oct 2026): the acknowledged border stays Moss Gold exactly as BRD 1.3 8.7 specifies. It is 2.77:1 on Sage Mist, but the
   // border does not carry the state: the filled toggle with its white check (3.16:1), aria-checked and the statement text do. Informational only.
   ['Acknowledgment border (Moss Gold) on Sage Mist, informational: state is carried by the check and aria-checked', 'color-semantic-checkpoint', 'color-surface-panel', 2.5, 'P1'],
+  ['Success text on White', 'color-semantic-success', 'color-surface-card', 4.5, 'P0'],
+  ['Error text on White', 'color-semantic-error', 'color-surface-card', 4.5, 'P0'],
   ['Success indicator on White', 'color-semantic-success', 'color-surface-card', 3, 'P0'],
   ['Warning indicator on White', 'color-semantic-warning', 'color-surface-card', 3, 'P0'],
   ['Error indicator on White', 'color-semantic-error', 'color-surface-card', 3, 'P0'],
   ['Checkpoint indicator on White', 'color-semantic-checkpoint', 'color-surface-card', 3, 'P0'],
-  // PROPOSED tokens sampled from the approved designs (pending BRD 1.3 update).
-  ['Warning text (dark amber) on warning surface', 'color-semantic-warning-text', 'color-semantic-warning-surface', 4.5, 'P0'],
-  ['Secondary text on warning surface', 'color-text-secondary', 'color-semantic-warning-surface', 4.5, 'P0'],
-  ['Secondary text on error surface', 'color-text-secondary', 'color-semantic-error-surface', 4.5, 'P0'],
-  ['Error text on error surface', 'color-semantic-error', 'color-semantic-error-surface', 4.5, 'P0'],
-  ['Success text on success surface', 'color-semantic-success', 'color-semantic-success-surface', 4.5, 'P0'],
-  ['Primary text on success surface', 'color-text-primary', 'color-semantic-success-surface', 4.5, 'P0'],
-  ['Primary text on checkpoint surface', 'color-text-primary', 'color-semantic-checkpoint-surface', 4.5, 'P0'],
-  // Inactive (disabled) controls are exempt from WCAG 1.4.3, so this is informational (P1), not a gate.
-  ['Secondary text on disabled surface (informational)', 'color-text-secondary', 'color-surface-disabled', 4.5, 'P1'],
   ['Base warning color as small text on White', 'color-semantic-warning', 'color-surface-card', 4.5, 'P0'],
   ['Base Moss Gold as small text on Warm Cream', 'color-brand-accent', 'color-surface-workspace', 4.5, 'P0'],
   ['Checkpoint text, dark on Moss Gold (AAA)', 'color-text-primary', 'color-semantic-checkpoint', 7, 'P1'],

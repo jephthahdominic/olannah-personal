@@ -3,15 +3,24 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import axe from 'axe-core';
 
-const nav = vi.hoisted(() => ({ pathname: '/work-orders' }));
+const nav = vi.hoisted(() => ({ pathname: '/jobs' }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn() }), usePathname: () => nav.pathname }));
 
 import { Shell } from './Shell';
 import { makeRuntime } from '@/tests/shellFixtures';
 import { act } from '@testing-library/react';
-import { technicianDashboardWithNote } from '@/contracts/fixtures/zones';
-import { SessionLoadingScreen, WorkspaceRecoveryScreen, SessionExpiredScreen, UnknownRoleScreen, ContextDegradedNotice } from '../screens';
-import { technicianContext, estimatorContext } from '@/contracts/fixtures/context';
+import { SessionLoadingScreen, WorkspaceRecoveryScreen, SessionExpiredScreen, UnknownRoleScreen, AssemblingScreen } from '../screens';
+import { rawEstimator, rawFixture, rawTechnician, validated, type RawContext } from '@/tests/wireFixtures';
+import { resolveLayout } from '@/runtime/boot/layoutRegistry';
+import { withDashboard, type DashboardVariant } from '@/contracts/fixtures/dashboard';
+import { withWorkOrders, type WorkOrdersVariant } from '@/contracts/fixtures/workOrders';
+
+// The shell as the boot machine hands it over: a validated context and the layout resolved from it.
+const shellFor = (raw: RawContext, runtime: ReturnType<typeof makeRuntime>['runtime']) => {
+  const context = validated(raw);
+  return <Shell context={context} layout={resolveLayout(context)} runtime={runtime} signOut={() => {}} supportHref="mailto:help@example.test" />;
+};
+const NEW_ALERTS = { state: 'rendered', as_of: '2026-10-23T09:00:00-05:00', data: [{ id: 'a9', severity: 'critical', message: 'Store manager update received', suggestion: null, evidence: [] }] };
 
 // Automated accessibility audit (BRD 1.0 UR15). jsdom cannot compute color contrast, which the contrast gate covers
 // against the real token values. This catches structural problems: names, roles, landmarks, ids, labels.
@@ -26,12 +35,13 @@ afterEach(() => setWidth(1024));
 describe('axe: shell', () => {
   beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
   it.each([
-    ['technician, mobile', 375, technicianContext, 'technician'],
-    ['technician, desktop', 1280, technicianContext, 'technician'],
-    ['estimator, desktop', 1280, estimatorContext, 'estimator'],
-  ] as const)('%s has no structural violations', async (_name, width, context, layoutId) => {
+    ['technician, mobile', 375, rawTechnician],
+    ['technician, desktop', 1280, rawTechnician],
+    ['estimator, desktop', 1280, rawEstimator],
+  ] as const)('%s has no structural violations', async (_name, width, make) => {
     setWidth(width);
-    const { container } = render(<Shell context={context} layout={{ layoutId, unmappedRole: false }} runtime={makeRuntime(context).runtime} signOut={() => {}} supportHref="mailto:help@example.test" />);
+    const raw = make();
+    const { container } = render(shellFor(raw, makeRuntime(raw).runtime));
     expect(await violations(container)).toEqual([]);
   });
 });
@@ -40,7 +50,8 @@ describe('axe: shell-owned screens', () => {
   it.each([
     ['session loading', <SessionLoadingScreen key="a" slow={false} />],
     ['session loading (slow)', <SessionLoadingScreen key="b" slow />],
-    ['context degraded', <ContextDegradedNotice key="c" />],
+    ['assembling', <AssemblingScreen key="c" slow={false} />],
+    ['assembling, slow load', <AssemblingScreen key="c2" slow />],
     ['workspace recovery', <WorkspaceRecoveryScreen key="d" onRetry={() => {}} supportHref="mailto:help@example.test" />],
     ['unknown role', <UnknownRoleScreen key="e" onRetry={() => {}} supportHref="mailto:help@example.test" />],
     ['session expired', <SessionExpiredScreen key="f" onLogIn={() => {}} />],
@@ -56,14 +67,15 @@ describe('axe: live states (indicators, banners, history)', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
   afterEach(() => {
-    nav.pathname = '/work-orders';
+    nav.pathname = '/jobs';
     vi.useRealTimers();
   });
 
   const mountLive = (width: number) => {
     setWidth(width);
-    const h = makeRuntime(technicianContext, { autoSchedule: false });
-    const utils = render(<Shell context={technicianContext} layout={{ layoutId: 'technician', unmappedRole: false }} runtime={h.runtime} signOut={() => {}} supportHref="mailto:help@example.test" />);
+    const raw = rawTechnician();
+    const h = makeRuntime(raw, { autoSchedule: false });
+    const utils = render(shellFor(raw, h.runtime));
     return { h, ...utils };
   };
 
@@ -77,7 +89,7 @@ describe('axe: live states (indicators, banners, history)', () => {
     await act(async () => {
       h.runtime.start();
       h.latest().open();
-      h.latest().send({ type: 'zone.update', zoneId: 'primary:dashboard', payload: { status: 'ready', data: technicianDashboardWithNote } });
+      h.latest().send({ type: 'zone.update', zoneId: 'alerts', payload: NEW_ALERTS });
     });
     expect(container.querySelector('[data-refreshing]')).not.toBeNull();
     expect(await violations(container)).toEqual([]);
@@ -89,7 +101,7 @@ describe('axe: live states (indicators, banners, history)', () => {
     await act(async () => {
       h.runtime.start();
       h.latest().open();
-      h.latest().send({ type: 'zone.update', zoneId: 'primary:dashboard', payload: { status: 'ready', data: technicianDashboardWithNote } });
+      h.latest().send({ type: 'zone.update', zoneId: 'alerts', payload: NEW_ALERTS });
     });
     await act(async () => void (await vi.advanceTimersByTimeAsync(30_100)));
     vi.useRealTimers(); // axe uses timers internally and hangs under fake ones
@@ -131,35 +143,47 @@ describe('axe: live states (indicators, banners, history)', () => {
 
   it('with history unavailable', async () => {
     setWidth(1280);
-    const h = makeRuntime(technicianContext, { history: () => Promise.reject(new Error('down')) });
-    const { container } = render(<Shell context={technicianContext} layout={{ layoutId: 'technician', unmappedRole: false }} runtime={h.runtime} signOut={() => {}} supportHref="mailto:help@example.test" />);
+    const raw = rawTechnician();
+    const h = makeRuntime(raw, { history: () => Promise.reject(new Error('down')) });
+    const { container } = render(shellFor(raw, h.runtime));
     await act(async () => void h.runtime.start());
     await act(async () => void (await Promise.resolve()));
     expect(await violations(container)).toEqual([]);
   });
 });
 
-describe('axe: assistant, feedback and insight widgets', () => {
+describe('axe: assistant and feedback', () => {
   beforeEach(() => {
     nav.pathname = '/';
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
   afterEach(() => {
-    nav.pathname = '/work-orders';
+    nav.pathname = '/jobs';
     vi.useRealTimers();
   });
 
   const mountShell = (width: number) => {
     setWidth(width);
-    const h = makeRuntime(technicianContext);
-    const utils = render(<Shell context={technicianContext} layout={{ layoutId: 'technician', unmappedRole: false }} runtime={h.runtime} signOut={() => {}} supportHref="mailto:help@example.test" />);
+    const raw = rawTechnician();
+    const h = makeRuntime(raw);
+    const utils = render(shellFor(raw, h.runtime));
     return { h, ...utils };
   };
 
-  it('the dashboard with its insight widget, desktop and mobile', async () => {
+  it.each([
+    'context.happy',
+    'context.clear',
+    'context.busy',
+    'context.no-active-job',
+    'context.sitedocs-and-xoi-down',
+    'context.sampro-down',
+    'context.malformed-zone',
+    'context.unmapped-role',
+  ])('the workspace for the practice scenario %s, desktop and mobile', async (file) => {
     for (const width of [1280, 375]) {
-      const { container, unmount } = mountShell(width);
-      expect(container.textContent).toContain('Bring a defrost control kit');
+      setWidth(width);
+      const raw = rawFixture(file);
+      const { container, unmount } = render(shellFor(raw, makeRuntime(raw).runtime));
       expect(await violations(container)).toEqual([]);
       unmount();
     }
@@ -197,32 +221,111 @@ describe('axe: assistant, feedback and insight widgets', () => {
     expect(await violations(document.body)).toEqual([]);
     expect(h.feedbackSubmit).not.toHaveBeenCalled();
   });
+});
 
-  it('with every fallback and degraded insight state', async () => {
-    const h = makeRuntime(technicianContext, { autoSchedule: true });
-    setWidth(1280);
-    const { container } = render(<Shell context={technicianContext} layout={{ layoutId: 'technician', unmappedRole: false }} runtime={h.runtime} signOut={() => {}} supportHref="mailto:help@example.test" />);
-    await act(async () => {
-      h.runtime.start();
-      h.latest().open();
-      h.latest().send({
-        type: 'zone.update',
-        zoneId: 'primary:dashboard',
-        payload: {
-          status: 'ready',
-          data: {
-            ...technicianDashboardWithNote,
-            widgets: [
-              { type: 'insight', schemaVersion: '9.9', payload: {} },
-              { type: 'insight', schemaVersion: '1.0', payload: { title: 1 } },
-              { type: 'insight', schemaVersion: '1.0', condition: 'degraded', degradedMessage: 'Built from partial history.', payload: { title: 'Likely fault', body: 'Pattern matches door events.' } },
-            ],
-          },
-        },
+describe('axe: the Dashboard (approved design 03), every state, phone and desktop', () => {
+  beforeEach(() => {
+    nav.pathname = '/';
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    nav.pathname = '/jobs';
+  });
+  const mountDash = (variant: DashboardVariant) => {
+    const raw = withDashboard(rawTechnician(), variant);
+    const h = makeRuntime(raw);
+    const utils = render(shellFor(raw, h.runtime));
+    return { h, ...utils };
+  };
+
+  it.each(['ready', 'insight', 'client-update', 'no-jobs'] as const)('the %s dashboard', async (variant) => {
+    for (const width of [375, 1280]) {
+      setWidth(width);
+      const { container, unmount } = mountDash(variant);
+      expect(await violations(container)).toEqual([]);
+      unmount();
+    }
+  });
+
+  it('while refreshing, and with the 30 second warning', async () => {
+    for (const width of [375, 1280]) {
+      setWidth(width);
+      const { h, container, unmount } = mountDash('ready');
+      await act(async () => void h.runtime.zones.beginRefresh('dashboard'));
+      expect(await violations(container)).toEqual([]);
+      await act(async () => void h.runtime.zones.setRefreshDelayed('dashboard'));
+      expect(await violations(container)).toEqual([]);
+      unmount();
+    }
+  });
+
+  it('with the connection lost (offline sign in the navigation), phone and desktop', async () => {
+    for (const width of [375, 1280]) {
+      setWidth(width);
+      const { h, container, unmount } = mountDash('ready');
+      await act(async () => {
+        h.runtime.start();
+        h.latest().open();
+        h.latest().fail();
       });
-    });
-    expect(container.textContent).toContain('Insight unavailable');
-    expect(container.textContent).toContain('Built from partial history.');
-    expect(await violations(container)).toEqual([]);
+      expect(await violations(container)).toEqual([]);
+      unmount();
+    }
+  });
+
+  it('with access revoked', async () => {
+    for (const width of [375, 1280]) {
+      setWidth(width);
+      const { h, container, unmount } = mountDash('ready');
+      await act(async () => void h.runtime.revokeAccess('You no longer have access to the previous screen.'));
+      expect(await violations(container)).toEqual([]);
+      unmount();
+    }
+  });
+});
+
+describe('axe: Work Orders (approved design 04), every state, phone and desktop', () => {
+  beforeEach(() => {
+    nav.pathname = '/jobs';
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  const mountJobs = (variant: WorkOrdersVariant) => {
+    const raw = withWorkOrders(withDashboard(rawTechnician()), variant);
+    const h = makeRuntime(raw);
+    const utils = render(shellFor(raw, h.runtime));
+    return { h, ...utils };
+  };
+
+  it.each(['assigned', 'empty'] as const)('the %s list', async (variant) => {
+    for (const width of [375, 1280]) {
+      setWidth(width);
+      const { container, unmount } = mountJobs(variant);
+      expect(await violations(container)).toEqual([]);
+      unmount();
+    }
+  });
+
+  it('while more jobs load, and offline', async () => {
+    for (const width of [375, 1280]) {
+      setWidth(width);
+      const { h, container, unmount } = mountJobs('assigned');
+      await act(async () => {
+        h.runtime.start();
+        h.latest().open();
+        h.latest().fail();
+      });
+      expect(await violations(container)).toEqual([]);
+      unmount();
+    }
+  });
+
+  it('the work order hub', async () => {
+    nav.pathname = '/work-order';
+    for (const width of [375, 1280]) {
+      setWidth(width);
+      const { container, unmount } = mountJobs('assigned');
+      expect(await violations(container)).toEqual([]);
+      unmount();
+    }
   });
 });

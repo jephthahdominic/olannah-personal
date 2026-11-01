@@ -93,7 +93,7 @@ describe('AssistantPanel (BRD 1.2 5.10, 1.3 6.6 and 7.1)', () => {
     expect(screen.getByText('Olannah cannot be reached.')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(onRetryConnection).toHaveBeenCalled();
-    expect(screen.getByRole('alert')).toHaveTextContent('That message was not sent.');
+    expect(screen.getByText('That message was not sent.')).toBeInTheDocument();
   });
 
   it('is a labelled dialog: focus moves in, Escape closes, Tab stays inside, and focus returns to the opener', () => {

@@ -15,7 +15,7 @@
 .avatar { inline-size: 1.75rem; block-size: 1.75rem; border-radius: var(--radius-pill); }
 .action-button { inline-size: 100%; block-size: 2.25rem; border-radius: var(--radius-md); }
 .context-row { inline-size: 100%; block-size: 1.5rem; }
-.card { inline-size: 100%; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle); background: var(--color-surface-card); }
+.card { inline-size: 100%; border-radius: var(--radius-md); border: 1px solid var(--color-brand-secondary); background: var(--color-surface-card); }
 .card-sm { block-size: 4rem; }
 .card-md { block-size: 8rem; }
 .card-lg { block-size: 14rem; }

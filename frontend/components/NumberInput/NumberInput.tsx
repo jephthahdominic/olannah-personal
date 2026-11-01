@@ -7,22 +7,31 @@ import styles from './NumberInput.module.css';
 export interface NumberInputProps {
   /** Controlled: the composing layer owns the value. `null` is an empty field. The input holds no authoritative copy. */
   value: number | null;
+  /** Called with the number the worker entered, or null when the field is empty. */
   onChange: (value: number | null) => void;
   /** id of the visible label, set by FormField. Placeholder is never the label. */
   id: string;
+  /** The form field name used when the value is submitted. */
   name?: string;
   /** SUPPLIED bounds and step. The input enforces them but never derives them (BRD 1.2 5.7.1 Feature 6). */
   minimum?: number;
+  /** The largest value the field accepts. Supplied; the component enforces it. */
   maximum?: number;
+  /** How much the steppers add or remove. One by default. */
   step?: number;
   /** Steppers are one display option. Their accessible names are supplied. */
   steppers?: { decrementLabel: string; incrementLabel: string };
   /** Whether a decimal keypad is wanted. Integers by default. */
   decimal?: boolean;
+  /** Makes the field unavailable. It stays visible at reduced opacity. */
   disabled?: boolean;
+  /** Marks the value as failing validation, so the field shows its error treatment. */
   invalid?: boolean;
+  /** The id of the element that describes the field, such as its help or error text. */
   describedBy?: string;
+  /** Called when the field receives focus. */
   onFocus?: () => void;
+  /** Called when the field loses focus. */
   onBlur?: () => void;
 }
 

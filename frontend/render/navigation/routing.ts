@@ -18,6 +18,7 @@ export function destinationIdForPath(pathname: string): string | null {
 export function routeForDestination(id: string): string | null {
   if (id === 'dashboard') return '/';
   if (id === 'settings') return '/settings';
+  if (id === 'work-order') return '/work-order';
   return destinationCatalog[id]?.route ?? null;
 }
 

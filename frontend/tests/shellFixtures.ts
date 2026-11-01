@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { CanvasRuntime } from '@/runtime/canvas/canvasRuntime';
-import { DEFAULT_RUNTIME_CONFIG, type ContextEnvelope } from '@/contracts';
-import { technicianContext } from '@/contracts/fixtures/context';
+import { DEFAULT_RUNTIME_CONFIG } from '@/contracts';
+import { rawFixture, rawTechnician, validated, type RawContext } from './wireFixtures';
 import type { EventSourceLike } from '@/clients/bus/busConnection';
 
 export class FakeSource implements EventSourceLike {
@@ -64,27 +64,20 @@ export interface RuntimeHarness {
 
 /** A runtime wired to fakes. It is NOT started: tests start it when they want a connection. */
 export function makeRuntime(
-  context: ContextEnvelope = technicianContext,
+  /** The RAW delivery. It is validated and frozen here, as the boot machine does, and re-delivered as-is on a refresh. */
+  raw: RawContext = rawTechnician(),
   over: { history?: () => Promise<unknown>; refresh?: () => Promise<unknown>; autoSchedule?: boolean; persistenceElected?: string[]; feedback?: () => Promise<boolean> } = {},
 ): RuntimeHarness {
   const sources: FakeSource[] = [];
   const assistantSources: FakeSocket[] = [];
   const feedbackSubmit = vi.fn(over.feedback ?? (async () => true));
-  const contextRequest = vi.fn(over.refresh ?? (async () => structuredClone(context)));
-  const historyRequest = vi.fn(
-    over.history ??
-      (async () => ({
-        records: [
-          { id: 'h1', occurredOn: '2026-09-21', title: 'Slow recovery after delivery', summary: 'No parts used.' },
-          { id: 'h2', occurredOn: '2026-09-04', title: 'Evaporator ice cleared' },
-        ],
-        nextCursor: null,
-      })),
-  );
+  const context = validated(raw);
+  const contextRequest = vi.fn(over.refresh ?? (async () => structuredClone(raw)));
+  const historyRequest = vi.fn(over.history ?? (async () => rawFixture('history.happy')));
   let frame: (() => void) | null = null;
   const runtime = new CanvasRuntime({
     context,
-    session: { userId: 'u', tenantId: 't', resolvedRole: context.resolvedRole },
+    session: { userId: 'u', tenantId: 't', resolvedRole: context.resolved_role },
     config: { ...DEFAULT_RUNTIME_CONFIG, bus: { ...DEFAULT_RUNTIME_CONFIG.bus, heartbeatMs: 3_600_000 }, persistence: { elected: over.persistenceElected ?? ['AssistantPanel'] } },
     upstream: {
       context: { request: contextRequest },

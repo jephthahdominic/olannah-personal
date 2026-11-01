@@ -7,17 +7,25 @@ import styles from './PasswordInput.module.css';
 export interface PasswordInputProps {
   /** Controlled: the composing layer owns the value. This component never stores or logs it. */
   value: string;
+  /** Called with the text as the worker types. The value is never stored or logged. */
   onChange: (value: string) => void;
+  /** The id the field label points at. */
   id: string;
   /** `current-password` for sign in, `new-password` for sign up and password change. Lets password managers help. */
   autoComplete: 'current-password' | 'new-password';
+  /** Makes the field unavailable. It stays visible at reduced opacity. */
   disabled?: boolean;
+  /** Marks the value as failing validation, so the field shows its error treatment. */
   invalid?: boolean;
+  /** The id of the element that describes the field, such as its help or error text. */
   describedBy?: string;
+  /** The form field name used when the value is submitted. */
   name?: string;
+  /** The longest value the field accepts, in characters. */
   maxLength?: number;
   /** Supplied accessible names for the visibility toggle. */
   showLabel: string;
+  /** The accessible name of the toggle while the password is visible, such as "Hide password". */
   hideLabel: string;
 }
 

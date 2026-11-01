@@ -1,8 +1,8 @@
 import type { ContextChannel } from '../context/contextChannel';
-import { unknownVersionContext, malformedContexts } from '@/contracts/fixtures/context';
 import { getFaults, getIdpPersona } from './mockIdp';
 import { mockControls } from './mockControls';
-import { contextFor } from './mockUsers';
+import { workOrdersZone } from '@/contracts/fixtures/workOrders';
+import { badSchemaContext, malformedEnvelopeContext, malformedZoneContext, mockContextFor } from './mockContexts';
 
 export class MockContextChannel implements ContextChannel {
   #delivered = false;
@@ -15,10 +15,17 @@ export class MockContextChannel implements ContextChannel {
     }
     if (faults.contextNeverArrives) return new Promise<never>(() => {});
     if (faults.contextDelayMs > 0) await new Promise((r) => setTimeout(r, faults.contextDelayMs));
-    if (faults.schemaMismatch) return unknownVersionContext;
-    if (faults.envelopeMalformed) return malformedContexts.missingLayoutConfig;
-    // structuredClone so every delivery is a fresh object, like a real network payload.
+    if (faults.schemaMismatch) return badSchemaContext();
+    if (faults.envelopeMalformed) return malformedEnvelopeContext();
+    if (faults.zoneMalformed) return malformedZoneContext();
     this.#delivered = true;
-    return structuredClone(contextFor(getIdpPersona() ?? 'technician'));
+    return mockContextFor(getIdpPersona() ?? 'technician', faults.scenario, faults.dashboard, faults.workOrders);
+  }
+
+  /** The worker asked for more of one group. The practice API has no such call, so mock mode answers with the whole list, all eleven jobs. */
+  async requestMore(zoneId: string): Promise<unknown> {
+    await new Promise((r) => setTimeout(r, 700));
+    if (mockControls.moreFails || zoneId !== 'work_orders') throw new Error('could not load more');
+    return workOrdersZone('assigned', true);
   }
 }

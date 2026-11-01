@@ -1,0 +1,306 @@
+{
+  "type": "zone_data",
+  "session_id": "s_busy",
+  "zone_id": "history",
+  "seq": 1,
+  "state": "rendered",
+  "as_of": "2026-10-23T08:00:03-05:00",
+  "data": [
+    {
+      "id": "drive-14",
+      "date": "2026-10-02",
+      "title": "Follow-up visit. Vibration normal after repair.",
+      "status": "unknown",
+      "flags": [],
+      "sources": [
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "sampro-9123",
+      "date": "2026-09-11",
+      "title": "Tripped on low evaporator pressure again. Gasket leak.",
+      "status": "completed",
+      "flags": [
+        "recurring issue"
+      ],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9122",
+      "date": "2026-06-03",
+      "title": "Compressor 2 bearing failure. Installed BRG-882 as substitute for BRG-880.",
+      "status": "completed",
+      "flags": [
+        "recurring issue"
+      ],
+      "sources": [
+        "sampro",
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "sampro-9121",
+      "date": "2026-04-09",
+      "title": "Vibration alarm compressor 2. Shimmed motor.",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9120",
+      "date": "2026-02-20",
+      "title": "Tripped on low evaporator pressure. Replaced sensor SNS-12.",
+      "status": "completed",
+      "flags": [
+        "recurring issue"
+      ],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9119",
+      "date": "2026-01-15",
+      "title": "Annual PM - chiller",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9118",
+      "date": "2025-11-12",
+      "title": "Tripped on low evaporator pressure. Recharged.",
+      "status": "completed",
+      "flags": [
+        "recurring issue"
+      ],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9117",
+      "date": "2025-09-04",
+      "title": "Oil pressure low alarm, replaced oil filter",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9116",
+      "date": "2025-07-17",
+      "title": "Condenser fan motor noise, replaced bearing",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "drive-11",
+      "date": "2025-05-15",
+      "title": "Temporary rental chiller on site during repair",
+      "status": "unknown",
+      "flags": [],
+      "sources": [
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "sampro-9115",
+      "date": "2025-05-01",
+      "title": "Replaced chilled water flow switch",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9114",
+      "date": "2025-03-13",
+      "title": "Annual PM - chiller",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9113",
+      "date": "2025-01-23",
+      "title": "Vfd fault code 31, reset",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro",
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "sampro-9112",
+      "date": "2024-11-07",
+      "title": "Cleaned strainers",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9111",
+      "date": "2024-09-19",
+      "title": "Bearing temp alarm, greased bearings",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9110",
+      "date": "2024-08-01",
+      "title": "Replaced expansion valve actuator",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "drive-9",
+      "date": "2024-07-09",
+      "title": "Replaced sight glass, minor refrigerant top off",
+      "status": "unknown",
+      "flags": [],
+      "sources": [
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "sampro-9109",
+      "date": "2024-06-13",
+      "title": "Annual PM - chiller",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9108",
+      "date": "2024-04-25",
+      "title": "Low refrigerant, leak test, no leak found",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9107",
+      "date": "2024-03-07",
+      "title": "Oil analysis and change",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9106",
+      "date": "2024-01-18",
+      "title": "Control panel fault, rebooted plc",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9105",
+      "date": "2023-11-30",
+      "title": "Replaced evaporator pressure transducer",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9104",
+      "date": "2023-10-05",
+      "title": "Annual PM - chiller",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9103",
+      "date": "2023-08-22",
+      "title": "Cleaned condenser tubes",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9102",
+      "date": "2023-06-08",
+      "title": "Vibration check, tightened mounting bolts",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "sampro-9101",
+      "date": "2023-04-27",
+      "title": "Replaced condenser water pump seal",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro"
+      ]
+    },
+    {
+      "id": "drive-8",
+      "date": "2023-03-22",
+      "title": "Customer called: chiller loud at startup. Told to monitor.",
+      "status": "unknown",
+      "flags": [],
+      "sources": [
+        "shared_drive"
+      ]
+    },
+    {
+      "id": "sampro-9100",
+      "date": "2023-02-14",
+      "title": "Annual PM - chiller",
+      "status": "completed",
+      "flags": [],
+      "sources": [
+        "sampro",
+        "shared_drive"
+      ]
+    }
+  ],
+  "data_quality": {
+    "deduplicated": 3,
+    "dropped_undated": 1,
+    "unavailable_sources": []
+  }
+}

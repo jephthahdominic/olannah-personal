@@ -29,6 +29,7 @@ export interface WorkflowStepperProps {
   steps: readonly WorkflowStep[];
   /** SUPPLIED, never computed: which step is the current one. */
   activeStepId: string | null;
+  /** The accessible name of the steps list. */
   ariaLabel: string;
   /** `step-select`: the worker asked to look at a step. */
   onSelect?: (id: string) => void;
@@ -38,6 +39,7 @@ export interface WorkflowStepperProps {
   /** Presentation continuity (which step was open), handed in and out by the shell's persistence manager. This component
    *  is persistence-CAPABLE only: the shell decides whether it persists, and nothing here is workflow progress (BRD 1.2 5.4). */
   initialContinuity?: WorkflowContinuity;
+  /** Called with the expanded step so the shell can restore it if the stepper is preserved across a layout change. */
   onContinuity?: (c: WorkflowContinuity) => void;
 }
 
@@ -55,6 +57,7 @@ export function WorkflowStepper({ steps, activeStepId, ariaLabel, onSelect, onAd
   useEffect(() => () => report.current?.({ expandedId: latest.current }), []);
 
   return (
+    <div className={styles.wrap}>
     <ol className={styles.list} aria-label={ariaLabel}>
       {steps.map((step, index) => {
         const current = step.id === activeStepId;
@@ -78,7 +81,7 @@ export function WorkflowStepper({ steps, activeStepId, ariaLabel, onSelect, onAd
               </span>
               <span className={styles.title}>
                 <span className="type-heading-sm">{step.label}</span>
-                <span className={`${styles.status} type-caption`}>{step.statusLabel}</span>
+                <span className={`${styles.status} type-body-sm`}>{step.statusLabel}</span>
               </span>
               <Icon name={open ? 'chevron-down' : 'chevron-right'} size="md" />
             </button>
@@ -90,5 +93,6 @@ export function WorkflowStepper({ steps, activeStepId, ariaLabel, onSelect, onAd
         );
       })}
     </ol>
+    </div>
   );
 }

@@ -1,8 +1,10 @@
 .wrap { display: flex; flex-direction: column; gap: var(--space-3); }
 .list { list-style: none; display: flex; flex-direction: column; }
 .item { display: flex; flex-direction: column; gap: var(--space-1); padding-block: var(--space-3); }
-.item + .item { border-block-start: 1px solid var(--color-border-subtle); }
+.item + .item { border-block-start: 1px solid var(--color-brand-secondary); }
 .summary { color: var(--color-text-secondary); }
 .sentinel { block-size: 1px; }
 .skeleton { display: flex; flex-direction: column; gap: var(--space-4); }
 .skeletonRow { display: flex; flex-direction: column; gap: var(--space-2); }
+.flags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.meta { display: flex; flex-wrap: wrap; gap: var(--space-3); color: var(--color-text-secondary); }

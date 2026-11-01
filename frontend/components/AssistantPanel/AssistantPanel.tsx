@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '../Button/Button';
 import { DegradedBanner } from '../DegradedBanner/DegradedBanner';
+import { InlineError } from '../InlineError/InlineError';
 import { EmptyState } from '../EmptyState/EmptyState';
 import { Icon } from '../Icon/Icon';
 import { Label } from '../Label/Label';
@@ -55,15 +56,21 @@ export interface AssistantPanelProps {
   unread: number;
   /** Controlled draft, owned by the composing layer. */
   draft: string;
+  /** Called with the draft text on every edit. The composing layer owns the draft; the panel never stores it. */
   onDraftChange: (draft: string) => void;
   /** `message-submit`: the worker's own words, emitted upward. The panel never calls the intelligence layer. */
   onSubmit: (text: string) => void;
+  /** Called when the worker asks to open the panel. The composing layer owns the open state. */
   onOpen: () => void;
+  /** Called when the worker closes the panel. The composing layer owns the open state. */
   onClose: () => void;
+  /** Called when the worker asks to try the assistant connection again. */
   onRetryConnection: () => void;
+  /** Every visible word and accessible name the panel shows, supplied so it generates no text of its own. */
   labels: AssistantLabels;
   /** Scroll continuity, handed in and out by the shell's persistence manager (continuity only, never data). */
   initialScrollTop?: number;
+  /** Called with the scroll position so the shell can restore it if the panel is preserved across a layout change. */
   onContinuity?: (c: { scrollTop: number }) => void;
   /** Drawer layer host (z-300). If absent the panel renders in place. */
   portalTarget?: HTMLElement | null;
@@ -109,7 +116,7 @@ export function AssistantPanel(p: AssistantPanelProps) {
       <button ref={trigger} type="button" className={styles.trigger} hidden={p.open} aria-label={unreadLabel} aria-haspopup="dialog" aria-expanded={false} onClick={p.onOpen}>
         <Icon name="sparkles" size="lg" />
         {p.unread > 0 && (
-          <span className={`${styles.badge} type-caption`} aria-hidden="true">
+          <span className={`${styles.badge} type-data`} aria-hidden="true">
             {p.unread}
           </span>
         )}
@@ -127,13 +134,14 @@ export function AssistantPanel(p: AssistantPanelProps) {
           </button>
         </div>
 
-        {p.connection !== 'connected' && (
+        {p.connection === 'reconnecting' && (
           <div className={styles.banner}>
-            <DegradedBanner
-              message={p.connection === 'reconnecting' ? p.labels.reconnecting : p.labels.disconnected}
-              severity={p.connection === 'reconnecting' ? 'warning' : 'error'}
-              {...(p.connection === 'disconnected' ? { actionLabel: p.labels.retry, onAction: p.onRetryConnection } : {})}
-            />
+            <DegradedBanner message={p.labels.reconnecting} />
+          </div>
+        )}
+        {p.connection === 'disconnected' && (
+          <div className={styles.banner}>
+            <InlineError title={p.labels.disconnected} retryLabel={p.labels.retry} onRetry={p.onRetryConnection} />
           </div>
         )}
 
@@ -157,7 +165,7 @@ export function AssistantPanel(p: AssistantPanelProps) {
             p.turns.map((t) => (
               <div key={t.id} className={`${styles.turn} ${t.role === 'user' ? styles.user : styles.assistant}`}>
                 <Label text={t.role === 'user' ? p.labels.userName : p.labels.assistantName} as="p" />
-                {t.proactive && <p className={`${styles.proactive} type-caption`}>{p.labels.proactive}</p>}
+                {t.proactive && <p className={`${styles.proactive} type-body-sm`}>{p.labels.proactive}</p>}
                 <p className="type-body">{t.text}</p>
               </div>
             ))}

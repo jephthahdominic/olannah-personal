@@ -9,6 +9,8 @@ export const mockControls = {
   refreshDelayMs: 0,
   refreshFails: false,
   feedbackFails: false,
+  /** "Show more jobs" fails. */
+  moreFails: false,
 };
 
 export function resetMockControls(): void {
@@ -17,4 +19,5 @@ export function resetMockControls(): void {
   mockControls.refreshDelayMs = 0;
   mockControls.refreshFails = false;
   mockControls.feedbackFails = false;
+  mockControls.moreFails = false;
 }

@@ -4,12 +4,15 @@ import styles from './SLAIndicator.module.css';
 export interface SLAIndicatorProps extends ChartFrameProps {
   /** SUPPLIED, named by meaning. The marker reflects what it is given. */
   current: number;
+  /** The point on the scale the marker sits at. Supplied; the component never decides whether it is breached. */
   threshold: number;
   /** The scale. Supplied: the indicator never derives its own bounds. */
   minimum?: number;
+  /** The end of the scale the current value is measured against. */
   maximum: number;
   /** Supplied text for the current value (for example "2h 10m remaining") and for the threshold marker (for example "SLA 4h"). */
   valueLabel: string;
+  /** The text for the threshold marker, so it is not shown by shape or colour alone. */
   thresholdLabel: string;
 }
 

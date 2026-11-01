@@ -18,7 +18,7 @@
   text-transform: none;
   letter-spacing: normal;
 }
-.rail { inline-size: 100%; border-radius: var(--radius-md); }
+.rail { inline-size: 100%; border-radius: var(--radius-md); padding-inline: var(--space-1); }
 .tab { flex: 1; }
 
 /* Active: an indicator SHAPE in Moss Gold (never color alone) plus a heavier label. Gold is never label or icon color. */
@@ -38,3 +38,6 @@
 .icon { position: relative; display: inline-flex; }
 .marker { position: absolute; inset-block-start: -0.25rem; inset-inline-end: -0.5rem; display: inline-flex; color: var(--color-text-on-chrome); }
 .label { display: block; max-inline-size: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* In the narrow rail a longer label (Work Orders) wraps to a second line instead of being cut off. */
+.rail .label { white-space: normal; overflow-wrap: anywhere; line-height: var(--type-caption-line-height); }

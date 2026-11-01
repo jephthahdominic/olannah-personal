@@ -24,16 +24,6 @@ export const TOKEN_NAMES = [
   "color-viz-3",
   "color-viz-4",
   "color-viz-5",
-  "color-semantic-warning-surface",
-  "color-semantic-warning-text",
-  "color-semantic-error-surface",
-  "color-semantic-success-surface",
-  "color-semantic-checkpoint-surface",
-  "color-surface-disabled",
-  "color-border-subtle",
-  "color-border-strong",
-  "color-insight-accent",
-  "color-insight-border",
   "space-1",
   "space-2",
   "space-3",
@@ -151,17 +141,7 @@ export const TOKEN_NAMES = [
   "dark-color-viz-2",
   "dark-color-viz-3",
   "dark-color-viz-4",
-  "dark-color-viz-5",
-  "dark-color-semantic-warning-surface",
-  "dark-color-semantic-warning-text",
-  "dark-color-semantic-error-surface",
-  "dark-color-semantic-success-surface",
-  "dark-color-semantic-checkpoint-surface",
-  "dark-color-surface-disabled",
-  "dark-color-border-subtle",
-  "dark-color-border-strong",
-  "dark-color-insight-accent",
-  "dark-color-insight-border"
+  "dark-color-viz-5"
 ] as const;
 export type TokenName = (typeof TOKEN_NAMES)[number];
 
